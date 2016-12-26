@@ -1,0 +1,7 @@
+[color]
+	ui = true
+[user]
+	name = Andrew Gu
+	email = andrew@mingbogu.com
+[push]
+	default = simple
