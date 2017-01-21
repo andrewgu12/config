@@ -15,8 +15,8 @@ fortune | cowsay
 
 # nvm
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-source $(brew --prefix nvm)/nvm.sh
+alias nvm_start="[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && source $(brew --prefix nvm)/nvm.sh"
+# alias npm_start="source $(brew --prefix nvm)/nvm.sh"
 
 # aliases
 alias mongodb_start="mongod --dbpath ~/data/db &"

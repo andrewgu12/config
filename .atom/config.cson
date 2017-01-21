@@ -1,0 +1,19 @@
+"*":
+  core:
+    automaticallyUpdate: false
+    excludeVcsIgnoredPaths: false
+    telemetryConsent: "no"
+    themes: [
+      "nucleus-dark-ui"
+      "atom-dark-fusion-syntax"
+    ]
+    useCustomTitleBar: true
+  editor:
+    fontFamily: "Source Code Pro"
+    fontSize: 12
+    preferredLineLength: 800
+    scrollPastEnd: true
+    showIndentGuide: true
+  "exception-reporting":
+    userId: "dcd2838d-0cb7-8ea1-a215-2740187c3fec"
+  "fuzzy-finder": {}

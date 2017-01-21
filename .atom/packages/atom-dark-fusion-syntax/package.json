@@ -1,0 +1,79 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "/private/var/folders/mf/4sv0cbs95mn90jb2q4lq6q3w0000gn/T/d-117018-6369-458mv2/package.tgz",
+        "scope": null,
+        "escapedName": null,
+        "name": null,
+        "rawSpec": "/private/var/folders/mf/4sv0cbs95mn90jb2q4lq6q3w0000gn/T/d-117018-6369-458mv2/package.tgz",
+        "spec": "/private/var/folders/mf/4sv0cbs95mn90jb2q4lq6q3w0000gn/T/d-117018-6369-458mv2/package.tgz",
+        "type": "local"
+      },
+      "/private/var/folders/mf/4sv0cbs95mn90jb2q4lq6q3w0000gn/T/apm-install-dir-117018-6369-50co89"
+    ]
+  ],
+  "_atomModuleCache": {
+    "version": 1,
+    "dependencies": [],
+    "extensions": {
+      ".json": [
+        "package.json"
+      ]
+    },
+    "folders": []
+  },
+  "_from": "../d-117018-6369-458mv2/package.tgz",
+  "_id": "atom-dark-fusion-syntax@2.0.0",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/atom-dark-fusion-syntax",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "/private/var/folders/mf/4sv0cbs95mn90jb2q4lq6q3w0000gn/T/d-117018-6369-458mv2/package.tgz",
+    "scope": null,
+    "escapedName": null,
+    "name": null,
+    "rawSpec": "/private/var/folders/mf/4sv0cbs95mn90jb2q4lq6q3w0000gn/T/d-117018-6369-458mv2/package.tgz",
+    "spec": "/private/var/folders/mf/4sv0cbs95mn90jb2q4lq6q3w0000gn/T/d-117018-6369-458mv2/package.tgz",
+    "type": "local"
+  },
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "file:../d-117018-6369-458mv2/package.tgz",
+  "_shasum": "6a1b890d3660a207ee4711c87cb472fe905a08ae",
+  "_shrinkwrap": null,
+  "_spec": "/private/var/folders/mf/4sv0cbs95mn90jb2q4lq6q3w0000gn/T/d-117018-6369-458mv2/package.tgz",
+  "_where": "/private/var/folders/mf/4sv0cbs95mn90jb2q4lq6q3w0000gn/T/apm-install-dir-117018-6369-50co89",
+  "bugs": {
+    "url": "https://github.com/maxgraey/atom-dark-fusion-syntax/issues"
+  },
+  "dependencies": {},
+  "description": "Flat and color balanced dark theme for maximum readability",
+  "devDependencies": {},
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "homepage": "https://github.com/maxgraey/atom-dark-fusion-syntax",
+  "keywords": [
+    "fusion",
+    "dark",
+    "syntax",
+    "theme",
+    "teal",
+    "orange",
+    "balanced"
+  ],
+  "license": "MIT",
+  "name": "atom-dark-fusion-syntax",
+  "optionalDependencies": {},
+  "readme": "Dark Fusion Syntax\n==================\n\nFlat and color balanced dark syntax theme for maximum readability for Atom Editor\n\n### How to install syntax theme\n>```\n>    apm install atom-dark-fusion-syntax\n>```\n\n\n---\nBattletested\n------------\n\n- JavaScript\n- Babel ES6 JavaScript **(New!)**\n- CoffeeScript\n- TypeScript **(New!)**\n- [React/JSX](https://atom.io/packages/react)\n- HTML\n- CSS / Less\n- JSON / CSON\n- [GLSL](https://atom.io/packages/language-glsl)\n- [Dot Files](https://atom.io/packages/language-dots)\n- Others\n\n\n---\n#### JavaScript syntax (with Nucleus Dark UI)\n\n![javascript screenshot](https://raw.githubusercontent.com/MaxGraey/atom-dark-fusion-syntax/master/screenshots/js.png)\n\n#### HTML syntax\n\n![html screenshot](https://raw.githubusercontent.com/MaxGraey/atom-dark-fusion-syntax/master/screenshots/html.png)\n\n#### JSON syntax\n\n![json screenshot](https://raw.githubusercontent.com/MaxGraey/atom-dark-fusion-syntax/master/screenshots/json.png)\n",
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maxgraey/atom-dark-fusion-syntax.git"
+  },
+  "theme": "syntax",
+  "version": "2.0.0"
+}

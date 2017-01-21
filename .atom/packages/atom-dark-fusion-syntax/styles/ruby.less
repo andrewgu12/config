@@ -1,0 +1,24 @@
+.syntax--source.syntax--ruby {
+
+  .syntax--punctuation.syntax--section.syntax--scope.syntax--ruby {
+    color: @very-light-gray;
+  }
+  .syntax--meta.syntax--embedded {
+    color: @light-orange;
+  }
+
+  .syntax--variable.syntax--instance.syntax--ruby,
+  .syntax--meta.syntax--embedded .syntax--variable.syntax--instance {
+    color: @light-orange;
+
+    .syntax--punctuation {
+      color: @light-orange;
+    }
+  }
+
+  .syntax--constant.syntax--symbol.syntax--hashkey {
+    &,.syntax--punctuation.syntax--definition.syntax--constant.syntax--hashkey.syntax--ruby {
+      color: @red;
+    }
+  }
+}
