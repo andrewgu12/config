@@ -15,8 +15,7 @@ fortune | cowsay
 
 # nvm
 export NVM_DIR="$HOME/.nvm"
-alias nvm_start="[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && source $(brew --prefix nvm)/nvm.sh"
-# alias npm_start="source $(brew --prefix nvm)/nvm.sh"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
 
 # aliases
 alias mongodb_start="mongod --dbpath ~/data/db &"
@@ -28,4 +27,4 @@ alias csa="cd ~/Documents/CSA"
 
 
 # OPAM configuration
-# eval `opam config env`
+alias opam_start="eval `opam config env`"
