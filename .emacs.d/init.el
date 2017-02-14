@@ -140,7 +140,7 @@
  '(menu-bar-mode nil)
  '(package-selected-packages
    (quote
-    (web-mode toml-mode sublime-themes subatomic-theme spacegray-theme seq scss-mode s ruby-end projectile noctilux-theme multi monokai-theme material-theme markdown-mode let-alist helm haskell-mode flatland-theme dracula-theme direx deferred coffee-mode caml autopair auto-complete atom-one-dark-theme atom-dark-theme 2048-game)))
+    (neotree web-mode toml-mode sublime-themes subatomic-theme spacegray-theme seq scss-mode s ruby-end projectile noctilux-theme multi monokai-theme material-theme markdown-mode let-alist helm haskell-mode flatland-theme dracula-theme direx deferred coffee-mode caml autopair auto-complete atom-one-dark-theme atom-dark-theme 2048-game)))
  '(tool-bar-mode nil)
  '(tool-bar-position (quote top))
  '(tooltip-mode t))
