@@ -1,0 +1,30 @@
+{
+  "menu": [
+    {
+      "label": "Nuclide",
+      "submenu": [
+        {
+          "label": "Console",
+          "submenu": [
+            {
+              "label": "Toggle",
+              "command": "nuclide-console:toggle"
+            },
+            {
+              "label": "Clear",
+              "command": "nuclide-console:clear"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "context-menu": {
+    ".nuclide-console-table-wrapper": [
+      {
+        "label": "Copy",
+        "command": "core:copy"
+      }
+    ]
+  }
+}

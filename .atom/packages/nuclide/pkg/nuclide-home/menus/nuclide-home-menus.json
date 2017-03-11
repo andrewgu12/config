@@ -1,0 +1,26 @@
+{
+  "menu": [
+    {
+      "label": "Help",
+      "submenu": [
+        {
+          "label": "Nuclide Docs",
+          "command": "nuclide-docs:open"
+        },
+        {
+          "label": "Nuclide Home",
+          "command": "nuclide-home:toggle"
+        }
+      ]
+    },
+    {
+      "label": "Nuclide",
+      "submenu": [
+        {
+          "label": "Home",
+          "command": "nuclide-home:toggle"
+        }
+      ]
+    }
+  ]
+}

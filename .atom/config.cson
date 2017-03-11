@@ -1,7 +1,32 @@
 "*":
   core:
     automaticallyUpdate: false
+    customFileTypes:
+      "source.ini": [
+        ".buckconfig"
+        ".flowconfig"
+        ".hgrc"
+      ]
+      "source.json": [
+        ".arcconfig"
+        "BUCK.autodeps"
+      ]
+      "source.python": [
+        "BUCK"
+      ]
+    disabledPackages: [
+      "tree-view"
+    ]
     excludeVcsIgnoredPaths: false
+    ignoredNames: [
+      ".git"
+      ".hg"
+      ".svn"
+      ".DS_Store"
+      "._*"
+      "Thumbs.db"
+      "node_modules/*"
+    ]
     telemetryConsent: "no"
     themes: [
       "nucleus-dark-ui"
@@ -17,3 +42,12 @@
   "exception-reporting":
     userId: "dcd2838d-0cb7-8ea1-a215-2740187c3fec"
   "fuzzy-finder": {}
+  minimap:
+    autoToggle: false
+  nuclide:
+    "nuclide-file-tree":
+      showUncommittedChanges: false
+    "nuclide-home":
+      showHome: false
+  welcome:
+    showOnStartup: false
