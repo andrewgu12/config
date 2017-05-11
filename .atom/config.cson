@@ -1,53 +1,22 @@
 "*":
   core:
     automaticallyUpdate: false
-    customFileTypes:
-      "source.ini": [
-        ".buckconfig"
-        ".flowconfig"
-        ".hgrc"
-      ]
-      "source.json": [
-        ".arcconfig"
-        "BUCK.autodeps"
-      ]
-      "source.python": [
-        "BUCK"
-      ]
     disabledPackages: [
-      "tree-view"
+      "welcome"
     ]
     excludeVcsIgnoredPaths: false
-    ignoredNames: [
-      ".git"
-      ".hg"
-      ".svn"
-      ".DS_Store"
-      "._*"
-      "Thumbs.db"
-      "node_modules/*"
-    ]
     telemetryConsent: "no"
     themes: [
-      "nucleus-dark-ui"
-      "atom-dark-fusion-syntax"
+      "one-dark-ui"
+      "nord-atom-syntax"
     ]
     useCustomTitleBar: true
   editor:
     fontFamily: "Source Code Pro"
     fontSize: 12
+    invisibles: {}
     preferredLineLength: 800
-    scrollPastEnd: true
-    showIndentGuide: true
   "exception-reporting":
-    userId: "dcd2838d-0cb7-8ea1-a215-2740187c3fec"
-  "fuzzy-finder": {}
-  minimap:
-    autoToggle: false
-  nuclide:
-    "nuclide-file-tree":
-      showUncommittedChanges: false
-    "nuclide-home":
-      showHome: false
+    userId: "36c62b06-0db9-4df5-89f9-1f0c74c32fe4"
   welcome:
     showOnStartup: false

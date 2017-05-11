@@ -2,7 +2,7 @@
 
 const {isAbsolute, join, sep} = require("path");
 const {CompositeDisposable, Disposable, Emitter} = require("atom");
-const FileSystem    = require("../filesystem/filesystem.js");
+const {FileSystem}  = require("atom-fs");
 const TreeEntry     = require("./tree-entry.js");
 const Consumer      = require("./consumer.js");
 const UI            = require("../ui.js");
@@ -18,7 +18,7 @@ class TreeView extends Consumer {
 		
 		this.disposables.set("project",
 			UI.onProjectsAvailable(() => {
-				this.show();
+				this.show(true);
 				this.disposables.dispose("project");
 			})
 		);
@@ -32,14 +32,15 @@ class TreeView extends Consumer {
 	
 	
 	activate(){
-		this.show();
-		this.element       = this.packageModule.treeView;
-		this.entryElements = this.element[0].getElementsByClassName("entry");
+		this.show(true);
+		const {treeView}   = this.packageModule;
+		this.element       = treeView;
+		this.entryElements = (treeView[0] || treeView.element).getElementsByClassName("entry");
 		
-		// TODO: Remove check when atom/tree-view#966 is merged/shipped
+		// TODO: Remove check when/if atom/tree-view#966 is merged/shipped
 		if("function" === typeof this.element.onEntryMoved){
 			const onMove = this.element.onEntryMoved(paths => {
-				FileSystem.fixPath(paths.oldPath, paths.newPath);
+				FileSystem.updatePath(paths.oldPath, paths.newPath);
 			});
 			this.disposables.add(onMove);
 		}
@@ -51,6 +52,15 @@ class TreeView extends Consumer {
 			atom.config.onDidChange("tree-view.sortFoldersBeforeFiles", () => this.rebuild())
 		);
 		this.rebuild();
+		
+		// HACK (file-icons/atom#550): Needed to force refresh when switching projects in Project Plus.
+		// See: https://github.com/mehcode/atom-project-util/blob/f58bec9e582c43a74fc2ed1/index.js#L155
+		if(atom.packages.loadedPackages["project-plus"])
+			this.punch(treeView, "updateRoots", oldFn => {
+				const result = oldFn();
+				this.rebuild();
+				return result;
+			});
 	}
 	
 	
@@ -189,7 +199,9 @@ class TreeView extends Consumer {
 	 *
 	 * @private
 	 */
-	show(){
+	show(startup=false){
+		if(startup && false === atom.config.get("file-icons.revealTreeView"))
+			return;
 		const workspace = atom.views.getView(atom.workspace);
 		atom.commands.dispatch(workspace, "tree-view:show");
 	}

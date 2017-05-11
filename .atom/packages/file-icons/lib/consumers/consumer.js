@@ -2,9 +2,8 @@
 
 const {join, sep}  = require("path");
 const {CompositeDisposable, Disposable, Emitter} = require("atom");
-const MappedDisposable = require("../utils/mapped-disposable.js");
-const {punch}      = require("../utils/general.js");
-const FileSystem   = require("../filesystem/filesystem.js");
+const {MappedDisposable, punch} = require("alhadis.utils");
+const {FileSystem} = require("atom-fs");
 const IconNode     = require("../service/icon-node.js");
 
 
@@ -16,6 +15,37 @@ const IconNode     = require("../service/icon-node.js");
  */
 class Consumer{
 	
+	/**
+	 * Determine if a package still needs monkey-patching.
+	 *
+	 * @param {String} packageName
+	 * @return {Boolean}
+	 * @private
+	 */
+	static needsPatch(packageName){
+		const pkg =
+			atom.packages.activePackages[packageName] ||
+			atom.packages.loadedPackages[packageName];
+		
+		// No package data? Load consumer anyway; the package might be installed later
+		if(!pkg || !pkg.metadata) return true;
+		
+		const services = pkg.metadata.consumedServices;
+		
+		// For Nuclide, anything is better than nothing. Take whatever we can get.
+		if("nuclide" === packageName && services && services["atom.file-icons"])
+			return false;
+		
+		return !(services && services["file-icons.element-icons"]);
+	}
+	
+	
+	/**
+	 * Initialise a new {Consumer} object; should be subclassed.
+	 * 
+	 * @param {String} name - Name of targeted package
+	 * @constructor
+	 */
 	constructor(name){
 		if(!(this.name = name))
 			throw new TypeError("Consumer subclasses must specify a package name");
@@ -24,12 +54,16 @@ class Consumer{
 		this.iconNodes   = new Set();
 		this.emitter     = new Emitter();
 		
+		if(atom.inSpecMode() && !Consumer.needsPatch(name))
+			this.isPhony = true;
+		
 		const pkg = atom.packages.loadedPackages[name];
 		if(pkg){
 			this.package     = pkg;
 			this.packagePath = pkg.path;
 			this.packageMeta = pkg.metadata;
 			
+			if(this.isPhony) return;
 			if(this.packagePath)
 				try{ this.preempt(); }
 				catch(error){
@@ -64,20 +98,22 @@ class Consumer{
 		if(this.emitter){
 			this.emitter.emit("did-destroy");
 			this.emitter.dispose();
-			this.emitter = null;
 		}
 		
 		if(this.disposables){
 			this.disposables.dispose();
-			this.disposables = null;
+			this.disposables.clear();
 		}
 		
 		this.resetNodes();
 		this.active = false;
 		this.package = null;
-		this.iconNodes = null;
 		this.packagePath = null;
 		this.packageModule = null;
+
+		this.disposables = new MappedDisposable();
+		this.iconNodes   = new Set();
+		this.emitter     = new Emitter();
 	}
 	
 	
@@ -103,6 +139,7 @@ class Consumer{
 	 * @private
 	 */
 	punch(object, method, fn){
+		if(this.isPhony) return;
 		const key = "punched-methods";
 		if(!this.disposables.has(key))
 			this.disposables.add(key, new Disposable(() => this.disposables.dispose(key)));
@@ -121,6 +158,7 @@ class Consumer{
 	 * @private
 	 */
 	punchClass(classPath, methods){
+		if(this.isPhony) return;
 		const viewClass = this.loadPackageFile(classPath);
 		
 		for(const name in methods){
@@ -142,6 +180,8 @@ class Consumer{
 	 * @return {IconNode}
 	 */
 	trackEntry(path, iconElement, type = FileSystem.FILE){
+		if(this.isPhony)
+			return IconNode.forElement(iconElement, path);
 		const file = FileSystem.get(path, type);
 		const icon = new IconNode(file, iconElement);
 		this.iconNodes.add(icon);
@@ -255,5 +295,6 @@ class Consumer{
 }
 
 
-Consumer.prototype.stillNeeded = true;
+Consumer.prototype.isPhony = false;
+Consumer.prototype.jQueryRemoved = null;
 module.exports = Consumer;
