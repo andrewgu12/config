@@ -22,9 +22,8 @@ alias mongodb_start="mongod --dbpath ~/data/db &"
 alias naica="cd ~/Documents/NAICA"
 alias school="cd ~/Documents/school/junior"
 alias grace="ssh mgu123@grace7.umd.edu"
-alias work="cd ~/Documents/school/max_research"
 alias csa="cd ~/Documents/CSA"
 alias junkfood="ssh mgu123@junkfood.cs.umd.edu"
 
 # OPAM configuration
-alias opam_start="eval `opam config env`"
+# alias opam_start="eval `opam config env`"

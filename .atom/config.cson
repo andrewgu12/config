@@ -4,7 +4,6 @@
     disabledPackages: [
       "welcome"
     ]
-    excludeVcsIgnoredPaths: false
     telemetryConsent: "no"
     themes: [
       "one-dark-ui"
@@ -18,5 +17,6 @@
     preferredLineLength: 800
   "exception-reporting":
     userId: "36c62b06-0db9-4df5-89f9-1f0c74c32fe4"
+  "fuzzy-finder": {}
   welcome:
     showOnStartup: false
