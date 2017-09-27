@@ -1,22 +1,49 @@
 "*":
+  "atom-alignment": {}
+  "atom-package-deps":
+    ignored: []
+  "autocomplete-ruby":
+    rsensePath: "/Users/mingbo/.rbenv/shims/rsense"
   core:
     automaticallyUpdate: false
+    customFileTypes:
+      "source.ini": [
+        ".buckconfig"
+        ".flowconfig"
+        ".hgrc"
+      ]
+      "source.json": [
+        "BUCK.autodeps"
+      ]
+      "source.python": [
+        "BUCK"
+      ]
     disabledPackages: [
       "welcome"
+      "autocomplete-ruby"
     ]
     telemetryConsent: "no"
     themes: [
       "one-dark-ui"
-      "nord-atom-syntax"
+      "firewatch-syntax"
     ]
-    useCustomTitleBar: true
+    titleBar: "custom"
   editor:
     fontFamily: "Source Code Pro"
     fontSize: 12
     invisibles: {}
     preferredLineLength: 800
+    showIndentGuide: true
   "exception-reporting":
     userId: "36c62b06-0db9-4df5-89f9-1f0c74c32fe4"
   "fuzzy-finder": {}
+  "linter-ui-default":
+    panelHeight: 69
+  nuclide:
+    "nuclide-home":
+      showHome: false
+    "nuclide-python":
+      enableLinting: false
+  "tree-view": {}
   welcome:
     showOnStartup: false

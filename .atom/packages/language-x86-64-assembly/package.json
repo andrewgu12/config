@@ -1,0 +1,69 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-117729-89959-1rkybvt.mvkdfgvi/package.tgz",
+        "scope": null,
+        "escapedName": null,
+        "name": null,
+        "rawSpec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-117729-89959-1rkybvt.mvkdfgvi/package.tgz",
+        "spec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-117729-89959-1rkybvt.mvkdfgvi/package.tgz",
+        "type": "local"
+      },
+      "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/apm-install-dir-117729-89959-4styf8.m9cukdquxr"
+    ]
+  ],
+  "_from": "../d-117729-89959-1rkybvt.mvkdfgvi/package.tgz",
+  "_id": "language-x86-64-assembly@2.2.11",
+  "_inCache": true,
+  "_location": "/language-x86-64-assembly",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-117729-89959-1rkybvt.mvkdfgvi/package.tgz",
+    "scope": null,
+    "escapedName": null,
+    "name": null,
+    "rawSpec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-117729-89959-1rkybvt.mvkdfgvi/package.tgz",
+    "spec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-117729-89959-1rkybvt.mvkdfgvi/package.tgz",
+    "type": "local"
+  },
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "file:../d-117729-89959-1rkybvt.mvkdfgvi/package.tgz",
+  "_shasum": "c2559d98a0971a5ea15f6acc43a698c74b0179d0",
+  "_shrinkwrap": null,
+  "_spec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-117729-89959-1rkybvt.mvkdfgvi/package.tgz",
+  "_where": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/apm-install-dir-117729-89959-4styf8.m9cukdquxr",
+  "bugs": {
+    "url": "https://github.com/13xforever/language-x86_64-assembly/issues"
+  },
+  "dependencies": {},
+  "description": "Bleeding edge x86 and x86_64 assembly syntax",
+  "devDependencies": {},
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "homepage": "https://github.com/13xforever/language-x86_64-assembly#readme",
+  "keywords": [],
+  "license": "MIT",
+  "name": "language-x86-64-assembly",
+  "optionalDependencies": {},
+  "readme": "About\n=====\nThis is a TextMate/Sublime/VS Code/Atom bundle providing language support for x86_64 assembly language in a variety of dialects (nasm/yasm primarily, but could highlight tasm/gas to some extent).\n\nFeatures\n========\n* Basic support for NASM/YASM/TASM/GAS syntaxes\n* Most up-to-date instruction sets:\n  * Legacy/undocumented registers and instructions\n  * FPU/MMX/3DNow!\n  * SSE/SSE2/(S)SSE3/SSE4/SSE4.1/SSE4.2/SSE4.a\n  * AVX/AVX2/AVX512, including pseudo-ops\n  * AES-NI/SHA\n  * VMX/SMX/NPX/SGX\n  * other AMD/Cyrix/VIA and planned future Intel extensions\n\nSource code\n===========\nAtom package is exported from [Textmate/Sublime Bundle](https://github.com/13xforever/x86-assembly-textmate-bundle), all issues and pull requests should be filed there.\n\nTo compile the yaml sources to tmLanguage, you'll need [PackageDev](https://packagecontrol.io/packages/PackageDev). \n\nContributors\n============\n[YASM tests](Tests/yasm-regression) are provided by [yasm-regression](https://github.com/yasm/yasm-regression) project.\n\nExamples\n========\n* Sublime Text with Monokai Extended Bright color scheme\n  ![Sublime Text with Monokai Extended Bright color scheme](https://github.com/13xforever/x86-assembly-textmate-bundle/blob/master/Screenshots/Sublime%20Text%203%20-%20Monokai%20Extended%20Bright.png?raw=true)\n* Atom with One Dark syntax theme\n  ![Atom with One Dark syntax theme](https://github.com/13xforever/x86-assembly-textmate-bundle/blob/master/Screenshots/Atom%20-%20One%20Dark.png?raw=true)\n* Visual Studio Code with default Dark color theme\n  ![Visual Studio Code with default Dark color theme](https://github.com/13xforever/x86-assembly-textmate-bundle/blob/master/Screenshots/Visual%20Studio%20Code%20-%20Dark.png?raw=true)\n",
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/13xforever/language-x86_64-assembly.git"
+  },
+  "version": "2.2.11",
+  "_atomModuleCache": {
+    "version": 1,
+    "dependencies": [],
+    "extensions": {
+      ".json": [
+        "package.json"
+      ]
+    },
+    "folders": []
+  }
+}

@@ -1,4 +1,4 @@
-# tmux
+#tmux
 if [ "$TMUX" = "" ]; then tmux; fi
 #
 # # zsh themes
@@ -14,8 +14,8 @@ if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
 fortune | cowsay
 
 # nvm
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
+# export NVM_DIR="$HOME/.nvm"
+# [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
 
 # aliases
 alias mongodb_start="mongod --dbpath ~/data/db &"
@@ -24,6 +24,11 @@ alias school="cd ~/Documents/school/junior"
 alias grace="ssh mgu123@grace7.umd.edu"
 alias csa="cd ~/Documents/CSA"
 alias junkfood="ssh mgu123@junkfood.cs.umd.edu"
+alias projects="cd ~/Documents/projects"
+alias code="code-insiders"
 
 # OPAM configuration
 # alias opam_start="eval `opam config env`"
+
+
+source "/Users/mingbo/.oh-my-zsh/custom/themes/spaceship.zsh-theme"

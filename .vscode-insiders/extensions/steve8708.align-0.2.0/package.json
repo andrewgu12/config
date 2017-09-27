@@ -1,0 +1,123 @@
+{
+	"name": "Align",
+	"displayName": "Align",
+	"description": "Align text in vscode like the atom-alignment package",
+	"version": "0.2.0",
+	"publisher": "steve8708",
+	"icon": "icon.png",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/steve8708/vscode-align"
+	},
+	"keywords": [
+		"align",
+		"alignment",
+		"format"
+	],
+	"homepage": "https://github.com/steve8708/vscode-align",
+	"bugs": {
+		"url": "https://github.com/steve8708/vscode-align/issues"
+	},
+	"engines": {
+		"vscode": "^0.10.1"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onCommand:extension.align"
+	],
+	"main": "./out/src/extension",
+	"contributes": {
+		"commands": [
+			{
+				"command": "extension.align",
+				"title": "Align"
+			}
+		],
+		"configuration": {
+			"type": "object",
+			"title": "Align extension configuration",
+			"properties": {
+				"align.leftSeparators": {
+					"type": "array",
+					"default": [
+						":"
+					],
+					"items": {
+						"type": "string"
+					}
+				},
+				"align.rightSeparators": {
+					"type": "array",
+					"default": [
+						"=",
+						"+=",
+						"-=",
+						"*=",
+						"/=",
+						"?=",
+						"|=",
+						"%=",
+						".=",
+						"=>"
+					],
+					"items": {
+						"type": "string"
+					}
+				},
+				"align.spaceSeparators": {
+					"type": "array",
+					"default": [
+						"=",
+						"+=",
+						"-=",
+						"*=",
+						"/=",
+						"?=",
+						"|=",
+						"%=",
+						".=",
+						"=>"
+					],
+					"items": {
+						"type": "string"
+					}
+				},
+				"align.ignoreSeparators": {
+					"type": "array",
+					"default": [
+						"::"
+					],
+					"items": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		"keybindings": [
+			{
+				"command": "extension.align",
+				"key": "ctrl+alt+a",
+				"mac": "ctrl+cmd+a",
+				"when": "editorTextFocus"
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+		"compile": "node ./node_modules/vscode/bin/compile -watch -p ./"
+	},
+	"devDependencies": {
+		"typescript": "^1.6.2",
+		"vscode": "0.10.x"
+	},
+	"dependencies": {
+		"alignment": "0.0.1"
+	},
+	"__metadata": {
+		"id": "835af090-485a-48fc-bc95-4dd5b3e79734",
+		"publisherId": "42c0760b-fc8c-46bc-975e-4de389991ae8",
+		"publisherDisplayName": "steve8708"
+	}
+}
