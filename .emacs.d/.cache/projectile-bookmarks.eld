@@ -1,1 +1,1 @@
-("~/Documents/projects/interviews/ctci/" "~/Documents/school/senior/cmsc412/412-mgu123/")
+("~/config/" "~/Documents/projects/interviews/ctci/" "~/Documents/school/senior/cmsc412/412-mgu123/" "~/Documents/school/senior/cmsc412/412-mgu123/patched-qemu/" "~/Documents/school/senior/enee446/project1/simplesim-3.0/")
