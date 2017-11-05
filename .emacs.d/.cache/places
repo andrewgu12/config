@@ -1,5 +1,17 @@
 ;;; -*- coding: utf-8 -*-
-(("/Users/mingbo/Documents/projects/interviews/ctci/chapter1/"
+(("/Users/mingbo/Documents/projects/interviews/"
+  (dired-filename . "/Users/mingbo/Documents/projects/interviews/.DS_Store"))
+ ("/Users/mingbo/Documents/projects/interviews/closure.js" . 105)
+ ("/Users/mingbo/Documents/projects/interviews/leetcode/tinyurl.js" . 681)
+ ("/Users/mingbo/Documents/projects/interviews/leetcode/hamming.js" . 721)
+ ("/Users/mingbo/.emacs.d/.cache/recentf" . 8365)
+ ("/Users/mingbo/.emacs.d/.cache/layouts/persp-auto-save" . 1854)
+ ("/Users/mingbo/Documents/projects/interviews/leetcode/"
+  (dired-filename . "/Users/mingbo/Documents/projects/interviews/leetcode/.."))
+ ("/Users/mingbo/Documents/school/senior/enee459b/hardware_security/hw4/"
+  (dired-filename . "/Users/mingbo/Documents/school/senior/enee459b/hardware_security/hw4/week02_1.c"))
+ ("/Users/mingbo/Documents/school/senior/enee459b/hardware_security/hw4/week02_1.c" . 543)
+ ("/Users/mingbo/Documents/projects/interviews/ctci/chapter1/"
   (dired-filename . "/Users/mingbo/Documents/projects/interviews/ctci/chapter1/.."))
  ("/Users/mingbo/Documents/projects/interviews/ctci/"
   (dired-filename . "/Users/mingbo/Documents/projects/interviews/ctci/lib"))
@@ -9,8 +21,6 @@
  ("/Users/mingbo/Documents/projects/interviews/ctci/test/Graph_test.js" . 717)
  ("/Users/mingbo/Documents/projects/interviews/ctci/lib/Graph.js" . 1211)
  ("/Users/mingbo/Documents/projects/interviews/ctci/lib/MergeSort.js" . 423)
- ("/Users/mingbo/.emacs.d/.cache/recentf" . 7991)
- ("/Users/mingbo/.emacs.d/.cache/layouts/persp-auto-save" . 3946)
  ("/Users/mingbo/Documents/school/senior/cmsc412/412-mgu123/"
   (dired-filename . "/Users/mingbo/Documents/school/senior/cmsc412/412-mgu123/src"))
  ("/Users/mingbo/Documents/school/senior/cmsc412/412-mgu123/src/"
