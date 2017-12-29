@@ -26,16 +26,18 @@ function createEmptyAppState() {
   return {
     hosts: [''],
     host: '',
-    devices: (_expected || _load_expected()).Expect.value([]),
+    devices: (_expected || _load_expected()).Expect.pendingValue([]),
     deviceType: null,
     deviceTypes: [],
     device: null,
     deviceTasks: [],
-    infoTables: new Map(),
-    processes: [],
+    infoTables: (_expected || _load_expected()).Expect.pendingValue(new Map()),
+    appInfoTables: (_expected || _load_expected()).Expect.pendingValue(new Map()),
+    processes: (_expected || _load_expected()).Expect.pendingValue([]),
     processTasks: [],
     isDeviceConnected: false,
     supportedPidsPerTask: new Map(),
-    deviceTypeTasks: []
+    deviceTypeTasks: [],
+    isPollingDevices: false
   };
 }

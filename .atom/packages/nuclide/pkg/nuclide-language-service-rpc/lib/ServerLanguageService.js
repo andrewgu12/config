@@ -55,16 +55,17 @@ class ServerLanguageService {
     return this._service.observeDiagnostics().publish();
   }
 
-  getAutocompleteSuggestions(fileVersion, position, activatedManually, prefix) {
+  getAutocompleteSuggestions(fileVersion, position, request) {
     var _this2 = this;
 
     return (0, _asyncToGenerator.default)(function* () {
       const filePath = fileVersion.filePath;
       const buffer = yield (0, (_nuclideOpenFilesRpc || _load_nuclideOpenFilesRpc()).getBufferAtVersion)(fileVersion);
       if (buffer == null) {
+        // TODO: this should return null so the empty list doesn't get cached
         return { isIncomplete: false, items: [] };
       }
-      return _this2._service.getAutocompleteSuggestions(filePath, buffer, position, activatedManually, prefix);
+      return _this2._service.getAutocompleteSuggestions(filePath, buffer, position, request.activatedManually, request.prefix);
     })();
   }
 
@@ -98,20 +99,23 @@ class ServerLanguageService {
     return this._service.getCoverage(filePath);
   }
 
-  getOutline(fileVersion) {
-    var _this5 = this;
-
+  getAdditionalLogFiles() {
     return (0, _asyncToGenerator.default)(function* () {
-      const filePath = fileVersion.filePath;
-      const buffer = yield (0, (_nuclideOpenFilesRpc || _load_nuclideOpenFilesRpc()).getBufferAtVersion)(fileVersion);
-      if (buffer == null) {
-        return null;
-      }
-      return _this5._service.getOutline(filePath, buffer);
+      // TODO (if it's ever needed): push this request to the this._service
+      return [];
     })();
   }
 
-  typeHint(fileVersion, position) {
+  getCodeActions(fileVersion, range, diagnostics) {
+    var _this5 = this;
+
+    return (0, _asyncToGenerator.default)(function* () {
+      const { filePath } = fileVersion;
+      return _this5._service.getCodeActions(filePath, range, diagnostics);
+    })();
+  }
+
+  getOutline(fileVersion) {
     var _this6 = this;
 
     return (0, _asyncToGenerator.default)(function* () {
@@ -120,25 +124,12 @@ class ServerLanguageService {
       if (buffer == null) {
         return null;
       }
-      return _this6._service.typeHint(filePath, buffer, position);
+      return _this6._service.getOutline(filePath, buffer);
     })();
   }
 
-  highlight(fileVersion, position) {
+  typeHint(fileVersion, position) {
     var _this7 = this;
-
-    return (0, _asyncToGenerator.default)(function* () {
-      const filePath = fileVersion.filePath;
-      const buffer = yield (0, (_nuclideOpenFilesRpc || _load_nuclideOpenFilesRpc()).getBufferAtVersion)(fileVersion);
-      if (buffer == null) {
-        return [];
-      }
-      return _this7._service.highlight(filePath, buffer, position);
-    })();
-  }
-
-  formatSource(fileVersion, range) {
-    var _this8 = this;
 
     return (0, _asyncToGenerator.default)(function* () {
       const filePath = fileVersion.filePath;
@@ -146,11 +137,24 @@ class ServerLanguageService {
       if (buffer == null) {
         return null;
       }
-      return _this8._service.formatSource(filePath, buffer, range);
+      return _this7._service.typeHint(filePath, buffer, position);
     })();
   }
 
-  formatEntireFile(fileVersion, range) {
+  highlight(fileVersion, position) {
+    var _this8 = this;
+
+    return (0, _asyncToGenerator.default)(function* () {
+      const filePath = fileVersion.filePath;
+      const buffer = yield (0, (_nuclideOpenFilesRpc || _load_nuclideOpenFilesRpc()).getBufferAtVersion)(fileVersion);
+      if (buffer == null) {
+        return [];
+      }
+      return _this8._service.highlight(filePath, buffer, position);
+    })();
+  }
+
+  formatSource(fileVersion, range, options) {
     var _this9 = this;
 
     return (0, _asyncToGenerator.default)(function* () {
@@ -159,11 +163,11 @@ class ServerLanguageService {
       if (buffer == null) {
         return null;
       }
-      return _this9._service.formatEntireFile(filePath, buffer, range);
+      return _this9._service.formatSource(filePath, buffer, range, options);
     })();
   }
 
-  formatAtPosition(fileVersion, position, triggerCharacter) {
+  formatEntireFile(fileVersion, range, options) {
     var _this10 = this;
 
     return (0, _asyncToGenerator.default)(function* () {
@@ -172,11 +176,11 @@ class ServerLanguageService {
       if (buffer == null) {
         return null;
       }
-      return _this10._service.formatAtPosition(filePath, buffer, position, triggerCharacter);
+      return _this10._service.formatEntireFile(filePath, buffer, range, options);
     })();
   }
 
-  getEvaluationExpression(fileVersion, position) {
+  formatAtPosition(fileVersion, position, triggerCharacter, options) {
     var _this11 = this;
 
     return (0, _asyncToGenerator.default)(function* () {
@@ -185,7 +189,20 @@ class ServerLanguageService {
       if (buffer == null) {
         return null;
       }
-      return _this11._service.getEvaluationExpression(filePath, buffer, position);
+      return _this11._service.formatAtPosition(filePath, buffer, position, triggerCharacter, options);
+    })();
+  }
+
+  getEvaluationExpression(fileVersion, position) {
+    var _this12 = this;
+
+    return (0, _asyncToGenerator.default)(function* () {
+      const filePath = fileVersion.filePath;
+      const buffer = yield (0, (_nuclideOpenFilesRpc || _load_nuclideOpenFilesRpc()).getBufferAtVersion)(fileVersion);
+      if (buffer == null) {
+        return null;
+      }
+      return _this12._service.getEvaluationExpression(filePath, buffer, position);
     })();
   }
 
@@ -205,10 +222,38 @@ class ServerLanguageService {
   }
 
   isFileInProject(fileUri) {
-    var _this12 = this;
+    var _this13 = this;
 
     return (0, _asyncToGenerator.default)(function* () {
-      return _this12._service.isFileInProject(fileUri);
+      return _this13._service.isFileInProject(fileUri);
+    })();
+  }
+
+  getExpandedSelectionRange(fileVersion, currentSelection) {
+    var _this14 = this;
+
+    return (0, _asyncToGenerator.default)(function* () {
+      const filePath = fileVersion.filePath;
+      const buffer = yield (0, (_nuclideOpenFilesRpc || _load_nuclideOpenFilesRpc()).getBufferAtVersion)(fileVersion);
+      if (buffer == null) {
+        return null;
+      }
+
+      return _this14._service.getExpandedSelectionRange(filePath, buffer, currentSelection);
+    })();
+  }
+
+  getCollapsedSelectionRange(fileVersion, currentSelection, originalCursorPosition) {
+    var _this15 = this;
+
+    return (0, _asyncToGenerator.default)(function* () {
+      const filePath = fileVersion.filePath;
+      const buffer = yield (0, (_nuclideOpenFilesRpc || _load_nuclideOpenFilesRpc()).getBufferAtVersion)(fileVersion);
+      if (buffer == null) {
+        return null;
+      }
+
+      return _this15._service.getCollapsedSelectionRange(filePath, buffer, currentSelection, originalCursorPosition);
     })();
   }
 
@@ -233,10 +278,9 @@ null;
 
 function ensureInvalidations(logger, diagnostics) {
   const filesWithErrors = new Set();
-  const trackedDiagnostics = diagnostics.do(diagnosticArray => {
-    for (const diagnostic of diagnosticArray) {
-      const filePath = diagnostic.filePath;
-      if (diagnostic.messages.length === 0) {
+  const trackedDiagnostics = diagnostics.do(diagnosticMap => {
+    for (const [filePath, messages] of diagnosticMap) {
+      if (messages.length === 0) {
         logger.debug(`Removing ${filePath} from files with errors`);
         filesWithErrors.delete(filePath);
       } else {
@@ -248,13 +292,10 @@ function ensureInvalidations(logger, diagnostics) {
 
   const fileInvalidations = _rxjsBundlesRxMinJs.Observable.defer(() => {
     logger.debug('Clearing errors after stream closed');
-    return _rxjsBundlesRxMinJs.Observable.of(Array.from(filesWithErrors).map(file => {
+    return _rxjsBundlesRxMinJs.Observable.of(new Map(Array.from(filesWithErrors).map(file => {
       logger.debug(`Clearing errors for ${file} after connection closed`);
-      return {
-        filePath: file,
-        messages: []
-      };
-    }));
+      return [file, []];
+    })));
   });
 
   return trackedDiagnostics.concat(fileInvalidations);

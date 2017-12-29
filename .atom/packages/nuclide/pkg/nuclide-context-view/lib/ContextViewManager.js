@@ -29,7 +29,7 @@ function _load_UniversalDisposable() {
   return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactDom = _interopRequireDefault(require('react-dom'));
 
@@ -80,6 +80,8 @@ var _NoProvidersView;
 function _load_NoProvidersView() {
   return _NoProvidersView = require('./NoProvidersView');
 }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -309,7 +311,7 @@ class ContextViewManager {
         setLocked: this._setLocked
       });
       if (element != null) {
-        return _react.default.createElement(
+        return _react.createElement(
           (_ProviderContainer || _load_ProviderContainer()).ProviderContainer,
           { title: prov.title, key: index },
           element
@@ -319,10 +321,12 @@ class ContextViewManager {
 
     // If there are no context providers to show, show a message instead
     if (providerElements.length === 0) {
-      providerElements.push(_react.default.createElement((_NoProvidersView || _load_NoProvidersView()).NoProvidersView, { key: 0 }));
+      providerElements.push(_react.createElement((_NoProvidersView || _load_NoProvidersView()).NoProvidersView, { key: 0 }));
     }
 
-    _reactDom.default.render(_react.default.createElement(
+    _reactDom.default.render(
+    // $FlowFixMe(>=0.53.0) Flow suppress
+    _react.createElement(
       (_ContextViewPanel || _load_ContextViewPanel()).ContextViewPanel,
       {
         definition: this.currentDefinition,

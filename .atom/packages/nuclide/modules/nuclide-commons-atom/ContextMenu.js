@@ -130,7 +130,7 @@ class ContextMenu {
       return internalItem.item;
     } else if (internalItem.type === 'menu') {
       // Note that due to our own strict renaming rules, this must be a private method instead of a
-      // static function becuase of the access to _menuOptions and _items.
+      // static function because of the access to _menuOptions and _items.
       const menuOptions = internalItem.menu._menuOptions;
 
       if (!(menuOptions.type === 'submenu')) {
@@ -175,7 +175,9 @@ class ContextMenu {
   static isEventFromContextMenu(event) {
     // Context menu commands contain a specific `detail` parameter:
     // https://github.com/atom/atom/blob/v1.15.0/src/main-process/context-menu.coffee#L17
-    return Array.isArray(event.detail) && event.detail[0] && event.detail[0].contextCommand;
+    return Array.isArray(event.detail) &&
+    // flowlint-next-line sketchy-null-mixed:off
+    event.detail[0] && event.detail[0].contextCommand;
   }
 }
 

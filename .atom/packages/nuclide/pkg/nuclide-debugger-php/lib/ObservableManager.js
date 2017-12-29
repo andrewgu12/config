@@ -65,14 +65,8 @@ class ObservableManager {
     this._registerConsoleLogging(this._outputWindowMessages.share());
   }
 
-  _registerConsoleLogging(sharedOutputWindowMessages) {
-    const filteredMesages = sharedOutputWindowMessages.filter(messageObj => messageObj.method === 'Console.messageAdded').map(messageObj => {
-      return JSON.stringify({
-        level: messageObj.params.message.level,
-        text: messageObj.params.message.text
-      });
-    });
-    const outputDisposable = (0, (_nuclideDebuggerBase || _load_nuclideDebuggerBase()).registerConsoleLogging)('PHP Debugger', filteredMesages);
+  _registerConsoleLogging(outputMessages) {
+    const outputDisposable = (0, (_nuclideDebuggerBase || _load_nuclideDebuggerBase()).registerConsoleLogging)('PHP Debugger', outputMessages);
     if (outputDisposable != null) {
       this._disposables.add(outputDisposable);
     }

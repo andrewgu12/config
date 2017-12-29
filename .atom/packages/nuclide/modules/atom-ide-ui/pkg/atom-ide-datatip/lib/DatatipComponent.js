@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.DatatipComponent = exports.DATATIP_ACTIONS = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _string;
 
@@ -20,6 +20,8 @@ function _load_MarkedStringDatatip() {
 }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; } /**
                                                                                                                                                                                                                               * Copyright (c) 2017-present, Facebook, Inc.
@@ -43,7 +45,7 @@ const IconsForAction = {
   [DATATIP_ACTIONS.CLOSE]: 'x'
 };
 
-class DatatipComponent extends _react.default.Component {
+class DatatipComponent extends _react.Component {
   constructor(...args) {
     var _temp;
 
@@ -65,29 +67,29 @@ class DatatipComponent extends _react.default.Component {
 
     let content;
     if (datatip.component != null) {
-      content = _react.default.createElement(datatip.component, null);
+      content = _react.createElement(datatip.component, null);
     } else if (datatip.markedStrings != null) {
-      content = _react.default.createElement((_MarkedStringDatatip || _load_MarkedStringDatatip()).default, { markedStrings: datatip.markedStrings });
+      content = _react.createElement((_MarkedStringDatatip || _load_MarkedStringDatatip()).default, { markedStrings: datatip.markedStrings });
     }
 
     let actionButton = null;
     if (action != null && IconsForAction[action] != null) {
       const actionIcon = IconsForAction[action];
-      actionButton = _react.default.createElement('div', {
-        className: `nuclide-datatip-pin-button icon-${actionIcon}`,
+      actionButton = _react.createElement('div', {
+        className: `datatip-pin-button icon-${actionIcon}`,
         onClick: this.handleActionClick,
         title: actionTitle
       });
     }
 
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       Object.assign({
-        className: `${(0, (_string || _load_string()).maybeToString)(className)} nuclide-datatip-container`
+        className: `${(0, (_string || _load_string()).maybeToString)(className)} datatip-container`
       }, props),
-      _react.default.createElement(
+      _react.createElement(
         'div',
-        { className: 'nuclide-datatip-content' },
+        { className: 'datatip-content' },
         content
       ),
       actionButton

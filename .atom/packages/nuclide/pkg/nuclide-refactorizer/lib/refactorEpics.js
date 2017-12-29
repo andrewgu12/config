@@ -21,6 +21,9 @@ let getRefactorings = (() => {
     try {
       const cursorPosition = cursor.getBufferPosition();
       const availableRefactorings = yield provider.refactoringsAtPoint(editor, cursorPosition);
+      availableRefactorings.sort(function (x, y) {
+        return (x.disabled === true ? 1 : 0) - (y.disabled === true ? 1 : 0);
+      });
       return (_refactorActions || _load_refactorActions()).gotRefactorings(editor, cursorPosition, provider, availableRefactorings);
     } catch (e) {
       return (_refactorActions || _load_refactorActions()).error('get-refactorings', e);

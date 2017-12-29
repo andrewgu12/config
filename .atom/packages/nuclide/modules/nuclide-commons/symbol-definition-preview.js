@@ -9,7 +9,21 @@ var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
 
 let getDefinitionPreview = exports.getDefinitionPreview = (() => {
   var _ref = (0, _asyncToGenerator.default)(function* (definition) {
-    const contents = yield (_fsPromise || _load_fsPromise()).default.readFile(definition.path, 'utf8');
+    // ensure filesize not too big before reading in whole file
+    const stats = yield (_fsPromise || _load_fsPromise()).default.stat(definition.path);
+    if (stats.size > MAX_FILESIZE) {
+      return null;
+    }
+
+    // if file is image, return base-64 encoded contents
+    const fileBuffer = yield (_fsPromise || _load_fsPromise()).default.readFile(definition.path);
+
+    const mime = (_mimeTypes || _load_mimeTypes()).default.contentType((_nuclideUri || _load_nuclideUri()).default.extname(definition.path)) || 'text/plain';
+    if (mime.startsWith('image/')) {
+      return { mime, contents: fileBuffer.toString('base64'), encoding: 'base64' };
+    }
+
+    const contents = fileBuffer.toString('utf8');
     const lines = contents.split('\n');
 
     const start = definition.position.row;
@@ -47,13 +61,19 @@ let getDefinitionPreview = exports.getDefinitionPreview = (() => {
       }
     }
 
-    return buffer.join('\n');
+    return { mime, contents: buffer.join('\n'), encoding: 'utf8' };
   });
 
   return function getDefinitionPreview(_x) {
     return _ref.apply(this, arguments);
   };
 })();
+
+var _mimeTypes;
+
+function _load_mimeTypes() {
+  return _mimeTypes = _interopRequireDefault(require('mime-types'));
+}
 
 var _fsPromise;
 
@@ -65,6 +85,12 @@ var _string;
 
 function _load_string() {
   return _string = require('./string');
+}
+
+var _nuclideUri;
+
+function _load_nuclideUri() {
+  return _nuclideUri = _interopRequireDefault(require('./nuclideUri'));
 }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -81,6 +107,7 @@ const MAX_PREVIEW_LINES = 10; /**
                                * @format
                                */
 
+const MAX_FILESIZE = 100000;
 const WHITESPACE_REGEX = /^\s*/;
 function getIndentLevel(line) {
   return WHITESPACE_REGEX.exec(line)[0].length;

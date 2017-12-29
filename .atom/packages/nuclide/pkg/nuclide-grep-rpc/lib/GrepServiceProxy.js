@@ -26,9 +26,9 @@ module.exports = _client => {
           kind: "string"
         }
       }
-    }]).then(args => {
+    }])).switchMap(args => {
       return _client.callRemoteFunction("GrepService/grepSearch", "observable", args);
-    })).concatMap(id => id).concatMap(value => {
+    }).concatMap(value => {
       return _client.unmarshal(value, {
         kind: "named",
         name: "search$FileResult"
@@ -65,9 +65,9 @@ module.exports = _client => {
           kind: "number"
         }
       }
-    }]).then(args => {
+    }])).switchMap(args => {
       return _client.callRemoteFunction("GrepService/grepReplace", "observable", args);
-    })).concatMap(id => id).concatMap(value => {
+    }).concatMap(value => {
       return _client.unmarshal(value, {
         kind: "named",
         name: "search$ReplaceResult"

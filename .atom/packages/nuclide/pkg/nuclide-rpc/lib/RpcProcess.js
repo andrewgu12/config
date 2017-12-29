@@ -113,6 +113,7 @@ class RpcProcess {
    * only if it is currently null.
    */
   _ensureConnection() {
+    this._disposed = false;
     if (this._rpcConnection == null) {
       const processStream = this._processStream.do({
         error: e => {
@@ -145,7 +146,6 @@ class RpcProcess {
       this._subscription = processStream.connect();
       return connection;
     }
-    this._disposed = false;
     return this._rpcConnection;
   }
 

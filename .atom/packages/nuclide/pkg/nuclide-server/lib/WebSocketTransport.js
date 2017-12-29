@@ -57,10 +57,10 @@ class WebSocketTransport {
     this._syncCompression = options == null || options.syncCompression !== false;
 
     logger.info('Client #%s connecting with a new socket!', this.id);
-    socket.on('message', (data, flags) => {
+    socket.on('message', data => {
       let message = data;
       // Only compressed data will be sent as binary buffers.
-      if (flags.binary) {
+      if (typeof data !== 'string') {
         message = (0, (_compression || _load_compression()).decompress)(data);
       }
       this._onSocketMessage(message);
@@ -72,10 +72,10 @@ class WebSocketTransport {
           throw new Error('Invariant violation: "this._socket === socket"');
         }
 
-        logger.info('Client #%s socket close recieved on open socket!', this.id);
+        logger.info('Client #%s socket close received on open socket!', this.id);
         this._setClosed();
       } else {
-        logger.info('Client #%s recieved socket close on already closed socket!', this.id);
+        logger.info('Client #%s received socket close on already closed socket!', this.id);
       }
     });
 
@@ -88,19 +88,19 @@ class WebSocketTransport {
       }
     });
 
-    socket.on('pong', (data, flags) => {
+    socket.on('pong', data => {
       if (this._socket != null) {
         // data may be a Uint8Array
         this._emitter.emit('pong', data != null ? String(data) : data);
       } else {
-        logger.error('Received socket pong after connection closed');
+        logger.warn('Received socket pong after connection closed');
       }
     });
   }
 
   _onSocketMessage(message) {
     if (this._socket == null) {
-      logger.error('Received socket message after connection closed');
+      logger.warn('Received socket message after connection closed');
       return;
     }
     this._messages.next(message);
@@ -134,7 +134,7 @@ class WebSocketTransport {
       }
       socket.send(data, { compress: !compressed }, err => {
         if (err != null) {
-          logger.warn('Failed sending socket message to client:', this.id, JSON.parse(message));
+          logger.warn(`Failed sending to client:${this.id} message:${message}`);
           resolve(false);
         } else {
           resolve(true);

@@ -58,7 +58,7 @@ function _load_createPaneContainer() {
   return _createPaneContainer = _interopRequireDefault(require('../../../commons-atom/create-pane-container'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactDom = _interopRequireDefault(require('react-dom'));
 
@@ -68,30 +68,42 @@ function _load_TestClassTree() {
   return _TestClassTree = _interopRequireDefault(require('./TestClassTree'));
 }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-class TestRunnerPanel extends _react.default.Component {
+/**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the license found in the LICENSE file in
+ * the root directory of this source tree.
+ *
+ * 
+ * @format
+ */
 
-  // Bound Functions for use as callbacks.
-  constructor(props) {
-    super(props);
+class TestRunnerPanel extends _react.Component {
+  constructor(...args) {
+    var _temp;
 
-    this.setSelectedTestRunnerIndex = selectedTestRunnerIndex => {
-      this.setState({ selectedTestRunnerIndex });
-    };
-
-    this.state = {
-      roots: [],
+    return _temp = super(...args), this.state = {
+      treeContainer: null,
+      consoleContainer: null,
       // If there are test runners, start with the first one selected. Otherwise store -1 to
       // later indicate there were no active test runners.
-      selectedTestRunnerIndex: props.testRunners.length > 0 ? 0 : -1
-    };
+      selectedTestRunnerIndex: this.props.testRunners.length > 0 ? 0 : -1
+    }, this.setSelectedTestRunnerIndex = selectedTestRunnerIndex => {
+      this.setState({ selectedTestRunnerIndex });
+    }, _temp;
   }
+  // Bound Functions for use as callbacks.
+
 
   componentDidMount() {
     this._paneContainer = (0, (_createPaneContainer || _load_createPaneContainer()).default)();
-    this._leftPane = this._paneContainer.getActivePane();
-    this._rightPane = this._leftPane.splitRight({
+    const leftPane = this._paneContainer.getActivePane();
+    const rightPane = leftPane.splitRight({
       // Prevent Atom from cloning children on splitting; this panel wants an empty container.
       copyActiveItem: false,
       // Make the right pane 2/3 the width of the parent since console output is generally wider
@@ -99,15 +111,13 @@ class TestRunnerPanel extends _react.default.Component {
       flexScale: 2
     });
 
-    this.renderTree();
-    this.renderConsole();
-
     // $FlowFixMe
     _reactDom.default.findDOMNode(this.refs.paneContainer).appendChild(atom.views.getView(this._paneContainer));
-  }
 
-  componentDidUpdate() {
-    this.renderTree();
+    this.setState({
+      treeContainer: atom.views.getView(leftPane).querySelector('.item-views'),
+      consoleContainer: atom.views.getView(rightPane).querySelector('.item-views')
+    });
   }
 
   componentWillReceiveProps(nextProps) {
@@ -120,8 +130,6 @@ class TestRunnerPanel extends _react.default.Component {
   }
 
   componentWillUnmount() {
-    _reactDom.default.unmountComponentAtNode(atom.views.getView(this._rightPane).querySelector('.item-views'));
-    _reactDom.default.unmountComponentAtNode(atom.views.getView(this._leftPane).querySelector('.item-views'));
     this._paneContainer.destroy();
   }
 
@@ -129,7 +137,7 @@ class TestRunnerPanel extends _react.default.Component {
     let runStopButton;
     switch (this.props.executionState) {
       case TestRunnerPanel.ExecutionState.RUNNING:
-        runStopButton = _react.default.createElement(
+        runStopButton = _react.createElement(
           (_Button || _load_Button()).Button,
           {
             size: (_Button || _load_Button()).ButtonSizes.SMALL,
@@ -142,7 +150,7 @@ class TestRunnerPanel extends _react.default.Component {
         break;
       case TestRunnerPanel.ExecutionState.STOPPED:
         const initialTest = this.props.path === undefined;
-        runStopButton = _react.default.createElement(
+        runStopButton = _react.createElement(
           (_Button || _load_Button()).Button,
           {
             size: (_Button || _load_Button()).ButtonSizes.SMALL,
@@ -159,6 +167,7 @@ class TestRunnerPanel extends _react.default.Component {
     // Assign `value` only when needed so a null/undefined value will show an indeterminate
     // progress bar.
     let progressAttrs = undefined;
+    // flowlint-next-line sketchy-null-number:off
     if (this.props.progressValue) {
       // `key` is set to force React to treat this as a new element when the `value` attr should be
       // removed. Currently it just sets `value="0"`, which is styled differently from no `value`
@@ -172,13 +181,14 @@ class TestRunnerPanel extends _react.default.Component {
 
     let runMsg;
     if (this.props.executionState === TestRunnerPanel.ExecutionState.RUNNING) {
-      runMsg = _react.default.createElement(
+      runMsg = _react.createElement(
         'span',
         { className: 'inline-block' },
         'Running'
       );
+      // flowlint-next-line sketchy-null-number:off
     } else if (this.props.runDuration) {
-      runMsg = _react.default.createElement(
+      runMsg = _react.createElement(
         'span',
         { className: 'inline-block' },
         'Done (in ',
@@ -188,8 +198,9 @@ class TestRunnerPanel extends _react.default.Component {
     }
 
     let pathMsg;
+    // flowlint-next-line sketchy-null-string:off
     if (this.props.path) {
-      pathMsg = _react.default.createElement(
+      pathMsg = _react.createElement(
         'span',
         { title: this.props.path },
         (_nuclideUri || _load_nuclideUri()).default.basename(this.props.path)
@@ -198,13 +209,13 @@ class TestRunnerPanel extends _react.default.Component {
 
     let dropdown;
     if (this.isDisabled()) {
-      dropdown = _react.default.createElement(
+      dropdown = _react.createElement(
         'span',
         { className: 'inline-block text-warning' },
         'No registered test runners'
       );
     } else {
-      dropdown = _react.default.createElement((_Dropdown || _load_Dropdown()).Dropdown, {
+      dropdown = _react.createElement((_Dropdown || _load_Dropdown()).Dropdown, {
         className: 'inline-block nuclide-test-runner__runner-dropdown',
         disabled: this.props.executionState === TestRunnerPanel.ExecutionState.RUNNING,
         options: this.props.testRunners.map((testRunner, index) => ({
@@ -221,7 +232,7 @@ class TestRunnerPanel extends _react.default.Component {
 
     let attachDebuggerCheckbox = null;
     if (this.props.attachDebuggerBeforeRunning != null) {
-      attachDebuggerCheckbox = _react.default.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
+      attachDebuggerCheckbox = _react.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
         className: 'inline-block',
         checked: this.props.attachDebuggerBeforeRunning,
         label: 'Enable Debugger',
@@ -231,19 +242,28 @@ class TestRunnerPanel extends _react.default.Component {
 
     const running = this.props.executionState === TestRunnerPanel.ExecutionState.RUNNING;
 
-    const progressBar = running ? _react.default.createElement('progress', Object.assign({
+    const progressBar = running ? _react.createElement('progress', Object.assign({
       className: 'inline-block',
       max: '100',
       title: 'Test progress'
     }, progressAttrs)) : null;
 
-    return _react.default.createElement(
+    const tree = this.state.treeContainer == null ? null : _reactDom.default.createPortal(_react.createElement((_TestClassTree || _load_TestClassTree()).default, {
+      isRunning: this.props.executionState === TestRunnerPanel.ExecutionState.RUNNING,
+      testSuiteModel: this.props.testSuiteModel
+    }), this.state.treeContainer);
+
+    const console = this.state.consoleContainer == null ? null : _reactDom.default.createPortal(_react.createElement((_Console || _load_Console()).default, { textBuffer: this.props.buffer }), this.state.consoleContainer);
+
+    return _react.createElement(
       'div',
       { className: 'nuclide-test-runner-panel' },
-      _react.default.createElement(
+      tree,
+      console,
+      _react.createElement(
         (_Toolbar || _load_Toolbar()).Toolbar,
         { location: 'top' },
-        _react.default.createElement(
+        _react.createElement(
           (_ToolbarLeft || _load_ToolbarLeft()).ToolbarLeft,
           null,
           dropdown,
@@ -251,12 +271,12 @@ class TestRunnerPanel extends _react.default.Component {
           attachDebuggerCheckbox,
           pathMsg
         ),
-        _react.default.createElement(
+        _react.createElement(
           (_ToolbarRight || _load_ToolbarRight()).ToolbarRight,
           null,
           runMsg,
           progressBar,
-          _react.default.createElement(
+          _react.createElement(
             (_Button || _load_Button()).Button,
             {
               size: (_Button || _load_Button()).ButtonSizes.SMALL,
@@ -267,7 +287,7 @@ class TestRunnerPanel extends _react.default.Component {
           )
         )
       ),
-      _react.default.createElement('div', { className: 'nuclide-test-runner-console', ref: 'paneContainer' })
+      _react.createElement('div', { className: 'nuclide-test-runner-console', ref: 'paneContainer' })
     );
   }
 
@@ -281,35 +301,8 @@ class TestRunnerPanel extends _react.default.Component {
       return this.props.testRunners[selectedTestRunnerIndex];
     }
   }
-
-  renderTree() {
-    const component = _reactDom.default.render(_react.default.createElement((_TestClassTree || _load_TestClassTree()).default, {
-      isRunning: this.props.executionState === TestRunnerPanel.ExecutionState.RUNNING,
-      testSuiteModel: this.props.testSuiteModel
-    }), atom.views.getView(this._leftPane).querySelector('.item-views'));
-
-    if (!(component instanceof (_TestClassTree || _load_TestClassTree()).default)) {
-      throw new Error('Invariant violation: "component instanceof TestClassTree"');
-    }
-
-    this._tree = component;
-  }
-
-  renderConsole() {
-    _reactDom.default.render(_react.default.createElement((_Console || _load_Console()).default, { textBuffer: this.props.buffer }), atom.views.getView(this._rightPane).querySelector('.item-views'));
-  }
 }
-exports.default = TestRunnerPanel; /**
-                                    * Copyright (c) 2015-present, Facebook, Inc.
-                                    * All rights reserved.
-                                    *
-                                    * This source code is licensed under the license found in the LICENSE file in
-                                    * the root directory of this source tree.
-                                    *
-                                    * 
-                                    * @format
-                                    */
-
+exports.default = TestRunnerPanel;
 TestRunnerPanel.ExecutionState = Object.freeze({
   RUNNING: 0,
   STOPPED: 1

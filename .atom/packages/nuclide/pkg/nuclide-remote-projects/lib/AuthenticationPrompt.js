@@ -4,9 +4,13 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _atom = require('atom');
+var _UniversalDisposable;
 
-var _react = _interopRequireDefault(require('react'));
+function _load_UniversalDisposable() {
+  return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
+}
+
+var _react = _interopRequireWildcard(require('react'));
 
 var _AtomNotifications;
 
@@ -14,10 +18,12 @@ function _load_AtomNotifications() {
   return _AtomNotifications = require('./AtomNotifications');
 }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /** Component to prompt the user for authentication information. */
-class AuthenticationPrompt extends _react.default.Component {
+class AuthenticationPrompt extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -32,7 +38,7 @@ class AuthenticationPrompt extends _react.default.Component {
       }
     };
 
-    this._disposables = new _atom.CompositeDisposable();
+    this._disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default();
   }
 
   componentDidMount() {
@@ -70,15 +76,15 @@ class AuthenticationPrompt extends _react.default.Component {
     //   enter work
     // * `instructions` are pre-formatted, so apply `whiteSpace: pre` to maintain formatting coming
     //   from the server.
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { ref: 'root' },
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'block', style: { whiteSpace: 'pre' } },
         this.props.instructions
       ),
-      _react.default.createElement('input', {
+      _react.createElement('input', {
         tabIndex: '0',
         type: 'password',
         className: 'nuclide-password native-key-bindings',

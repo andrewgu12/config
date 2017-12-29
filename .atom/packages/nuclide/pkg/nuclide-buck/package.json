@@ -35,6 +35,11 @@
     }
   },
   "consumedServices": {
+    "atom-ide-busy-signal": {
+      "versions": {
+        "0.1.0": "consumeBusySignal"
+      }
+    },
     "nuclide.task-runner": {
       "versions": {
         "0.0.0": "consumeTaskRunnerServiceApi"
@@ -47,7 +52,7 @@
         "0.1.0": "getHyperclickProvider"
       }
     },
-    "diagnostics": {
+    "DEPRECATED-diagnostics": {
       "versions": {
         "0.2.0": "provideObservableDiagnosticUpdates"
       }
@@ -62,9 +67,9 @@
         "0.0.0": "providePlatformService"
       }
     },
-    "nuclide.clang.request-settings": {
+    "nuclide.clang.configuration": {
       "versions": {
-        "0.0.0": "provideClangRequestSettings"
+        "0.0.0": "provideClangConfiguration"
       }
     }
   },

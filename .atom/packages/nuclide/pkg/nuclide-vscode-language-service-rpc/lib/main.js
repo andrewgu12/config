@@ -13,22 +13,19 @@ var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
  *
  * TODO: Document all of the fields below.
  */
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the license found in the LICENSE file in
- * the root directory of this source tree.
- *
- * 
- * @format
- */
-
 let createMultiLspLanguageService = exports.createMultiLspLanguageService = (() => {
   var _ref = (0, _asyncToGenerator.default)(function* (languageId, command, args, params) {
-    const result = new (_nuclideLanguageServiceRpc || _load_nuclideLanguageServiceRpc()).MultiProjectLanguageService();
     const logger = (0, (_log4js || _load_log4js()).getLogger)(params.logCategory);
     logger.setLevel(params.logLevel);
+
+    if ((yield (0, (_which || _load_which()).default)(command)) == null) {
+      const message = `Command "${command}" could not be found: ${languageId} language features will be disabled.`;
+      logger.warn(message);
+      params.host.consoleNotification(languageId, 'warning', message);
+      return null;
+    }
+
+    const result = new (_nuclideLanguageServiceRpc || _load_nuclideLanguageServiceRpc()).MultiProjectLanguageService();
 
     const fileCache = params.fileNotifier;
 
@@ -40,7 +37,7 @@ let createMultiLspLanguageService = exports.createMultiLspLanguageService = (() 
     // created upon demand, one per project root. Demand is usually "when the
     // user opens a file" or "when the user requests project-wide symbol search".
 
-    // What state is the each LspLanguageService in? ...
+    // What state is each LspLanguageService in? ...
     // * 'Initializing' state, still spawning the LSP server and negotiating with
     //    it, or inviting the user via a dialog box to retry initialization.
     // * 'Ready' state, able to handle LanguageService requests properly.
@@ -54,7 +51,7 @@ let createMultiLspLanguageService = exports.createMultiLspLanguageService = (() 
         // We're awaiting until AtomLanguageService has observed diagnostics (to
         // prevent race condition: see below).
 
-        const lsp = new (_LspLanguageService || _load_LspLanguageService()).LspLanguageService(logger, fileCache, (yield (0, (_nuclideLanguageServiceRpc || _load_nuclideLanguageServiceRpc()).forkHostServices)(params.host, logger)), languageId, command, args, params.spawnOptions, projectDir, params.fileExtensions, params.initializationOptions || {});
+        const lsp = new (_LspLanguageService || _load_LspLanguageService()).LspLanguageService(logger, fileCache, (yield (0, (_nuclideLanguageServiceRpc || _load_nuclideLanguageServiceRpc()).forkHostServices)(params.host, logger)), languageId, command, args, params.spawnOptions, projectDir, params.fileExtensions, params.initializationOptions || {}, Number(params.additionalLogFilesRetentionPeriod));
 
         lsp.start(); // Kick off 'Initializing'...
         return lsp;
@@ -79,12 +76,27 @@ let createMultiLspLanguageService = exports.createMultiLspLanguageService = (() 
   return function createMultiLspLanguageService(_x, _x2, _x3, _x4) {
     return _ref.apply(this, arguments);
   };
-})();
+})(); /**
+       * Copyright (c) 2015-present, Facebook, Inc.
+       * All rights reserved.
+       *
+       * This source code is licensed under the license found in the LICENSE file in
+       * the root directory of this source tree.
+       *
+       * 
+       * @format
+       */
 
 var _log4js;
 
 function _load_log4js() {
   return _log4js = require('log4js');
+}
+
+var _which;
+
+function _load_which() {
+  return _which = _interopRequireDefault(require('nuclide-commons/which'));
 }
 
 var _LspLanguageService;

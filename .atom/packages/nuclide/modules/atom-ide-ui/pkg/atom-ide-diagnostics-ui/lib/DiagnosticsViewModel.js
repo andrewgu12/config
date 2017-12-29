@@ -5,24 +5,28 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.DiagnosticsViewModel = exports.WORKSPACE_VIEW_URI = undefined;
 
-var _paneUtils;
+var _dockForLocation;
 
-function _load_paneUtils() {
-  return _paneUtils = require('./paneUtils');
+function _load_dockForLocation() {
+  return _dockForLocation = _interopRequireDefault(require('nuclide-commons-atom/dock-for-location'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _goToLocation;
 
-var _DiagnosticsView;
-
-function _load_DiagnosticsView() {
-  return _DiagnosticsView = _interopRequireDefault(require('./DiagnosticsView'));
+function _load_goToLocation() {
+  return _goToLocation = require('nuclide-commons-atom/go-to-location');
 }
 
-var _analytics;
+var _memoizeUntilChanged;
 
-function _load_analytics() {
-  return _analytics = _interopRequireDefault(require('nuclide-commons-atom/analytics'));
+function _load_memoizeUntilChanged() {
+  return _memoizeUntilChanged = _interopRequireDefault(require('nuclide-commons/memoizeUntilChanged'));
+}
+
+var _nuclideUri;
+
+function _load_nuclideUri() {
+  return _nuclideUri = _interopRequireDefault(require('nuclide-commons/nuclideUri'));
 }
 
 var _observePaneItemVisibility;
@@ -31,28 +35,42 @@ function _load_observePaneItemVisibility() {
   return _observePaneItemVisibility = _interopRequireDefault(require('nuclide-commons-atom/observePaneItemVisibility'));
 }
 
-var _renderReactRoot;
+var _collection;
 
-function _load_renderReactRoot() {
-  return _renderReactRoot = require('nuclide-commons-ui/renderReactRoot');
-}
-
-var _textEditor;
-
-function _load_textEditor() {
-  return _textEditor = require('nuclide-commons-atom/text-editor');
-}
-
-var _event;
-
-function _load_event() {
-  return _event = require('nuclide-commons/event');
+function _load_collection() {
+  return _collection = require('nuclide-commons/collection');
 }
 
 var _observable;
 
 function _load_observable() {
   return _observable = require('nuclide-commons/observable');
+}
+
+var _UniversalDisposable;
+
+function _load_UniversalDisposable() {
+  return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
+}
+
+var _react = _interopRequireDefault(require('react'));
+
+var _analytics;
+
+function _load_analytics() {
+  return _analytics = _interopRequireDefault(require('nuclide-commons-atom/analytics'));
+}
+
+var _Model;
+
+function _load_Model() {
+  return _Model = _interopRequireDefault(require('nuclide-commons/Model'));
+}
+
+var _renderReactRoot;
+
+function _load_renderReactRoot() {
+  return _renderReactRoot = require('nuclide-commons-ui/renderReactRoot');
 }
 
 var _bindObservableAsProps;
@@ -63,41 +81,116 @@ function _load_bindObservableAsProps() {
 
 var _rxjsBundlesRxMinJs = require('rxjs/bundles/Rx.min.js');
 
+var _RegExpFilter;
+
+function _load_RegExpFilter() {
+  return _RegExpFilter = require('nuclide-commons-ui/RegExpFilter');
+}
+
+var _GroupUtils;
+
+function _load_GroupUtils() {
+  return _GroupUtils = _interopRequireWildcard(require('./GroupUtils'));
+}
+
+var _DiagnosticsView;
+
+function _load_DiagnosticsView() {
+  return _DiagnosticsView = _interopRequireDefault(require('./ui/DiagnosticsView'));
+}
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const WORKSPACE_VIEW_URI = exports.WORKSPACE_VIEW_URI = 'atom://nuclide/diagnostics'; /**
-                                                                                       * Copyright (c) 2017-present, Facebook, Inc.
-                                                                                       * All rights reserved.
-                                                                                       *
-                                                                                       * This source code is licensed under the BSD-style license found in the
-                                                                                       * LICENSE file in the root directory of this source tree. An additional grant
-                                                                                       * of patent rights can be found in the PATENTS file in the same directory.
-                                                                                       *
-                                                                                       * 
-                                                                                       * @format
-                                                                                       */
+/**
+ * Copyright (c) 2017-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * 
+ * @format
+ */
 
-const RENDER_DEBOUNCE_TIME = 100;
+const WORKSPACE_VIEW_URI = exports.WORKSPACE_VIEW_URI = 'atom://nuclide/diagnostics';
 
 class DiagnosticsViewModel {
 
-  constructor(diagnostics, showTracesStream, onShowTracesChange, disableLinter, warnAboutLinterStream, initialfilterByActiveTextEditor, onFilterByActiveTextEditorChange) {
-    // TODO(T17495163)
-    this._visibilitySubscription = (0, (_observePaneItemVisibility || _load_observePaneItemVisibility()).default)(this).subscribe(visible => {
-      this.didChangeVisibility(visible);
-    });
-    this._visibility = new _rxjsBundlesRxMinJs.BehaviorSubject(true);
+  constructor(globalStates) {
+    _initialiseProps.call(this);
 
-    this._visibilitySubscription = this._visibility.debounceTime(1000).distinctUntilChanged().filter(Boolean).subscribe(() => {
+    // Memoize `_filterDiagnostics()`
+    this._filterDiagnostics = (0, (_memoizeUntilChanged || _load_memoizeUntilChanged()).default)(this._filterDiagnostics, (diagnostics, pattern, hiddenGroups) => ({
+      diagnostics,
+      pattern,
+      hiddenGroups
+    }), (a, b) => patternsAreEqual(a.pattern, b.pattern) && (0, (_collection || _load_collection()).areSetsEqual)(a.hiddenGroups, b.hiddenGroups) && (0, (_collection || _load_collection()).arrayEqual)(a.diagnostics, b.diagnostics));
+
+    const { pattern, invalid } = (0, (_RegExpFilter || _load_RegExpFilter()).getFilterPattern)('', false);
+    this._model = new (_Model || _load_Model()).default({
+      // TODO: Get this from constructor/serialization.
+      hiddenGroups: new Set(),
+      textFilter: { text: '', isRegExp: false, pattern, invalid },
+      selectedMessage: null
+    });
+    const visibility = (0, (_observePaneItemVisibility || _load_observePaneItemVisibility()).default)(this).distinctUntilChanged();
+    this._disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default(visibility.let((0, (_observable || _load_observable()).fastDebounce)(1000)).distinctUntilChanged().filter(Boolean).subscribe(() => {
       (_analytics || _load_analytics()).default.track('diagnostics-show-table');
-    });
+    }));
 
-    // A stream that contains the props, but is "muted" when the panel's not visible.
-    this._props = (0, (_observable || _load_observable()).toggle)(getPropsStream(diagnostics, warnAboutLinterStream, showTracesStream, onShowTracesChange, disableLinter, initialfilterByActiveTextEditor, onFilterByActiveTextEditorChange).publishReplay(1).refCount(), this._visibility.distinctUntilChanged());
+    // Combine the state that's shared between instances, the state that's unique to this instance,
+    // and unchanging callbacks, to get the props for our component.
+    const props = _rxjsBundlesRxMinJs.Observable.combineLatest(globalStates, this._model.toObservable(), visibility, (globalState, instanceState, isVisible) => Object.assign({}, globalState, instanceState, {
+      isVisible,
+      diagnostics: this._filterDiagnostics(globalState.diagnostics, instanceState.textFilter.pattern, instanceState.hiddenGroups),
+      onTypeFilterChange: this._handleTypeFilterChange,
+      onTextFilterChange: this._handleTextFilterChange,
+      selectMessage: this._selectMessage,
+      gotoMessageLocation: goToDiagnosticLocation,
+      supportedMessageKinds: globalState.supportedMessageKinds
+    }));
+
+    this._props = this._trackVisibility(props);
+  }
+
+  // If autoVisibility setting is on, then automatically show/hide on changes.
+  // Otherwise mute the props stream to prevent unnecessary updates.
+  _trackVisibility(props) {
+    let lastDiagnostics = [];
+    return props.do(newProps => {
+      if (newProps.autoVisibility && !(0, (_collection || _load_collection()).arrayEqual)(newProps.diagnostics, lastDiagnostics, (a, b) => a.text === b.text)) {
+        const pane = atom.workspace.paneForItem(this);
+        if (newProps.diagnostics.length > 0 && !newProps.isVisible) {
+          // We want to call workspace.open but it has no option to
+          // show the new pane without activating it.
+          // So instead we find the dock for the pane and show() it directly.
+          // https://github.com/atom/atom/issues/16007
+          if (pane != null) {
+            pane.activateItem(this);
+            const dock = (0, (_dockForLocation || _load_dockForLocation()).default)(pane.getContainer().getLocation());
+            if (dock != null) {
+              dock.show();
+            }
+          }
+        } else if (newProps.diagnostics.length === 0 && newProps.isVisible) {
+          // Only hide the diagnostics if it's the only item in its pane.
+          if (pane != null) {
+            const items = pane.getItems();
+            if (items.length === 1 && items[0] instanceof DiagnosticsViewModel) {
+              atom.workspace.hide(this);
+            }
+          }
+        }
+        lastDiagnostics = newProps.diagnostics;
+      }
+    });
   }
 
   destroy() {
-    this._visibilitySubscription.unsubscribe();
+    this._disposables.dispose();
   }
 
   getTitle() {
@@ -117,53 +210,103 @@ class DiagnosticsViewModel {
   }
 
   serialize() {
+    const { hiddenGroups } = this._model.state;
     return {
-      deserializer: 'atom-ide-ui.DiagnosticsViewModel'
+      deserializer: 'atom-ide-ui.DiagnosticsViewModel',
+      state: {
+        hiddenGroups: [...hiddenGroups]
+      }
     };
-  }
-
-  didChangeVisibility(visible) {
-    this._visibility.next(visible);
   }
 
   getElement() {
     if (this._element == null) {
       const Component = (0, (_bindObservableAsProps || _load_bindObservableAsProps()).bindObservableAsProps)(this._props, (_DiagnosticsView || _load_DiagnosticsView()).default);
       const element = (0, (_renderReactRoot || _load_renderReactRoot()).renderReactRoot)(_react.default.createElement(Component, null));
-      element.classList.add('nuclide-diagnostics-ui');
+      element.classList.add('diagnostics-ui');
       this._element = element;
     }
     return this._element;
   }
+
+  /**
+   * Toggle the filter.
+   */
+
+
+  _filterDiagnostics(diagnostics, pattern, hiddenGroups) {
+    return diagnostics.filter(message => {
+      if (hiddenGroups.has((_GroupUtils || _load_GroupUtils()).getGroup(message))) {
+        return false;
+      }
+      if (pattern == null) {
+        return true;
+      }
+      return message.text != null && pattern.test(message.text) || message.html != null && pattern.test(message.html) || pattern.test(message.providerName) || pattern.test(message.filePath);
+    });
+  }
+
 }
 
 exports.DiagnosticsViewModel = DiagnosticsViewModel;
-function getPropsStream(diagnosticsStream, warnAboutLinterStream, showTracesStream, onShowTracesChange, disableLinter, initialfilterByActiveTextEditor, onFilterByActiveTextEditorChange) {
-  const center = atom.workspace.getCenter();
-  const activeTextEditorPaths = (0, (_event || _load_event()).observableFromSubscribeFunction)(center.observeActivePaneItem.bind(center)).filter(paneItem => (0, (_textEditor || _load_textEditor()).isValidTextEditor)(paneItem)).switchMap(textEditor_ => {
-    const textEditor = textEditor_;
-    // An observable that emits the editor path and then, when the editor's destroyed, null.
-    return _rxjsBundlesRxMinJs.Observable.concat(_rxjsBundlesRxMinJs.Observable.of(textEditor.getPath()), (0, (_event || _load_event()).observableFromSubscribeFunction)(textEditor.onDidDestroy.bind(textEditor)).take(1).mapTo(null));
-  }).distinctUntilChanged();
 
-  const sortedDiagnostics = _rxjsBundlesRxMinJs.Observable.concat(_rxjsBundlesRxMinJs.Observable.of([]), diagnosticsStream.debounceTime(RENDER_DEBOUNCE_TIME).map(diagnostics => diagnostics.slice().sort((_paneUtils || _load_paneUtils()).compareMessagesByFile)),
-  // If the diagnostics stream ever terminates, clear all messages.
-  _rxjsBundlesRxMinJs.Observable.of([]));
-
-  const filterByActiveTextEditorStream = new _rxjsBundlesRxMinJs.BehaviorSubject(initialfilterByActiveTextEditor);
-  const handleFilterByActiveTextEditorChange = filterByActiveTextEditor => {
-    filterByActiveTextEditorStream.next(filterByActiveTextEditor);
-    onFilterByActiveTextEditorChange(filterByActiveTextEditor);
+var _initialiseProps = function () {
+  this._handleTypeFilterChange = type => {
+    const { hiddenGroups } = this._model.state;
+    const hidden = hiddenGroups.has(type);
+    const nextHiddenTypes = new Set(hiddenGroups);
+    if (hidden) {
+      nextHiddenTypes.delete(type);
+    } else {
+      nextHiddenTypes.add(type);
+    }
+    this._model.setState({ hiddenGroups: nextHiddenTypes });
   };
 
-  return _rxjsBundlesRxMinJs.Observable.combineLatest(activeTextEditorPaths, sortedDiagnostics, warnAboutLinterStream, filterByActiveTextEditorStream, showTracesStream).map(([pathToActiveTextEditor, diagnostics, warnAboutLinter, filter, traces]) => ({
-    pathToActiveTextEditor,
-    diagnostics,
-    warnAboutLinter,
-    showTraces: traces,
-    onShowTracesChange,
-    disableLinter,
-    filterByActiveTextEditor: filter,
-    onFilterByActiveTextEditorChange: handleFilterByActiveTextEditorChange
-  }));
+  this._handleTextFilterChange = value => {
+    const { text, isRegExp } = value;
+    // TODO: Fuzzy if !isRegExp?
+    const { invalid, pattern } = (0, (_RegExpFilter || _load_RegExpFilter()).getFilterPattern)(text, isRegExp);
+    this._model.setState({
+      textFilter: { text, isRegExp, invalid, pattern }
+    });
+  };
+
+  this._selectMessage = message => {
+    this._model.setState({ selectedMessage: message });
+  };
+};
+
+function goToDiagnosticLocation(message, options) {
+  // TODO: what should we do for project-path diagnostics?
+  if ((_nuclideUri || _load_nuclideUri()).default.endsWithSeparator(message.filePath)) {
+    return;
+  }
+
+  (_analytics || _load_analytics()).default.track('diagnostics-panel-goto-location');
+
+  const uri = message.filePath;
+  // If initialLine is N, Atom will navigate to line N+1.
+  // Flow sometimes reports a row of -1, so this ensures the line is at least one.
+  const line = Math.max(message.range ? message.range.start.row : 0, 0);
+  const column = 0;
+  (0, (_goToLocation || _load_goToLocation()).goToLocation)(uri, {
+    line,
+    column,
+    activatePane: options.focusEditor,
+    pending: true
+  });
+}
+
+function patternsAreEqual(a, b) {
+  if (a === b) {
+    return true;
+  }
+  if (a == null && b == null) {
+    return true;
+  }
+  if (a == null || b == null) {
+    return false;
+  }
+  return a.source === b.source && a.global === b.global && a.multiline === b.multiline && a.ignoreCase === b.ignoreCase;
 }

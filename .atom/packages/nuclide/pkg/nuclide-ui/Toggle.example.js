@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ToggleExamples = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _Block;
 
@@ -16,10 +16,10 @@ function _load_Block() {
 var _Toggle;
 
 function _load_Toggle() {
-  return _Toggle = require('./Toggle');
+  return _Toggle = require('nuclide-commons-ui/Toggle');
 }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 const NOOP = () => {}; /**
                         * Copyright (c) 2015-present, Facebook, Inc.
@@ -32,33 +32,33 @@ const NOOP = () => {}; /**
                         * @format
                         */
 
-const ToggleExample = () => _react.default.createElement(
+const ToggleExample = () => _react.createElement(
   'div',
   null,
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_Toggle || _load_Toggle()).Toggle, {
+    _react.createElement((_Toggle || _load_Toggle()).Toggle, {
       toggled: false,
       onClick: NOOP,
       onChange: NOOP,
       label: 'A Toggle.'
     })
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_Toggle || _load_Toggle()).Toggle, {
+    _react.createElement((_Toggle || _load_Toggle()).Toggle, {
       onClick: NOOP,
       onChange: NOOP,
       toggled: true,
       label: 'A toggled Toggle.'
     })
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_Toggle || _load_Toggle()).Toggle, {
+    _react.createElement((_Toggle || _load_Toggle()).Toggle, {
       onClick: NOOP,
       onChange: NOOP,
       disabled: true,
@@ -66,10 +66,10 @@ const ToggleExample = () => _react.default.createElement(
       label: 'A disabled Toggle.'
     })
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_Toggle || _load_Toggle()).Toggle, {
+    _react.createElement((_Toggle || _load_Toggle()).Toggle, {
       onClick: NOOP,
       onChange: NOOP,
       toggled: true,

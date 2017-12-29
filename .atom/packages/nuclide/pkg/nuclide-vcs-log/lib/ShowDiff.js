@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ShowDiff = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _AtomTextEditor;
 
@@ -39,6 +39,8 @@ function _load_LoadingSpinner() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -55,13 +57,13 @@ const NUCLIDE_VCS_LOG_EDITOR_LOADING_CLASSNAME = 'nuclide-vcs-log-editor-loading
 const NUCLIDE_VCS_LOG_EDITOR_CLASSNAME = 'nuclide-vcs-log-editor';
 const NUCLIDE_VCS_LOG_DIFF_CONTAINER_CLASSNAME = 'nuclide-vcs-log-diff-container';
 
-class ShowDiff extends _react.default.Component {
+class ShowDiff extends _react.Component {
 
   render() {
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: NUCLIDE_VCS_LOG_DIFF_CONTAINER_CLASSNAME },
-      _react.default.createElement((_AtomTextEditor || _load_AtomTextEditor()).AtomTextEditor, {
+      _react.createElement((_AtomTextEditor || _load_AtomTextEditor()).AtomTextEditor, {
         readOnly: true,
         autoGrow: true,
         syncTextContents: false,
@@ -69,10 +71,11 @@ class ShowDiff extends _react.default.Component {
         className: NUCLIDE_VCS_LOG_EDITOR_CLASSNAME,
         correctContainerWidth: false,
         ref: editorRef => {
+          // $FlowFixMe(>=0.53.0) Flow suppress
           this._oldTextEditor = editorRef && editorRef.getModel();
         }
       }),
-      _react.default.createElement((_AtomTextEditor || _load_AtomTextEditor()).AtomTextEditor, {
+      _react.createElement((_AtomTextEditor || _load_AtomTextEditor()).AtomTextEditor, {
         readOnly: true,
         autoGrow: true,
         syncTextContents: false,
@@ -80,6 +83,7 @@ class ShowDiff extends _react.default.Component {
         className: NUCLIDE_VCS_LOG_EDITOR_CLASSNAME,
         correctContainerWidth: false,
         ref: editorRef => {
+          // $FlowFixMe(>=0.53.0) Flow suppress
           this._newTextEditor = editorRef && editorRef.getModel();
         }
       })
@@ -128,7 +132,7 @@ class ShowDiff extends _react.default.Component {
       return;
     }
 
-    const loadingElement = (0, (_renderReactRoot || _load_renderReactRoot()).renderReactRoot)(_react.default.createElement((_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinner, { delay: 50, size: (_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinnerSizes.LARGE }));
+    const loadingElement = (0, (_renderReactRoot || _load_renderReactRoot()).renderReactRoot)(_react.createElement((_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinner, { delay: 50, size: (_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinnerSizes.LARGE }));
     loadingElement.classList.add(NUCLIDE_VCS_LOG_LOADING_INDICATOR_CLASSNAME);
     editorElementParent.appendChild(loadingElement);
     editorElement.classList.add(NUCLIDE_VCS_LOG_EDITOR_LOADING_CLASSNAME);

@@ -15,7 +15,7 @@ function _load_Ansi() {
 
 var _atom = require('atom');
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactDom = _interopRequireDefault(require('react-dom'));
 
@@ -56,6 +56,8 @@ var _log4js;
 function _load_log4js() {
   return _log4js = require('log4js');
 }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -118,6 +120,15 @@ class TestRunnerController {
     this._renderPanel();
   }
 
+  // Atom expects us to return a new instance of this class every time it's shown in the
+  // workspace. For historical reasons, we always use the same one. This is bad because it means
+  // that our `destroy()` will be called multiple times, and that this instance needs to be
+  // reusable after it's destroyed. To work around this for the time being, we call this method to
+  // reinitialize the view when we should really be creating a new instance.
+  reinitialize() {
+    this._renderPanel();
+  }
+
   destroy() {
     this._stopListening();
     _reactDom.default.unmountComponentAtNode(this._root);
@@ -128,14 +139,16 @@ class TestRunnerController {
   }
 
   /**
-   * @return A Promise that resolves when testing has succesfully started.
+   * @return A Promise that resolves when testing has successfully started.
    */
   runTests(path) {
     var _this = this;
 
     return (0, _asyncToGenerator.default)(function* () {
       _this._runningTest = true;
-      atom.commands.dispatch(atom.views.getView(atom.workspace), 'nuclide-test-runner:toggle-panel', { visible: true });
+
+      // eslint-disable-next-line rulesdir/atom-apis
+      atom.workspace.open(WORKSPACE_VIEW_URI, { searchAllPanes: true });
 
       // Get selected test runner when Flow knows `this._testRunnerPanel` is defined.
       const selectedTestRunner = _this._testRunnerPanel.getSelectedTestRunner();
@@ -161,6 +174,7 @@ class TestRunnerController {
         testPath = activeTextEditor.getPath();
       }
 
+      // flowlint-next-line sketchy-null-string:off
       if (!testPath) {
         logger.warn('Attempted to run tests on an editor with no path.');
         return;
@@ -291,7 +305,7 @@ class TestRunnerController {
       // track.
       progressValue = 100;
     }
-    const component = _reactDom.default.render(_react.default.createElement((_TestRunnerPanel || _load_TestRunnerPanel()).default, {
+    const component = _reactDom.default.render(_react.createElement((_TestRunnerPanel || _load_TestRunnerPanel()).default, {
       attachDebuggerBeforeRunning: this._attachDebuggerBeforeRunning,
       buffer: this._buffer,
       executionState: this._executionState,

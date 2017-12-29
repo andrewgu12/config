@@ -11,7 +11,7 @@ function _load_ProcessTaskButton() {
   return _ProcessTaskButton = require('./ProcessTaskButton');
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _Table;
 
@@ -25,10 +25,15 @@ function _load_AtomInput() {
   return _AtomInput = require('nuclide-commons-ui/AtomInput');
 }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _LoadingSpinner;
 
-class ProcessTable extends _react.default.Component {
+function _load_LoadingSpinner() {
+  return _LoadingSpinner = require('nuclide-commons-ui/LoadingSpinner');
+}
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+class ProcessTable extends _react.Component {
   constructor(props) {
     super(props);
 
@@ -77,87 +82,92 @@ class ProcessTable extends _react.default.Component {
     }
     // compare numerically the following fields
     const compare = ['cpuUsage', 'memUsage', 'pid', 'debug'].includes(sortedColumnName) ? (a, b, isAsc) => {
-      const cmp = (a || Number.NEGATIVE_INFINITY) - (b || Number.NEGATIVE_INFINITY);
+      const cmp =
+      // flowlint-next-line sketchy-null-number:off
+      (a || Number.NEGATIVE_INFINITY) - (b || Number.NEGATIVE_INFINITY);
       return isAsc ? cmp : -cmp;
     } : (a, b, isAsc) => {
       const cmp = a.toLowerCase().localeCompare(b.toLowerCase());
       return isAsc ? cmp : -cmp;
     };
 
-    return processes.sort((a, b) => compare(a[sortedColumnName], b[sortedColumnName], !sortDescending));
+    return processes.sort((a, b) =>
+    // $FlowFixMe: Process doesn't have a debug field.
+    compare(a[sortedColumnName], b[sortedColumnName], !sortDescending));
   }
 
   render() {
     const filterRegex = new RegExp(this.state.filterText, 'i');
-    const rows = this._sortProcesses(this.props.processes.filter(item => filterRegex.test(item.user) || filterRegex.test(`${item.pid}`) || filterRegex.test(item.name)), this.state.sortedColumn, this.state.sortDescending).map(item => ({
-      data: {
-        pid: _react.default.createElement(
-          'div',
-          null,
-          _react.default.createElement((_ProcessTaskButton || _load_ProcessTaskButton()).ProcessTaskButton, {
-            icon: 'x',
-            proc: item,
-            taskType: 'KILL',
-            nameIfManyTasks: 'Kill process',
-            tasks: this.props.processTasks
-          }),
-          item.pid
-        ),
-        user: item.user,
-        name: item.name,
-        cpuUsage: this._formatCpuUsage(item.cpuUsage),
-        memUsage: this._formatMemUsage(item.memUsage),
-        debug: _react.default.createElement((_ProcessTaskButton || _load_ProcessTaskButton()).ProcessTaskButton, {
-          icon: 'nuclicon-debugger',
-          className: 'nuclide-device-panel-debug-button',
-          proc: item,
-          taskType: 'DEBUG',
-          nameIfManyTasks: 'Debug process',
-          tasks: this.props.processTasks
-        })
-      }
-    }));
-    const columns = [{
-      key: 'pid',
-      title: 'PID',
-      width: 0.17
-    }, {
-      key: 'name',
-      title: 'Name',
-      width: 0.31
-    }, {
-      key: 'user',
-      title: 'User',
-      width: 0.13
-    }, {
-      key: 'cpuUsage',
-      title: 'CPU',
-      width: 0.15
-    }, {
-      key: 'memUsage',
-      title: 'Mem',
-      width: 0.15
-    }, {
-      key: 'debug',
-      title: 'Debug',
-      width: 0.08
-    }];
-    const emptyComponent = () => _react.default.createElement(
-      'div',
-      { className: 'padded' },
-      'No information'
-    );
 
-    return _react.default.createElement(
-      'div',
-      null,
-      _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
-        placeholderText: 'Filter process...',
-        initialValue: this.state.filterText,
-        onDidChange: this._handleFilterTextChange,
-        size: 'sm'
-      }),
-      _react.default.createElement((_Table || _load_Table()).Table, {
+    let processComponent;
+    if (this.props.processes.isError) {
+      processComponent = _react.createElement(
+        'div',
+        null,
+        this.props.processes.error.toString()
+      );
+    } else if (this.props.processes.isPending) {
+      processComponent = _react.createElement((_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinner, { size: 'EXTRA_SMALL', key: 'infoTableLoading' });
+    } else {
+      const rows = this._sortProcesses(this.props.processes.value.filter(item => filterRegex.test(item.user) || filterRegex.test(`${item.pid}`) || filterRegex.test(item.name)), this.state.sortedColumn, this.state.sortDescending).map(item => ({
+        data: {
+          pid: _react.createElement(
+            'div',
+            null,
+            _react.createElement((_ProcessTaskButton || _load_ProcessTaskButton()).ProcessTaskButton, {
+              icon: 'x',
+              proc: item,
+              taskType: 'KILL',
+              nameIfManyTasks: 'Kill process',
+              tasks: this.props.processTasks
+            }),
+            item.pid
+          ),
+          user: item.user,
+          name: item.name,
+          cpuUsage: this._formatCpuUsage(item.cpuUsage),
+          memUsage: this._formatMemUsage(item.memUsage),
+          debug: _react.createElement((_ProcessTaskButton || _load_ProcessTaskButton()).ProcessTaskButton, {
+            icon: 'nuclicon-debugger',
+            className: 'nuclide-device-panel-debug-button',
+            proc: item,
+            taskType: 'DEBUG',
+            nameIfManyTasks: 'Debug process',
+            tasks: this.props.processTasks
+          })
+        }
+      }));
+      const columns = [{
+        key: 'pid',
+        title: 'PID',
+        width: 0.17
+      }, {
+        key: 'name',
+        title: 'Name',
+        width: 0.31
+      }, {
+        key: 'user',
+        title: 'User',
+        width: 0.13
+      }, {
+        key: 'cpuUsage',
+        title: 'CPU',
+        width: 0.15
+      }, {
+        key: 'memUsage',
+        title: 'Mem',
+        width: 0.15
+      }, {
+        key: 'debug',
+        title: 'Debug',
+        width: 0.08
+      }];
+      const emptyComponent = () => _react.createElement(
+        'div',
+        { className: 'padded' },
+        'No information'
+      );
+      processComponent = _react.createElement((_Table || _load_Table()).Table, {
         collapsable: false,
         columns: columns,
         maxBodyHeight: '99999px',
@@ -168,7 +178,19 @@ class ProcessTable extends _react.default.Component {
         sortedColumn: this.state.sortedColumn,
         sortDescending: this.state.sortDescending,
         className: 'nuclide-device-panel-process-table'
-      })
+      });
+    }
+
+    return _react.createElement(
+      'div',
+      null,
+      _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+        placeholderText: 'Filter process...',
+        initialValue: this.state.filterText,
+        onDidChange: this._handleFilterTextChange,
+        size: 'sm'
+      }),
+      processComponent
     );
   }
 

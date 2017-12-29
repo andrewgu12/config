@@ -30,6 +30,12 @@ function _load_log4js() {
   return _log4js = require('log4js');
 }
 
+var _constants;
+
+function _load_constants() {
+  return _constants = require('./constants');
+}
+
 var _libclang;
 
 function _load_libclang() {
@@ -38,18 +44,18 @@ function _load_libclang() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const IDENTIFIER_REGEX = /[a-z0-9_]+/gi; /**
-                                          * Copyright (c) 2015-present, Facebook, Inc.
-                                          * All rights reserved.
-                                          *
-                                          * This source code is licensed under the license found in the LICENSE file in
-                                          * the root directory of this source tree.
-                                          *
-                                          * 
-                                          * @format
-                                          */
+/**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the license found in the LICENSE file in
+ * the root directory of this source tree.
+ *
+ * 
+ * @format
+ */
 
-const DEFAULT_FLAGS_WARNING = 'Diagnostics are disabled due to lack of compilation flags. ' + 'Build this file with Buck, or create a compile_commands.json file manually.';
+const IDENTIFIER_REGEX = /[a-z0-9_]+/gi;
 
 function isValidRange(clangRange) {
   // Some ranges are unbounded/invalid (end with -1) or empty.
@@ -124,6 +130,7 @@ class ClangLinter {
           range = getRangeFromPoint(editor, diagnostic.location.point);
         }
 
+        // flowlint-next-line sketchy-null-string:off
         const filePath = diagnostic.location.file || bufferPath;
 
         let trace;
@@ -132,6 +139,7 @@ class ClangLinter {
             return {
               type: 'Trace',
               text: child.spelling,
+              // flowlint-next-line sketchy-null-string:off
               filePath: child.location.file || bufferPath,
               range: getRangeFromPoint(editor, child.location.point)
             };
@@ -161,9 +169,9 @@ class ClangLinter {
       });
     } else {
       result.push({
-        type: 'Warning',
+        type: 'Info',
         filePath: bufferPath,
-        text: DEFAULT_FLAGS_WARNING,
+        text: (_constants || _load_constants()).DEFAULT_FLAGS_WARNING,
         range: buffer.rangeForRow(0)
       });
     }

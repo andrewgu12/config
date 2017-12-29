@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.AttachUIComponent = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _AtomInput;
 
@@ -38,6 +38,8 @@ function _load_nuclideDebuggerBase() {
 }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function getColumns() {
   return [{
@@ -87,7 +89,18 @@ function getCompareFunction(sortedColumn, sortDescending) {
   return () => 0;
 }
 
-class AttachUIComponent extends _react.default.Component {
+function filterTargetInfos(attachTargetInfos, filterText) {
+  // Show all results if invalid regex
+  let filterRegex;
+  try {
+    filterRegex = new RegExp(filterText, 'i');
+  } catch (e) {
+    filterRegex = new RegExp('.*', 'i');
+  }
+  return attachTargetInfos.filter(item => filterRegex.test(item.name) || filterRegex.test(item.pid.toString()) || filterRegex.test(item.commandName));
+}
+
+class AttachUIComponent extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -101,7 +114,17 @@ class AttachUIComponent extends _react.default.Component {
         (0, (_nuclideDebuggerBase || _load_nuclideDebuggerBase()).deserializeDebuggerConfig)(...this._getSerializationArgs(), (transientSettings, savedSettings) => {
           newSelectedTarget = this.state.attachTargetInfos.find(target => target.pid === transientSettings.attachPid && target.name === transientSettings.attachName);
           filterText = transientSettings.filterText;
+          this.setState({
+            attachSourcePath: savedSettings.attachSourcePath || ''
+          });
         });
+      }
+
+      const filteredAttachTargetInfos = filterTargetInfos(this.state.attachTargetInfos, filterText || this.state.filterText);
+
+      // Select only option if filtered to one result
+      if (filteredAttachTargetInfos.length === 1) {
+        newSelectedTarget = filteredAttachTargetInfos[0];
       }
 
       if (newSelectedTarget == null) {
@@ -123,8 +146,16 @@ class AttachUIComponent extends _react.default.Component {
     };
 
     this._handleFilterTextChange = text => {
+      // Check if we've filtered down to one option and select if so
+      let newSelectedTarget = this.state.selectedAttachTarget;
+      const filteredAttachTargetInfos = filterTargetInfos(this.state.attachTargetInfos, text);
+      if (filteredAttachTargetInfos.length === 1) {
+        newSelectedTarget = filteredAttachTargetInfos[0];
+      }
+
       this.setState({
-        filterText: text
+        filterText: text,
+        selectedAttachTarget: newSelectedTarget
       });
     };
 
@@ -157,7 +188,8 @@ class AttachUIComponent extends _react.default.Component {
       selectedAttachTarget: null,
       filterText: '',
       sortDescending: false,
-      sortedColumn: null
+      sortedColumn: null,
+      attachSourcePath: ''
     };
   }
 
@@ -202,12 +234,11 @@ class AttachUIComponent extends _react.default.Component {
   }
 
   render() {
-    const filterRegex = new RegExp(this.state.filterText, 'i');
     const { attachTargetInfos, sortedColumn, sortDescending } = this.state;
     const compareFn = getCompareFunction(sortedColumn, sortDescending);
     const { selectedAttachTarget } = this.state;
     let selectedIndex = null;
-    const rows = attachTargetInfos.filter(item => filterRegex.test(item.name) || filterRegex.test(item.pid.toString()) || filterRegex.test(item.commandName)).sort(compareFn).map((item, index) => {
+    const rows = filterTargetInfos(attachTargetInfos, this.state.filterText).sort(compareFn).map((item, index) => {
       const row = {
         data: {
           process: item.name,
@@ -220,17 +251,17 @@ class AttachUIComponent extends _react.default.Component {
       }
       return row;
     });
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'block' },
-      _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+      _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
         placeholderText: 'Search...',
         value: this.state.filterText,
         onDidChange: this._handleFilterTextChange,
         size: 'sm',
         autofocus: true
       }),
-      _react.default.createElement((_Table || _load_Table()).Table, {
+      _react.createElement((_Table || _load_Table()).Table, {
         columns: getColumns(),
         fixedHeader: true,
         maxBodyHeight: '30em',
@@ -243,6 +274,17 @@ class AttachUIComponent extends _react.default.Component {
         selectedIndex: selectedIndex,
         onSelect: this._handleSelectTableRow,
         collapsable: true
+      }),
+      _react.createElement(
+        'label',
+        null,
+        'Source path: '
+      ),
+      _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+        ref: 'attachSourcePath',
+        placeholderText: 'Optional base path for sources',
+        value: this.state.attachSourcePath,
+        onDidChange: value => this.setState({ attachSourcePath: value })
       })
     );
   }
@@ -255,8 +297,13 @@ class AttachUIComponent extends _react.default.Component {
     const attachTarget = this.state.selectedAttachTarget;
     if (attachTarget != null) {
       // Fire and forget.
+      if (this.state.attachSourcePath !== '') {
+        attachTarget.basepath = this.state.attachSourcePath;
+      }
       this.props.actions.attachDebugger(attachTarget);
-      (0, (_nuclideDebuggerBase || _load_nuclideDebuggerBase()).serializeDebuggerConfig)(...this._getSerializationArgs(), {}, {
+      (0, (_nuclideDebuggerBase || _load_nuclideDebuggerBase()).serializeDebuggerConfig)(...this._getSerializationArgs(), {
+        attachSourcePath: this.state.attachSourcePath
+      }, {
         attachPid: attachTarget.pid,
         attachName: attachTarget.name,
         filterText: this.state.filterText

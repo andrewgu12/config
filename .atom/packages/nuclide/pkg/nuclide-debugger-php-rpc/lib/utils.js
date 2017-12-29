@@ -23,12 +23,8 @@ const DEBUGGER_LOGGER_CATEGORY = 'nuclide-debugger-php'; /**
                                                           */
 
 exports.default = (0, (_log4js || _load_log4js()).getLogger)(DEBUGGER_LOGGER_CATEGORY);
-function makeExpressionHphpdCompatible(params) {
+function makeExpressionHphpdCompatible(expression) {
   // Hphpd requires that '=' is prefixed to expressions, but xdebug doesn't require this, so
   // we remove leading '=' if necessary.
-  const expr = params.expression;
-  if (expr.startsWith('=')) {
-    params.expression = expr.substring(1);
-  }
-  return params;
+  return expression.startsWith('=') ? expression.substring(1) : expression;
 }

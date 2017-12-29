@@ -10,13 +10,13 @@ function _load_AtomTextEditor() {
   return _AtomTextEditor = require('nuclide-commons-ui/AtomTextEditor');
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-class Console extends _react.default.Component {
+class Console extends _react.Component {
   render() {
-    return _react.default.createElement((_AtomTextEditor || _load_AtomTextEditor()).AtomTextEditor, {
+    return _react.createElement((_AtomTextEditor || _load_AtomTextEditor()).AtomTextEditor, {
       gutterHidden: true,
       path: '.ansi',
       readOnly: true,

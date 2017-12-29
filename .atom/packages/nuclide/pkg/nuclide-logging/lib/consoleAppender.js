@@ -17,7 +17,7 @@ function layout(loggingEvent) {
     data.unshift(eventInfo);
   }
 
-  // When logging an Error object, just print the messsage and the stack trace.
+  // When logging an Error object, just print the message and the stack trace.
   // Since we attach other properties to the object like `stackTrace`, these
   // can be really noisy.
   for (let i = 0; i < data.length; i++) {
@@ -53,6 +53,7 @@ function consoleAppender() {
   };
 }
 
+// eslint-disable-next-line rulesdir/no-commonjs
 module.exports = {
   appender: consoleAppender,
   configure: consoleAppender

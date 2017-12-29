@@ -5,7 +5,7 @@ project    nord-atom-syntax                                    +
 repository https://github.com/arcticicestudio/nord-atom-syntax +
 author     Arctic Ice Studio                                   +
 email      development@arcticicestudio.com                     +
-copyright  Copyright (C) 2016                                  +
+copyright  Copyright (C) 2017                                  +
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
 atom-text-editor {
@@ -16,7 +16,7 @@ atom-text-editor {
     + Elements +
     +----------+*/
   .bracket-matcher .region {
-    border: 1px solid @syntax-bracket-matcher-color;;
+    border: 1px solid @syntax-bracket-matcher-color;
     box-sizing: border-box;
   }
 
@@ -25,7 +25,7 @@ atom-text-editor {
   }
 
   .indent-guide {
-    color: @syntax-indent-guide-color;
+    box-shadow: inset 1px 0 @syntax-indent-guide-color;
   }
 
   .invisible {
@@ -127,7 +127,7 @@ atom-text-editor {
       }
 
       .icon-right {
-        opacity: 1.0;
+        opacity: 1;
         color: @syntax-gutter-text-color;
         transition: all @syntax-transition-time ease;
       }
@@ -149,7 +149,7 @@ atom-text-editor {
       transition: all @syntax-transition-time ease;
 
       &:hover {
-        opacity: 1.0;
+        opacity: 1;
       }
     }
   }

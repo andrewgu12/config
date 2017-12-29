@@ -4,6 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.localPath_lspUri = localPath_lspUri;
+exports.lspUri_localPath = lspUri_localPath;
 exports.lspTextEdits_atomTextEdits = lspTextEdits_atomTextEdits;
 exports.lspLocation_atomFoundReference = lspLocation_atomFoundReference;
 exports.lspLocation_atomDefinition = lspLocation_atomDefinition;
@@ -18,6 +19,8 @@ exports.lspMessageType_atomShowNotificationLevel = lspMessageType_atomShowNotifi
 exports.lspSymbolKind_atomIcon = lspSymbolKind_atomIcon;
 exports.lspSymbolInformation_atomTokenizedText = lspSymbolInformation_atomTokenizedText;
 exports.lspSymbolInformation_atomSymbolResult = lspSymbolInformation_atomSymbolResult;
+exports.lspCommand_atomCodeAction = lspCommand_atomCodeAction;
+exports.atomDiagnostic_lspDiagnostic = atomDiagnostic_lspDiagnostic;
 exports.lspDiagnostics_atomDiagnostics = lspDiagnostics_atomDiagnostics;
 
 var _nuclideUri;
@@ -44,7 +47,24 @@ function _load_tokenizedText() {
   return _tokenizedText = require('nuclide-commons/tokenized-text');
 }
 
+var _collection;
+
+function _load_collection() {
+  return _collection = require('nuclide-commons/collection');
+}
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the license found in the LICENSE file in
+ * the root directory of this source tree.
+ *
+ * 
+ * @format
+ */
 
 function localPath_lspUri(filepath) {
   // NuclideUris are either a local file path, or nuclide://<host><path>.
@@ -54,16 +74,7 @@ function localPath_lspUri(filepath) {
   } else {
     return (_nuclideUri || _load_nuclideUri()).default.nuclideUriToUri(filepath);
   }
-} /**
-   * Copyright (c) 2015-present, Facebook, Inc.
-   * All rights reserved.
-   *
-   * This source code is licensed under the license found in the LICENSE file in
-   * the root directory of this source tree.
-   *
-   * 
-   * @format
-   */
+}
 
 function lspUri_localPath(uri) {
   // We accept LSP file:// URIs, and also plain paths for back-compat
@@ -100,7 +111,8 @@ function lspLocation_atomDefinition(location, projectRoot) {
     path: lspUri_localPath(location.uri),
     position: lspPosition_atomPoint(location.range.start),
     language: 'lsp', // pointless; only ever used to judge equality of two defs
-    projectRoot };
+    projectRoot // used to relativize paths when showing multiple targets
+  };
 }
 
 function localPath_lspTextDocumentIdentifier(filePath) {
@@ -182,8 +194,76 @@ function lspCompletionItemKind_atomCompletionType(kind) {
   }
 }
 
+function lspCompletionItemKind_atomIcon(kind) {
+  // returns null if there should be no icon
+  // returns 'DEFAULT' for the default icon provided by AutocompletePlus
+  // returns anything else for an Atom icon
+
+  // Unfortunately, LSP doesn't yet have CompletionItemKinds for all the
+  // possible SymbolKinds (e.g. CompletionItemKind is missing namespace).
+  // So LSP servers will presumably be returning an alternative, e.g. maybe
+  // CompletionItemKind.Module for their namespaces.
+  // https://github.com/Microsoft/language-server-protocol/issues/155
+
+  // Unfortunately, Atom only provides a thematically unified 'type-*' icon set
+  // for SymbolKind icons (e.g. it has no icon for Value or Keyword).
+  // In such cases we try to fall back to the icons provided by AutocompletePlus
+  switch (kind) {
+    case null:
+      return null;
+    case (_protocol || _load_protocol()).CompletionItemKind.Text:
+      return null; // no Atom icon, and no good AutocompletePlus fallback
+    case (_protocol || _load_protocol()).CompletionItemKind.Method:
+      return 'type-method';
+    case (_protocol || _load_protocol()).CompletionItemKind.Function:
+      return 'type-function';
+    case (_protocol || _load_protocol()).CompletionItemKind.Constructor:
+      return 'type-constructor';
+    case (_protocol || _load_protocol()).CompletionItemKind.Field:
+      return 'type-field';
+    case (_protocol || _load_protocol()).CompletionItemKind.Variable:
+      return 'type-variable';
+    case (_protocol || _load_protocol()).CompletionItemKind.Class:
+      return 'type-class';
+    case (_protocol || _load_protocol()).CompletionItemKind.Interface:
+      return 'type-interface';
+    case (_protocol || _load_protocol()).CompletionItemKind.Module:
+      return 'type-module';
+    case (_protocol || _load_protocol()).CompletionItemKind.Property:
+      return 'type-property';
+    case (_protocol || _load_protocol()).CompletionItemKind.Unit:
+      return null; // not even sure what this is supposed to be
+    case (_protocol || _load_protocol()).CompletionItemKind.Value:
+      return 'DEFAULT'; // this has a good fallback in AutocompletePlus
+    case (_protocol || _load_protocol()).CompletionItemKind.Enum:
+      return 'type-enum';
+    case (_protocol || _load_protocol()).CompletionItemKind.Keyword:
+      return 'DEFAULT'; // this has a good fallback in AutocompletePlus
+    case (_protocol || _load_protocol()).CompletionItemKind.Snippet:
+      return 'DEFAULT'; // this has a good fallback in AutocompletePlus
+    case (_protocol || _load_protocol()).CompletionItemKind.Color:
+      return null; // no Atom icon, and no suitable fallback in AutocompletePlus
+    case (_protocol || _load_protocol()).CompletionItemKind.File:
+      return 'type-file';
+    case (_protocol || _load_protocol()).CompletionItemKind.Reference:
+      return null; // not even sure what this is supposed to be
+    default:
+      return null;
+  }
+}
+
 function lspCompletionItem_atomCompletion(item) {
   const useSnippet = item.insertTextFormat === (_protocol || _load_protocol()).InsertTextFormat.Snippet;
+  const lspTextEdits = getCompletionTextEdits(item);
+  const icon = lspCompletionItemKind_atomIcon(item.kind);
+  let iconHTML;
+  if (icon == null) {
+    iconHTML = ''; // no icon at all
+  } else if (icon === 'DEFAULT') {
+    iconHTML = undefined; // fall through to the default AutocompletePlus icon
+  } else {
+    iconHTML = `<span class="icon-${icon}"></span>`;
+  }
   return {
     // LSP: label is what should be displayed in the autocomplete list
     // Atom: displayText is what's displayed
@@ -191,7 +271,9 @@ function lspCompletionItem_atomCompletion(item) {
     // LSP: if insertText is present, insert that, else fall back to label
     // LSP: insertTextFormat says whether we're inserting text or snippet
     // Atom: text/snippet: one of them has to be defined
+    // flowlint-next-line sketchy-null-string:off
     snippet: useSnippet ? item.insertText || item.label : undefined,
+    // flowlint-next-line sketchy-null-string:off
     text: useSnippet ? undefined : item.insertText || item.label,
     // LSP: [nuclide-specific] itemType is return type of function
     // Atom: it's convention to display return types in the left column
@@ -201,11 +283,25 @@ function lspCompletionItem_atomCompletion(item) {
     rightLabel: item.inlineDetail,
     // LSP: kind indicates what icon should be used
     // ATOM: type is to indicate icon and its background color
+    // ATOM: iconHTML can be used to override the icon
     type: lspCompletionItemKind_atomCompletionType(item.kind),
+    iconHTML,
     // LSP detail is the thing's signature
     // Atom: description is displayed in the footer of the autocomplete tab
-    description: item.detail
+    description: item.detail,
+    textEdits: lspTextEdits != null ? lspTextEdits_atomTextEdits(lspTextEdits) : undefined
   };
+}
+
+function getCompletionTextEdits(item) {
+  if (item.textEdit != null) {
+    if (item.additionalTextEdits != null) {
+      return [item.textEdit, ...item.additionalTextEdits];
+    } else {
+      return [item.textEdit];
+    }
+  }
+  return null;
 }
 
 function lspMessageType_atomShowNotificationLevel(type) {
@@ -230,41 +326,41 @@ function lspSymbolKind_atomIcon(kind) {
   // for reference, hack: https://github.com/facebook/nuclide/blob/20cf17dca439e02a64f4365f3a52b0f26cf53726/pkg/nuclide-hack-rpc/lib/SymbolSearch.js#L120
   switch (kind) {
     case (_protocol || _load_protocol()).SymbolKind.File:
-      return 'file';
+      return 'type-file';
     case (_protocol || _load_protocol()).SymbolKind.Module:
-      return 'file-submodule';
+      return 'type-module';
     case (_protocol || _load_protocol()).SymbolKind.Namespace:
-      return 'file-submodule';
+      return 'type-namespace';
     case (_protocol || _load_protocol()).SymbolKind.Package:
-      return 'package';
+      return 'type-package';
     case (_protocol || _load_protocol()).SymbolKind.Class:
-      return 'code';
+      return 'type-class';
     case (_protocol || _load_protocol()).SymbolKind.Method:
-      return 'zap';
+      return 'type-method';
     case (_protocol || _load_protocol()).SymbolKind.Property:
-      return 'key';
+      return 'type-property';
     case (_protocol || _load_protocol()).SymbolKind.Field:
-      return 'key';
+      return 'type-field';
     case (_protocol || _load_protocol()).SymbolKind.Constructor:
-      return 'zap';
+      return 'type-constructor';
     case (_protocol || _load_protocol()).SymbolKind.Enum:
-      return 'file-binary';
+      return 'type-enum';
     case (_protocol || _load_protocol()).SymbolKind.Interface:
-      return 'puzzle';
+      return 'type-interface';
     case (_protocol || _load_protocol()).SymbolKind.Function:
-      return 'zap';
+      return 'type-function';
     case (_protocol || _load_protocol()).SymbolKind.Variable:
-      return 'pencil';
+      return 'type-variable';
     case (_protocol || _load_protocol()).SymbolKind.Constant:
-      return 'quote';
+      return 'type-constant';
     case (_protocol || _load_protocol()).SymbolKind.String:
-      return 'quote';
+      return 'type-string';
     case (_protocol || _load_protocol()).SymbolKind.Number:
-      return 'quote';
+      return 'type-number';
     case (_protocol || _load_protocol()).SymbolKind.Boolean:
-      return 'quote';
+      return 'type-boolean';
     case (_protocol || _load_protocol()).SymbolKind.Array:
-      return 'list-ordered';
+      return 'type-array';
     default:
       return 'question';
   }
@@ -321,6 +417,7 @@ function lspSymbolInformation_atomSymbolResult(info) {
     }
   }
   return {
+    resultType: 'SYMBOL',
     path: lspUri_localPath(info.location.uri),
     line: info.location.range.start.line,
     column: info.location.range.start.character,
@@ -339,9 +436,27 @@ function lspSeverity_atomDiagnosticMessageType(severity) {
     default:
       return 'Error';
     case (_protocol || _load_protocol()).DiagnosticSeverity.Warning:
+      return 'Warning';
     case (_protocol || _load_protocol()).DiagnosticSeverity.Information:
     case (_protocol || _load_protocol()).DiagnosticSeverity.Hint:
-      return 'Warning';
+      return 'Info';
+  }
+}
+
+function atomDiagnosticMessageType_lspSeverity(diagnosticType) {
+  switch (diagnosticType) {
+    case 'Error':
+      return (_protocol || _load_protocol()).DiagnosticSeverity.Error;
+    case 'Warning':
+      return (_protocol || _load_protocol()).DiagnosticSeverity.Warning;
+    case 'Info':
+      // The inverse function maps both DiagnosticServerity.Hint and
+      // DiagnosticServerity.Information to 'Info', but in the reverse direction
+      // we'll pick to map 'Info' to DiagnosticSeverity.Information.
+      return (_protocol || _load_protocol()).DiagnosticSeverity.Information;
+    default:
+      diagnosticType; // Will cause a Flow error if a new DiagnosticSeverity value is added.
+      throw new Error('Unsupported DiagnosticMessageType');
   }
 }
 
@@ -354,11 +469,32 @@ function lspRelatedLocation_atomTrace(related) {
   };
 }
 
+/**
+* Converts an Atom Trace to an Lsp RelatedLocation. A RelatedLocation requires a
+* range. Therefore, this will return null when called with an Atom Trace that
+* does not have a range.
+*/
+function atomTrace_lspRelatedLocation(trace) {
+  const { range, text, filePath } = trace;
+  if (range != null) {
+    return {
+      message: text || '',
+      location: {
+        uri: localPath_lspUri(filePath || ''),
+        range: atomRange_lspRange(range)
+      }
+    };
+  }
+  return null;
+}
+
 function lspDiagnostic_atomDiagnostic(diagnostic, filePath) {
-  // TODO: pass the LSP diagnostic.code to Atom somehow
+  let providerName = diagnostic.source != null ? diagnostic.source : 'LSP';
+  if (diagnostic.code != null) {
+    providerName = providerName + ': ' + String(diagnostic.code);
+  }
   return {
-    scope: 'file',
-    providerName: diagnostic.source || 'LSP', // TODO
+    providerName,
     type: lspSeverity_atomDiagnosticMessageType(diagnostic.severity),
     filePath,
     text: diagnostic.message,
@@ -367,10 +503,35 @@ function lspDiagnostic_atomDiagnostic(diagnostic, filePath) {
   };
 }
 
+function lspCommand_atomCodeAction(command, applyFunc) {
+  return {
+    getTitle: () => {
+      return Promise.resolve(command.title);
+    },
+    apply: applyFunc,
+    dispose: () => {}
+  };
+}
+
+/**
+* Converts an Atom FileMessageDiagnostic to an LSP Diagnostic. LSP diagnostics
+* require a range, while they are currently optional for Atom Diangostics. Therefore,
+* this will return null when called with an Atom Diagnostic without a range.
+*/
+function atomDiagnostic_lspDiagnostic(diagnostic) {
+  if (diagnostic.range != null) {
+    return {
+      range: atomRange_lspRange(diagnostic.range),
+      severity: atomDiagnosticMessageType_lspSeverity(diagnostic.type),
+      source: diagnostic.providerName,
+      message: diagnostic.text || '',
+      relatedLocations: (0, (_collection || _load_collection()).arrayCompact)((diagnostic.trace || []).map(atomTrace_lspRelatedLocation))
+    };
+  }
+  return null;
+}
+
 function lspDiagnostics_atomDiagnostics(params) {
   const filePath = lspUri_localPath(params.uri);
-  return [{
-    filePath,
-    messages: params.diagnostics.map(d => lspDiagnostic_atomDiagnostic(d, filePath))
-  }];
+  return new Map([[filePath, params.diagnostics.map(d => lspDiagnostic_atomDiagnostic(d, filePath))]]);
 }

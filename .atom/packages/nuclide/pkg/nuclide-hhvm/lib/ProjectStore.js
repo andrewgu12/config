@@ -36,7 +36,7 @@ function _load_UniversalDisposable() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// eslint-disable-next-line nuclide-internal/no-cross-atom-imports
+// eslint-disable-next-line rulesdir/no-cross-atom-imports
 class ProjectStore {
 
   constructor() {
@@ -46,6 +46,9 @@ class ProjectStore {
     this._isHHVMProject = null;
     this._debugMode = 'webserver';
     this._filePathsToScriptCommand = new Map();
+    this._stickyCommand = '';
+    this._useTerminal = false;
+    this._scriptArguments = '';
 
     const onDidChange = this._onDidChangeActivePaneItem.bind(this);
     this._disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default(this._projectRoot.do(() => {
@@ -66,6 +69,7 @@ class ProjectStore {
     }
 
     const fileName = activeTextEditor.getPath();
+    // flowlint-next-line sketchy-null-string:off
     if (!fileName) {
       return;
     }
@@ -120,9 +124,40 @@ class ProjectStore {
     this._emitter.emit('change');
   }
 
+  setScriptArguments(args) {
+    this._scriptArguments = args;
+  }
+
+  getScriptArguments() {
+    return this._scriptArguments;
+  }
+
+  setStickyCommand(command, sticky) {
+    if (sticky) {
+      this._stickyCommand = command;
+    } else {
+      const activeTextEditor = atom.workspace.getActiveTextEditor();
+      if (!activeTextEditor || !activeTextEditor.getPath()) {
+        this._currentFilePath = command;
+      }
+      this._stickyCommand = '';
+    }
+  }
+
+  setUseTerminal(useTerminal) {
+    this._useTerminal = useTerminal;
+  }
+
+  getUseTerminal() {
+    return this._useTerminal;
+  }
+
   getDebugTarget() {
     const filePath = this._currentFilePath;
     if (this._debugMode !== 'webserver') {
+      if (this._stickyCommand !== '') {
+        return this._stickyCommand;
+      }
       const localPath = (_nuclideUri || _load_nuclideUri()).default.getPath(filePath);
       const lastScriptCommand = this.getLastScriptCommand(localPath);
       return lastScriptCommand === '' ? localPath : lastScriptCommand;

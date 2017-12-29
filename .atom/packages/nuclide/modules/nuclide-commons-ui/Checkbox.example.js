@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.CheckboxExamples = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _Block;
 
@@ -19,7 +19,7 @@ function _load_Checkbox() {
   return _Checkbox = require('./Checkbox');
 }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 const NOOP = () => {}; /**
                         * Copyright (c) 2017-present, Facebook, Inc.
@@ -33,33 +33,33 @@ const NOOP = () => {}; /**
                         * @format
                         */
 
-const CheckboxExample = () => _react.default.createElement(
+const CheckboxExample = () => _react.createElement(
   'div',
   null,
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
+    _react.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
       checked: false,
       onClick: NOOP,
       onChange: NOOP,
       label: 'A Checkbox.'
     })
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
+    _react.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
       onClick: NOOP,
       onChange: NOOP,
       checked: true,
       label: 'A checked Checkbox.'
     })
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
+    _react.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
       onClick: NOOP,
       onChange: NOOP,
       disabled: true,
@@ -67,10 +67,10 @@ const CheckboxExample = () => _react.default.createElement(
       label: 'A disabled Checkbox.'
     })
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
+    _react.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
       onClick: NOOP,
       onChange: NOOP,
       checked: true,
@@ -78,10 +78,10 @@ const CheckboxExample = () => _react.default.createElement(
       label: 'A disabled, checked Checkbox.'
     })
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
+    _react.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
       onClick: NOOP,
       onChange: NOOP,
       indeterminate: true,

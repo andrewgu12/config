@@ -5,20 +5,19 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.EmptyState = undefined;
 
-var _react = _interopRequireDefault(require("react"));
+var _react = _interopRequireWildcard(require("react"));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-class EmptyState extends _react.default.Component {
-
+class EmptyState extends _react.Component {
   render() {
-    return _react.default.createElement(
+    return _react.createElement(
       "div",
       { className: "nuclide-ui-empty-state-container" },
-      _react.default.createElement(
+      _react.createElement(
         "div",
         { className: "nuclide-ui-empty-state-message" },
-        _react.default.createElement(
+        _react.createElement(
           "h1",
           null,
           this.props.title

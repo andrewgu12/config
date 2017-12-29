@@ -35,7 +35,7 @@ function _load_Toolbar() {
   return _Toolbar = require('./Toolbar');
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _rxjsBundlesRxMinJs = require('rxjs/bundles/Rx.min.js');
 
@@ -84,10 +84,10 @@ function createPanelItem(store) {
     runningTaskIsCancelable: state.runningTask ? state.runningTask.metadata.cancelable !== false : undefined
   }));
 
-  const props = (0, (_observable || _load_observable()).throttle)(_rxjsBundlesRxMinJs.Observable.combineLatest(stickyProps, alwaysUpToDateProps, (a, b) => Object.assign({}, a, b)), () => (_observable || _load_observable()).nextAnimationFrame);
+  const props = _rxjsBundlesRxMinJs.Observable.combineLatest(stickyProps, alwaysUpToDateProps, (a, b) => Object.assign({}, a, b)).let((0, (_observable || _load_observable()).throttle)(() => (_observable || _load_observable()).nextAnimationFrame));
 
   const StatefulToolbar = (0, (_bindObservableAsProps || _load_bindObservableAsProps()).bindObservableAsProps)(props, (_Toolbar || _load_Toolbar()).Toolbar);
-  return (0, (_viewableFromReactElement || _load_viewableFromReactElement()).viewableFromReactElement)(_react.default.createElement(StatefulToolbar, null));
+  return (0, (_viewableFromReactElement || _load_viewableFromReactElement()).viewableFromReactElement)(_react.createElement(StatefulToolbar, null));
 }
 
 // Since `getExtraUi` may create a React class dynamically, the classes are cached

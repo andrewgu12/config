@@ -16,7 +16,7 @@ let asyncExecuteSourceKitten = exports.asyncExecuteSourceKitten = (() => {
   var _ref = (0, _asyncToGenerator.default)(function* (command, args) {
     // SourceKitten does not yet support any platform besides macOS.
     // It may soon support Linux; see: https://github.com/jpsim/SourceKitten/pull/223.
-    if (process.platform !== 'darwin') {
+    if (process.platform !== 'darwin' || getSourceKittenDisabled()) {
       return null;
     }
 
@@ -28,12 +28,12 @@ let asyncExecuteSourceKitten = exports.asyncExecuteSourceKitten = (() => {
         } }).toPromise();
     } catch (err) {
       atom.notifications.addError(`Could not invoke SourceKitten at path \`${sourceKittenPath}\``, {
-        description: 'Please double-check that the path you have set for the ' + '`nuclide-swift.sourceKittenPath` config setting is correct.<br>' + `**Error code:** \`${err.errno || ''}\`<br>` + `**Error message:** <pre>${err.message}</pre>`
+        description: 'Please double-check that the path you have set for the ' + '`nuclide-swift.sourceKittenPath` config setting is correct.' + 'If you do not have SourceKitten installed and do not wish to use ' + 'it for Swift autocompletion, check the "Disable SourceKitten" ' + "setting in Nuclide's settings pane.<br>" + `**Error code:** \`${err.errno || ''}\`<br>` + `**Error message:** <pre>${err.message}</pre>`
       });
       return null;
     }
     if (result.exitCode !== 0 || result.stdout.length === 0) {
-      atom.notifications.addError('An error occured when invoking SourceKitten', {
+      atom.notifications.addError('An error occurred when invoking SourceKitten', {
         description: 'Please file a bug.<br>' + `**exit code:** \`${String(result.exitCode)}\`<br>` + `**stdout:** <pre>${String(result.stdout)}</pre><br>` + `**stderr:** <pre>${String(result.stderr)}</pre><br>` + `**command:** <pre>${[command].concat(args).join(' ')}</pre><br>`
       });
       return null;
@@ -48,6 +48,7 @@ let asyncExecuteSourceKitten = exports.asyncExecuteSourceKitten = (() => {
 })();
 
 exports.getSourceKittenPath = getSourceKittenPath;
+exports.getSourceKittenDisabled = getSourceKittenDisabled;
 
 var _process;
 
@@ -85,4 +86,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function getSourceKittenPath() {
   return (_featureConfig || _load_featureConfig()).default.get('nuclide-swift.sourceKittenPath');
+}
+
+/**
+ * Returns whether SourceKitten integration is disabled.
+ */
+function getSourceKittenDisabled() {
+  return (_featureConfig || _load_featureConfig()).default.get('nuclide-swift.sourceKittenDisabled');
 }

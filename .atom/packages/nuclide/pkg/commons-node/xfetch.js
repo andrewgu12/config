@@ -3,6 +3,21 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _systemInfo;
+
+function _load_systemInfo() {
+  return _systemInfo = require('./system-info');
+}
+
+var _nodeFetch;
+
+function _load_nodeFetch() {
+  return _nodeFetch = _interopRequireDefault(require('node-fetch'));
+}
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -45,4 +60,14 @@ Object.defineProperty(exports, "__esModule", {
 // The export is typed with `typeof fetch` so flow treats the polyfill as the
 // real `fetch`.
 
-exports.default = typeof global.fetch === 'function' ? global.fetch : require('node-fetch');
+const fetchImpl = typeof global.fetch === 'function' ? global.fetch : (_nodeFetch || _load_nodeFetch()).default;
+
+// Stub out `fetch` in all tests so we don't inadvertently rely on external URLs.
+const testFetch = function testFetch(url) {
+  if (typeof url === 'string' && url.startsWith('http://localhost')) {
+    return fetchImpl(url);
+  }
+  return Promise.reject(Error('fetch is stubbed out for testing. Use a spy instead.'));
+};
+
+exports.default = (0, (_systemInfo || _load_systemInfo()).isRunningInTest)() ? testFetch : fetchImpl;

@@ -93,11 +93,14 @@ class Activation {
 
     this._disposables = new (_nuclideRemoteConnection || _load_nuclideRemoteConnection()).ConnectionCache((() => {
       var _ref = (0, _asyncToGenerator.default)(function* (connection) {
-        // Return a dummy object for the 'null' local connection.
-        // This doesn't have much utility locally.
-        if (connection == null) {
+        // If connection is null, this indicates a local connection. Because usage
+        // of the local command server is low and it introduces the cost of
+        // starting an extra process when Atom starts up, only enable it if the
+        // user has explicitly opted-in.
+        if (connection == null && !(_featureConfig || _load_featureConfig()).default.get('nuclide-remote-atom.enableLocalCommandService')) {
           return { dispose: function () {} };
         }
+
         const service = (0, (_nuclideRemoteConnection || _load_nuclideRemoteConnection()).getServiceByConnection)(REMOTE_COMMAND_SERVICE, connection);
         const fileNotifier = yield (0, (_nuclideOpenFiles || _load_nuclideOpenFiles()).getNotifierByConnection)(connection);
         return service.RemoteCommandService.registerAtomCommands(fileNotifier, _this._commands);
@@ -115,7 +118,7 @@ class Activation {
 }
 
 function openFile(uri, line, column, isWaiting) {
-  return _rxjsBundlesRxMinJs.Observable.fromPromise((0, (_goToLocation || _load_goToLocation()).goToLocation)(uri, line, column).then(editor => {
+  return _rxjsBundlesRxMinJs.Observable.fromPromise((0, (_goToLocation || _load_goToLocation()).goToLocation)(uri, { line, column }).then(editor => {
     atom.applicationDelegate.focusWindow();
 
     if (isWaiting && (_featureConfig || _load_featureConfig()).default.get('nuclide-remote-atom.shouldNotifyWhenCommandLineIsWaitingOnFile')) {

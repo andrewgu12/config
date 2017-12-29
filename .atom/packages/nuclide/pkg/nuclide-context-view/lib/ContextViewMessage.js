@@ -4,14 +4,14 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-class ContextViewMessage extends _react.default.Component {
+class ContextViewMessage extends _react.Component {
 
   render() {
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       null,
       this.props.message
@@ -35,10 +35,10 @@ exports.default = ContextViewMessage; /**
 
 ContextViewMessage.NO_DEFINITION = 'No definition selected.';
 ContextViewMessage.LOADING = 'Loading...';
-ContextViewMessage.NOT_LOGGED_IN = _react.default.createElement(
+ContextViewMessage.NOT_LOGGED_IN = _react.createElement(
   'div',
   null,
-  _react.default.createElement(
+  _react.createElement(
     'div',
     null,
     'You need to log in to see this data!'

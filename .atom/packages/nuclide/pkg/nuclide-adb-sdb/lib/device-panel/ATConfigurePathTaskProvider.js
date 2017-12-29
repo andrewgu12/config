@@ -8,7 +8,7 @@ exports.ATConfigurePathTaskProvider = undefined;
 var _showModal;
 
 function _load_showModal() {
-  return _showModal = _interopRequireDefault(require('../../../nuclide-ui/showModal'));
+  return _showModal = _interopRequireDefault(require('nuclide-commons-ui/showModal'));
 }
 
 var _ATCustomDBPathModal;
@@ -19,7 +19,9 @@ function _load_ATCustomDBPathModal() {
 
 var _rxjsBundlesRxMinJs = require('rxjs/bundles/Rx.min.js');
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -51,10 +53,9 @@ class ATConfigurePathTaskProvider {
   getTask(host) {
     return _rxjsBundlesRxMinJs.Observable.defer(() => this._bridge.getFullConfig(host)).switchMap(fullConfig => {
       return _rxjsBundlesRxMinJs.Observable.create(observer => {
-        const disposable = (0, (_showModal || _load_showModal()).default)(dismiss => _react.default.createElement((_ATCustomDBPathModal || _load_ATCustomDBPathModal()).ATCustomDBPathModal, {
+        const disposable = (0, (_showModal || _load_showModal()).default)(dismiss => _react.createElement((_ATCustomDBPathModal || _load_ATCustomDBPathModal()).ATCustomDBPathModal, {
           dismiss: dismiss,
           activePath: fullConfig.active,
-          activePort: fullConfig.port,
           currentCustomPath: this._bridge.getCustomDebugBridgePath(host),
           registeredPaths: fullConfig.all,
           setCustomPath: customPath => this._bridge.setCustomDebugBridgePath(host, customPath),

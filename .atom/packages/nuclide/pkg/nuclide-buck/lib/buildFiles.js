@@ -104,7 +104,9 @@ function getBuildFileName(buckRoot) {
   buildFileName = buckService.getBuckConfig(buckRoot, 'buildfile', 'name').catch(error => {
     (0, (_log4js || _load_log4js()).getLogger)('nuclide-buck').error(`Error trying to find the name of the buildfile in Buck project '${buckRoot}'`, error);
     return null;
-  }).then(result => result || DEFAULT_BUILD_FILE_NAME);
+  })
+  // flowlint-next-line sketchy-null-string:off
+  .then(result => result || DEFAULT_BUILD_FILE_NAME);
   buildFileNameCache.set(buckRoot, buildFileName);
   return buildFileName;
 }

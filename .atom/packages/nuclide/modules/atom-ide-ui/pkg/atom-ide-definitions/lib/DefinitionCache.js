@@ -64,14 +64,15 @@ class DefinitionCache {
         _this._cachedResultEditor = null;
         _this._cachedResultRange = null;
         _this._cachedResultRange = null;
-        _this._disposables.remove(changeDisposable);
-        changeDisposable.dispose();
+        _this._disposables.remove(editorDisposables);
+        editorDisposables.dispose();
       };
-      const changeDisposable = editor.onDidChange(invalidateAndStopListening);
-      _this._disposables.add(changeDisposable);
+      const editorDisposables = new (_UniversalDisposable || _load_UniversalDisposable()).default(editor.getBuffer().onDidChangeText(invalidateAndStopListening), editor.onDidDestroy(invalidateAndStopListening));
+      _this._disposables.add(editorDisposables);
 
       const wordGuess = (0, (_range || _load_range()).wordAtPosition)(editor, position);
       _this._cachedResultRange = wordGuess && wordGuess.range;
+      _this._cachedResultEditor = editor;
       _this._cachedResultPromise = getImpl();
 
       return _this._cachedResultPromise;

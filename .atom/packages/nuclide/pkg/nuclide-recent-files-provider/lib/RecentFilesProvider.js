@@ -15,7 +15,7 @@ function _load_nuclideUri() {
   return _nuclideUri = _interopRequireDefault(require('nuclide-commons/nuclideUri'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _collection;
 
@@ -40,6 +40,8 @@ var _PathWithFileIcon;
 function _load_PathWithFileIcon() {
   return _PathWithFileIcon = _interopRequireDefault(require('../../nuclide-ui/PathWithFileIcon'));
 }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -70,6 +72,7 @@ function getRecentFilesMatching(query) {
     return recentFile.path;
   }));
   return matcher.match(query, { recordMatchIndexes: true }).map(result => ({
+    resultType: 'FILE',
     path: result.value,
     score: result.score,
     matchIndexes: result.matchIndexes,
@@ -129,36 +132,38 @@ const RecentFilesProvider = exports.RecentFilesProvider = {
     const filename = (_nuclideUri || _load_nuclideUri()).default.basename(item.path);
     const filePath = item.path.substring(0, item.path.lastIndexOf(filename));
     const date = item.timestamp == null ? null : new Date(item.timestamp);
+    // eslint-disable-next-line eqeqeq
     const datetime = date === null ? '' : date.toLocaleString();
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       {
-        className: 'recent-files-provider-result',
-        style: { opacity: opacityForTimestamp(item.timestamp || Date.now()) },
+        className: 'recent-files-provider-result'
+        // flowlint-next-line sketchy-null-number:off
+        , style: { opacity: opacityForTimestamp(item.timestamp || Date.now()) },
         title: datetime },
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'recent-files-provider-filepath-container' },
-        _react.default.createElement(
+        _react.createElement(
           (_PathWithFileIcon || _load_PathWithFileIcon()).default,
           {
             className: 'recent-files-provider-file-path',
             path: filename },
           filePath
         ),
-        _react.default.createElement(
+        _react.createElement(
           'span',
           { className: 'recent-files-provider-file-name' },
           filename
         )
       ),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'recent-files-provider-datetime-container' },
-        _react.default.createElement(
+        _react.createElement(
           'span',
           { className: 'recent-files-provider-datetime-label' },
-          date === null ? 'At some point' : (0, (_string || _load_string()).relativeDate)(date)
+          date == null ? 'At some point' : (0, (_string || _load_string()).relativeDate)(date)
         )
       )
     );

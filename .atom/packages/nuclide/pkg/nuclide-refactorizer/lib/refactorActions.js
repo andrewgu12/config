@@ -7,6 +7,7 @@ exports.open = open;
 exports.gotRefactorings = gotRefactorings;
 exports.error = error;
 exports.pickedRefactor = pickedRefactor;
+exports.inlinePickedRefactor = inlinePickedRefactor;
 exports.execute = execute;
 exports.confirm = confirm;
 exports.apply = apply;
@@ -54,6 +55,18 @@ function pickedRefactor(refactoring) {
   return {
     type: 'picked-refactor',
     payload: {
+      refactoring
+    }
+  };
+}
+
+function inlinePickedRefactor(editor, originalPoint, provider, refactoring) {
+  return {
+    type: 'inline-picked-refactor',
+    payload: {
+      originalPoint,
+      editor,
+      provider,
       refactoring
     }
   };

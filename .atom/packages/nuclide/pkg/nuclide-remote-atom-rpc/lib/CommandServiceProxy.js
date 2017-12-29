@@ -6,7 +6,7 @@ module.exports = _client => {
   const remoteModule = {};
   remoteModule.AtomCommands = class {
     openFile(arg0, arg1, arg2, arg3) {
-      return Observable.fromPromise(_client.marshalArguments(Array.from(arguments), [{
+      return Observable.fromPromise(Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "filePath",
         type: {
           kind: "named",
@@ -27,19 +27,15 @@ module.exports = _client => {
         type: {
           kind: "boolean"
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "rpc-types.js",
-            line: 16
-          },
-          name: "AtomCommands"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "openFile", "observable", args);
-        });
-      })).concatMap(id => id).concatMap(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "rpc-types.js",
+          line: 16
+        },
+        name: "AtomCommands"
+      })])).switchMap(([args, id]) => _client.callRemoteMethod(id, "openFile", "observable", args)).concatMap(value => {
         return _client.unmarshal(value, {
           kind: "named",
           name: "AtomFileEvent"
@@ -48,7 +44,7 @@ module.exports = _client => {
     }
 
     openRemoteFile(arg0, arg1, arg2, arg3) {
-      return Observable.fromPromise(_client.marshalArguments(Array.from(arguments), [{
+      return Observable.fromPromise(Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "uri",
         type: {
           kind: "string"
@@ -68,19 +64,15 @@ module.exports = _client => {
         type: {
           kind: "boolean"
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "rpc-types.js",
-            line: 16
-          },
-          name: "AtomCommands"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "openRemoteFile", "observable", args);
-        });
-      })).concatMap(id => id).concatMap(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "rpc-types.js",
+          line: 16
+        },
+        name: "AtomCommands"
+      })])).switchMap(([args, id]) => _client.callRemoteMethod(id, "openRemoteFile", "observable", args)).concatMap(value => {
         return _client.unmarshal(value, {
           kind: "named",
           name: "AtomFileEvent"
@@ -89,25 +81,21 @@ module.exports = _client => {
     }
 
     addProject(arg0) {
-      return _client.marshalArguments(Array.from(arguments), [{
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "projectPath",
         type: {
           kind: "named",
           name: "NuclideUri"
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "rpc-types.js",
-            line: 16
-          },
-          name: "AtomCommands"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "addProject", "promise", args);
-        });
-      }).then(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "rpc-types.js",
+          line: 16
+        },
+        name: "AtomCommands"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "addProject", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "void"
         });

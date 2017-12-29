@@ -22,6 +22,7 @@ function locationToString(location) {
     case 'builtin':
       return '<builtin>';
     default:
+      location.type;
       throw new Error('Bad location type');
   }
 } /**
@@ -49,13 +50,14 @@ function locationsEqual(first, second) {
     case 'builtin':
       return true;
     default:
+      first.type;
       throw new Error('Bad location type');
   }
 }
 
 function stripLocationsFileName(obj) {
   function inspect(key, value) {
-    if (key === 'location' && value !== null && typeof value.fileName === 'string') {
+    if (key === 'location' && value != null && typeof value.fileName === 'string') {
       value.fileName = (_nuclideUri || _load_nuclideUri()).default.basename(value.fileName);
     } else {
       stripLocationsFileName(value);

@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.highlightOnUpdate = highlightOnUpdate;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _shallowequal;
 
@@ -14,6 +14,8 @@ function _load_shallowequal() {
 }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 /**
  * Wraps DecoratedComponent in a special `span` with a configurable classname whenever the
@@ -45,7 +47,7 @@ className = 'nuclide-ui-highlight-on-render',
  */
 unhighlightDelay = 200) {
   // $FlowIssue The return type is guaranteed to be the same as the type of ComposedComponent.
-  return class extends _react.default.Component {
+  return class extends _react.Component {
 
     constructor(props) {
       super(props);
@@ -70,11 +72,11 @@ unhighlightDelay = 200) {
     }
 
     render() {
-      return _react.default.createElement(
+      return _react.createElement(
         'span',
         {
           className: `${className} ${this.showFlash ? className + '-highlight' : ''}` },
-        _react.default.createElement(ComposedComponent, this.props)
+        _react.createElement(ComposedComponent, this.props)
       );
     }
   };

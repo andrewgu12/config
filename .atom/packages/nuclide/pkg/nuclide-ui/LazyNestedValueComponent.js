@@ -5,7 +5,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.LazyNestedValueComponent = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _AtomInput;
+
+function _load_AtomInput() {
+  return _AtomInput = require('nuclide-commons-ui/AtomInput');
+}
+
+var _react = _interopRequireWildcard(require('react'));
 
 var _bindObservableAsProps;
 
@@ -19,6 +25,12 @@ function _load_highlightOnUpdate() {
   return _highlightOnUpdate = require('./highlightOnUpdate');
 }
 
+var _SimpleValueComponent;
+
+function _load_SimpleValueComponent() {
+  return _SimpleValueComponent = require('./SimpleValueComponent');
+}
+
 var _ValueComponentClassNames;
 
 function _load_ValueComponentClassNames() {
@@ -28,7 +40,7 @@ function _load_ValueComponentClassNames() {
 var _Tree;
 
 function _load_Tree() {
-  return _Tree = require('./Tree');
+  return _Tree = require('nuclide-commons-ui/Tree');
 }
 
 var _LoadingSpinner;
@@ -51,6 +63,8 @@ function _load_classnames() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -71,10 +85,10 @@ function isObjectValue(result) {
 }
 
 function TreeItemWithLoadingSpinner() {
-  return _react.default.createElement(
+  return _react.createElement(
     (_Tree || _load_Tree()).TreeItem,
     { className: 'nuclide-ui-lazy-nested-value-spinner' },
-    _react.default.createElement((_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinner, { size: 'EXTRA_SMALL', delay: SPINNER_DELAY })
+    _react.createElement((_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinner, { size: 'EXTRA_SMALL', delay: SPINNER_DELAY })
   );
 }
 
@@ -100,13 +114,13 @@ const LoadableValueComponent = props => {
   if (shouldCacheChildren) {
     setCachedChildren(path, children);
   }
-  return _react.default.createElement(
+  return _react.createElement(
     'span',
     null,
-    children.map(child => _react.default.createElement(
+    children.map(child => _react.createElement(
       (_Tree || _load_Tree()).TreeItem,
       { key: child.name },
-      _react.default.createElement(ValueComponent, {
+      _react.createElement(ValueComponent, {
         evaluationResult: child.value,
         fetchChildren: fetchChildren,
         expression: child.name,
@@ -125,17 +139,17 @@ const LoadableValueComponent = props => {
 // TODO allow passing action components (edit button, pin button) here
 function renderValueLine(expression, value) {
   if (expression == null) {
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'nuclide-ui-lazy-nested-value-container' },
       value
     );
   } else {
     // TODO @jxg use a text editor to apply proper syntax highlighting for expressions (t11408154)
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'nuclide-ui-lazy-nested-value-container' },
-      _react.default.createElement(
+      _react.createElement(
         'span',
         { className: (_ValueComponentClassNames || _load_ValueComponentClassNames()).ValueComponentClassNames.identifier },
         expression
@@ -150,13 +164,38 @@ function renderValueLine(expression, value) {
  * A component that knows how to render recursive, interactive expression/evaluationResult pairs.
  * The rendering of non-expandable "leaf" values is delegated to the SimpleValueComponent.
  */
-class ValueComponent extends _react.default.Component {
+class ValueComponent extends _react.Component {
 
   constructor(props) {
     super(props);
+
+    this._showSetVariableDisplay = _ => {
+      const { isRoot, setVariable } = this.props;
+      if (isRoot && setVariable) {
+        this.setState({ isBeingEdited: true });
+      }
+    };
+
+    this._hideSetVariableDisplay = () => {
+      this.setState({
+        isBeingEdited: false,
+        newValueForExpression: null
+      });
+    };
+
+    this._setVariable = () => {
+      const { setVariable, expression } = this.props;
+      if (setVariable) {
+        setVariable(expression, this.state.newValueForExpression);
+        this.setState({ isBeingEdited: false });
+      }
+    };
+
     this.state = {
       isExpanded: false,
-      children: null
+      children: null,
+      isBeingEdited: false,
+      newValueForExpression: null
     };
     this._toggleExpandFiltered = (0, (_ignoreTextSelectionEvents || _load_ignoreTextSelectionEvents()).default)(this._toggleExpand.bind(this));
   }
@@ -196,12 +235,12 @@ class ValueComponent extends _react.default.Component {
    * (see shouldFetchChildren()).
    */
   _getNextState(props, toggleExpansion) {
+    const { evaluationResult, expandedValuePaths, fetchChildren, path } = props;
     let isExpanded = false;
     let children = null;
     // The value of isExpanded is taken from its cached value in nodeData
     // unless it is being toggled. In that case, we toggle the current value.
     if (!toggleExpansion) {
-      const { path, expandedValuePaths } = props;
       const nodeData = expandedValuePaths.get(path);
       isExpanded = nodeData != null && nodeData.isExpanded;
     } else {
@@ -210,22 +249,62 @@ class ValueComponent extends _react.default.Component {
     // Children are loaded if the component will be expanded
     // and other conditions (see shouldFetchChildren()) are true
     if (isExpanded && shouldFetchChildren(props)) {
-      if (!(props.fetchChildren != null)) {
-        throw new Error('Invariant violation: "props.fetchChildren != null"');
+      if (!(fetchChildren != null)) {
+        throw new Error('Invariant violation: "fetchChildren != null"');
       }
 
-      if (!(props.evaluationResult != null)) {
-        throw new Error('Invariant violation: "props.evaluationResult != null"');
+      if (!(evaluationResult != null)) {
+        throw new Error('Invariant violation: "evaluationResult != null"');
       }
 
-      if (!(props.evaluationResult.objectId != null)) {
-        throw new Error('Invariant violation: "props.evaluationResult.objectId != null"');
+      if (!(evaluationResult.objectId != null)) {
+        throw new Error('Invariant violation: "evaluationResult.objectId != null"');
       }
 
-      children = props.fetchChildren(props.evaluationResult.objectId);
+      children = fetchChildren(evaluationResult.objectId);
     }
 
-    return { isExpanded, children };
+    return {
+      isExpanded,
+      children,
+      isBeingEdited: false,
+      newValueForExpression: null
+    };
+  }
+
+  _getStringRepresentationForEvaluationResult(evaluationResult) {
+    if (evaluationResult) {
+      if (evaluationResult.value != null) {
+        if (evaluationResult.type === 'string' && !(_SimpleValueComponent || _load_SimpleValueComponent()).STRING_REGEX.test(evaluationResult.value)) {
+          return '"' + evaluationResult.value + '"';
+        } else {
+          return evaluationResult.value;
+        }
+      } else if (evaluationResult.description != null) {
+        return evaluationResult.description;
+      }
+    }
+    return '';
+  }
+
+  _renderEditView() {
+    return _react.createElement(
+      'div',
+      { className: 'nuclide-ui-lazy-nested-value-container' },
+      _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+        className: 'nuclide-debugger-watch-expression-input',
+        size: 'sm',
+        autofocus: true,
+        startSelected: true,
+        initialValue: this._getStringRepresentationForEvaluationResult(this.props.evaluationResult),
+        onDidChange: newValueForExpression => {
+          this.setState({ newValueForExpression });
+        },
+        onConfirm: this._setVariable,
+        onCancel: this._hideSetVariableDisplay,
+        onBlur: this._hideSetVariableDisplay
+      })
+    );
   }
 
   render() {
@@ -245,25 +324,32 @@ class ValueComponent extends _react.default.Component {
     if (evaluationResult == null) {
       return renderValueLine(expression, NOT_AVAILABLE_MESSAGE);
     }
+
     if (!isObjectValue(evaluationResult)) {
-      const simpleValueElement = _react.default.createElement(SimpleValueComponent, {
-        expression: expression,
-        evaluationResult: evaluationResult,
-        simpleValueComponent: SimpleValueComponent
-      });
-      return isRoot ? simpleValueElement : _react.default.createElement(
+      const simpleValueElement = this.state.isBeingEdited ? this._renderEditView() : _react.createElement(
+        'div',
+        { onDoubleClick: this._showSetVariableDisplay },
+        _react.createElement(SimpleValueComponent, {
+          expression: expression,
+          evaluationResult: evaluationResult,
+          simpleValueComponent: SimpleValueComponent
+        })
+      );
+      return isRoot ? simpleValueElement : _react.createElement(
         (_Tree || _load_Tree()).TreeItem,
         null,
         simpleValueElement
       );
     }
-    const description = evaluationResult.description || '<no description provided>';
+    const description =
+    // flowlint-next-line sketchy-null-string:off
+    evaluationResult.description || '<no description provided>';
     const { children, isExpanded } = this.state;
     let childListElement = null;
     if (isExpanded) {
       const cachedChildren = getCachedChildren(path);
       if (shouldCacheChildren && cachedChildren != null) {
-        childListElement = _react.default.createElement(LoadableValueComponent, {
+        childListElement = _react.createElement(LoadableValueComponent, {
           children: cachedChildren,
           fetchChildren: fetchChildren,
           path: path,
@@ -275,10 +361,10 @@ class ValueComponent extends _react.default.Component {
           setCachedChildren: setCachedChildren
         });
       } else if (children == null) {
-        childListElement = _react.default.createElement(TreeItemWithLoadingSpinner, null);
+        childListElement = _react.createElement(TreeItemWithLoadingSpinner, null);
       } else {
         const ChildrenComponent = (0, (_bindObservableAsProps || _load_bindObservableAsProps()).bindObservableAsProps)(children.map(childrenValue => ({ children: childrenValue })).startWith({ children: null }), LoadableValueComponent);
-        childListElement = _react.default.createElement(ChildrenComponent, {
+        childListElement = _react.createElement(ChildrenComponent, {
           fetchChildren: fetchChildren,
           path: path,
           expandedValuePaths: expandedValuePaths,
@@ -290,17 +376,18 @@ class ValueComponent extends _react.default.Component {
         });
       }
     }
-    const title = renderValueLine(expression, description);
-    return _react.default.createElement(
+    const title = this.state.isBeingEdited ? this._renderEditView() : renderValueLine(expression, description);
+    return _react.createElement(
       (_Tree || _load_Tree()).TreeList,
       {
         showArrows: true,
         className: 'nuclide-ui-lazy-nested-value-treelist' },
-      _react.default.createElement(
+      _react.createElement(
         (_Tree || _load_Tree()).NestedTreeItem,
         {
           collapsed: !this.state.isExpanded,
-          onClick: this._toggleExpandFiltered,
+          onConfirm: this._showSetVariableDisplay,
+          onSelect: this.state.isBeingEdited ? () => {} : this._toggleExpandFiltered,
           title: title },
         childListElement
       )
@@ -327,7 +414,7 @@ const expansionStates = new WeakMap();
  * is necessary to preserve the expansion state while the values are temporarily unavailable, such
  * as after stepping in the debugger, which triggers a recursive re-fetch.
  */
-class TopLevelLazyNestedValueComponent extends _react.default.PureComponent {
+class TopLevelLazyNestedValueComponent extends _react.PureComponent {
 
   constructor(props) {
     super(props);
@@ -382,14 +469,13 @@ class TopLevelLazyNestedValueComponent extends _react.default.PureComponent {
 
   render() {
     const className = (0, (_classnames || _load_classnames()).default)(this.props.className, {
-      'native-key-bindings': true,
       // Note(vjeux): the following line should probably be `: true`
       'nuclide-ui-lazy-nested-value': this.props.className == null
     });
-    return _react.default.createElement(
+    return _react.createElement(
       'span',
       { className: className, tabIndex: -1 },
-      _react.default.createElement(ValueComponent, Object.assign({}, this.props, {
+      _react.createElement(ValueComponent, Object.assign({}, this.props, {
         isRoot: true,
         expandedValuePaths: this.getExpandedValuePaths(),
         onExpandedStateChange: this.handleExpansionChange,

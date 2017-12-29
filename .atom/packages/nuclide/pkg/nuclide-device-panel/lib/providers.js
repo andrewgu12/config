@@ -17,7 +17,9 @@ const providers = {
   deviceTask: new Set(),
   deviceProcesses: new Set(),
   processTask: new Set(),
-  deviceTypeTask: new Set()
+  deviceTypeTask: new Set(),
+  deviceAction: new Set(),
+  appInfo: new Set()
 }; /**
     * Copyright (c) 2015-present, Facebook, Inc.
     * All rights reserved.

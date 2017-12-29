@@ -20,7 +20,7 @@ let getPreview = (() => {
     });
   });
 
-  return function getPreview(_x4, _x5) {
+  return function getPreview(_x5, _x6) {
     return _ref2.apply(this, arguments);
   };
 })();
@@ -37,24 +37,12 @@ function _load_symbolDefinitionPreview() {
   return _symbolDefinitionPreview = require('nuclide-commons/symbol-definition-preview');
 }
 
+var _react = _interopRequireDefault(require('react'));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/**
- * Copyright (c) 2017-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * 
- * @format
- */
-
 exports.default = (() => {
-  var _ref = (0, _asyncToGenerator.default)(function* (definitionResult, definitionPreviewProvider, grammar) {
-    const { queryRange, definitions } = definitionResult;
-
+  var _ref = (0, _asyncToGenerator.default)(function* (range, definitions, definitionPreviewProvider, grammar) {
     if (definitions.length === 1) {
       const definition = definitions[0];
       // Some providers (e.g. Flow) return negative positions.
@@ -63,13 +51,30 @@ exports.default = (() => {
       }
 
       const definitionPreview = yield getPreview(definition, definitionPreviewProvider);
+
+      if (definitionPreview == null) {
+        return null;
+      }
+
+      // if mimetype is image return image component with base-64 encoded
+      //  image contents, otherwise use markedStrings
+      if (definitionPreview.mime.startsWith('image/')) {
+        return {
+          component: function () {
+            return _react.default.createElement('img', {
+              src: `data:${definitionPreview.mime};${definitionPreview.encoding},${definitionPreview.contents}`
+            });
+          },
+          range
+        };
+      }
       return {
         markedStrings: [{
           type: 'snippet',
-          value: definitionPreview,
+          value: definitionPreview.contents,
           grammar
         }],
-        range: queryRange[0]
+        range
       };
     }
 
@@ -79,13 +84,23 @@ exports.default = (() => {
         value: `${definitions.length} definitions found. Click to jump.`,
         grammar
       }],
-      range: queryRange[0]
+      range
     };
   });
 
-  function getPreviewDatatipFromDefinition(_x, _x2, _x3) {
+  function getPreviewDatatipFromDefinition(_x, _x2, _x3, _x4) {
     return _ref.apply(this, arguments);
   }
 
   return getPreviewDatatipFromDefinition;
-})();
+})(); /**
+       * Copyright (c) 2017-present, Facebook, Inc.
+       * All rights reserved.
+       *
+       * This source code is licensed under the BSD-style license found in the
+       * LICENSE file in the root directory of this source tree. An additional grant
+       * of patent rights can be found in the PATENTS file in the same directory.
+       *
+       * 
+       * @format
+       */

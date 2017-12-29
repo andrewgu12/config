@@ -3,10 +3,11 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.SET_DEVICE_TYPE_TASKS = exports.TOGGLE_PROCESS_POLLING = exports.TOGGLE_DEVICE_POLLING = exports.SET_PROCESS_TASKS = exports.SET_PROCESSES = exports.SET_INFO_TABLES = exports.SET_HOST = exports.SET_HOSTS = exports.SET_DEVICE_TASKS = exports.SET_DEVICE = exports.SET_DEVICES = exports.SET_DEVICE_TYPE = exports.SET_DEVICE_TYPES = undefined;
+exports.SET_DEVICE_TYPE_TASKS = exports.TOGGLE_PROCESS_POLLING = exports.TOGGLE_DEVICE_POLLING = exports.SET_PROCESS_TASKS = exports.SET_PROCESSES = exports.SET_APP_INFO_TABLES = exports.SET_INFO_TABLES = exports.SET_HOST = exports.SET_HOSTS = exports.SET_DEVICE_TASKS = exports.SET_DEVICE = exports.SET_DEVICES = exports.SET_DEVICE_TYPE = exports.SET_DEVICE_TYPES = undefined;
 exports.toggleDevicePolling = toggleDevicePolling;
 exports.toggleProcessPolling = toggleProcessPolling;
 exports.setInfoTables = setInfoTables;
+exports.setAppInfoTables = setAppInfoTables;
 exports.setProcesses = setProcesses;
 exports.setProcessTasks = setProcessTasks;
 exports.setDevices = setDevices;
@@ -43,6 +44,7 @@ const SET_DEVICE_TASKS = exports.SET_DEVICE_TASKS = 'SET_DEVICE_TASKS';
 const SET_HOSTS = exports.SET_HOSTS = 'SET_HOSTS';
 const SET_HOST = exports.SET_HOST = 'SET_HOST';
 const SET_INFO_TABLES = exports.SET_INFO_TABLES = 'SET_INFO_TABLES';
+const SET_APP_INFO_TABLES = exports.SET_APP_INFO_TABLES = 'SET_APP_INFO_TABLES';
 const SET_PROCESSES = exports.SET_PROCESSES = 'SET_PROCESSES';
 const SET_PROCESS_TASKS = exports.SET_PROCESS_TASKS = 'SET_PROCESS_TASKS';
 const TOGGLE_DEVICE_POLLING = exports.TOGGLE_DEVICE_POLLING = 'TOGGLE_DEVICE_POLLING';
@@ -67,6 +69,13 @@ function setInfoTables(infoTables) {
   return {
     type: SET_INFO_TABLES,
     payload: { infoTables }
+  };
+}
+
+function setAppInfoTables(appInfoTables) {
+  return {
+    type: SET_APP_INFO_TABLES,
+    payload: { appInfoTables }
   };
 }
 

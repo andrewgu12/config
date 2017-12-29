@@ -54,6 +54,7 @@ class TestRunModel {
   }
 
   getDuration() {
+    // flowlint-next-line sketchy-null-number:off
     if (this.startTime && this.endTime) {
       return this.endTime - this.startTime;
     }

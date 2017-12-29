@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _HandlesTableComponent;
 
@@ -14,21 +14,22 @@ function _load_HandlesTableComponent() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-class ChildProcessTreeComponent extends _react.default.Component {
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
+class ChildProcessTreeComponent extends _react.Component {
   render() {
     const { childProcessesTree } = this.props;
     if (!childProcessesTree) {
-      return _react.default.createElement('div', null);
+      return _react.createElement('div', null);
     }
 
     const handles = [];
     flatten(handles, childProcessesTree, 0);
 
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       null,
-      _react.default.createElement((_HandlesTableComponent || _load_HandlesTableComponent()).default, {
+      _react.createElement((_HandlesTableComponent || _load_HandlesTableComponent()).default, {
         title: 'Process tree',
         handles: handles,
         keyed: ({ process, level }) => '\u00A0'.repeat(level * 3) + process.pid,

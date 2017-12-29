@@ -10,7 +10,7 @@ function _load_Icon() {
   return _Icon = require('nuclide-commons-ui/Icon');
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _classnames;
 
@@ -26,7 +26,9 @@ function _load_nullthrows() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-class Tabs extends _react.default.Component {
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+class Tabs extends _react.Component {
   constructor(...args) {
     var _temp;
 
@@ -35,12 +37,12 @@ class Tabs extends _react.default.Component {
         this.props.onActiveTabChange((0, (_nullthrows || _load_nullthrows()).default)(this.props.tabs.find(tab => tab.name === selectedTabName)));
       }
     }, this._renderTabMenu = () => {
-      const closeButton = this.props.closeable ? _react.default.createElement('div', { className: 'close-icon', onClick: this.props.onClose }) : null;
+      const closeButton = this.props.closeable ? _react.createElement('div', { className: 'close-icon', onClick: this.props.onClose }) : null;
       const tabs = this.props.tabs.map(tab => {
-        const icon = tab.icon == null ? null : _react.default.createElement((_Icon || _load_Icon()).Icon, { icon: tab.icon });
+        const icon = tab.icon == null ? null : _react.createElement((_Icon || _load_Icon()).Icon, { icon: tab.icon });
         const handler = {};
         handler[this.props.triggeringEvent] = this._handleTabChange.bind(this, tab.name);
-        return _react.default.createElement(
+        return _react.createElement(
           'li',
           Object.assign({
             className: (0, (_classnames || _load_classnames()).default)({
@@ -49,7 +51,7 @@ class Tabs extends _react.default.Component {
             }),
             key: tab.name
           }, handler),
-          _react.default.createElement(
+          _react.createElement(
             'div',
             { className: 'title' },
             icon,
@@ -58,7 +60,7 @@ class Tabs extends _react.default.Component {
           closeButton
         );
       });
-      return _react.default.createElement(
+      return _react.createElement(
         'ul',
         { className: 'tab-bar list-inline inset-panel' },
         tabs
@@ -67,7 +69,7 @@ class Tabs extends _react.default.Component {
   }
 
   render() {
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'nuclide-tabs' },
       this._renderTabMenu()

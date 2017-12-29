@@ -35,7 +35,9 @@ function _load_classnames() {
   return _classnames = _interopRequireDefault(require('classnames'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -54,7 +56,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @format
  */
 
-class ModalMultiSelect extends _react.default.Component {
+class ModalMultiSelect extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -102,14 +104,14 @@ class ModalMultiSelect extends _react.default.Component {
     const className = (0, (_classnames || _load_classnames()).default)(this.props.className, {
       'btn-warning': this.props.value.length === 0
     });
-    return _react.default.createElement(
+    return _react.createElement(
       (_Button || _load_Button()).Button,
       {
         className: className,
         disabled: this.props.disabled,
         size: this.props.size,
         onClick: this._showModal },
-      _react.default.createElement(LabelComponent, { selectedOptions: selectedOptions }),
+      _react.createElement(LabelComponent, { selectedOptions: selectedOptions }),
       this._renderModal()
     );
   }
@@ -119,47 +121,47 @@ class ModalMultiSelect extends _react.default.Component {
       return;
     }
 
-    return _react.default.createElement(
+    return _react.createElement(
       (_Modal || _load_Modal()).Modal,
       { onDismiss: this._dismissModal },
-      _react.default.createElement((_MultiSelectList || _load_MultiSelectList()).MultiSelectList, {
+      _react.createElement((_MultiSelectList || _load_MultiSelectList()).MultiSelectList, {
         commandScope: atom.views.getView(atom.workspace),
         value: this.state.activeValues,
         options: this.props.options,
         optionComponent: this.props.optionComponent,
         onChange: activeValues => this.setState({ activeValues })
       }),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'nuclide-modal-multi-select-actions' },
-        _react.default.createElement(
+        _react.createElement(
           (_ButtonGroup || _load_ButtonGroup()).ButtonGroup,
           null,
-          _react.default.createElement(
+          _react.createElement(
             (_Button || _load_Button()).Button,
             { onClick: this._selectNone },
             'None'
           ),
-          _react.default.createElement(
+          _react.createElement(
             (_Button || _load_Button()).Button,
             { onClick: this._selectAll },
             'All'
           ),
-          _react.default.createElement(
+          _react.createElement(
             (_Button || _load_Button()).Button,
             { onClick: this._resetSelection },
             'Reset'
           )
         ),
-        _react.default.createElement(
+        _react.createElement(
           (_ButtonGroup || _load_ButtonGroup()).ButtonGroup,
           null,
-          _react.default.createElement(
+          _react.createElement(
             (_Button || _load_Button()).Button,
             { onClick: this._dismissModal },
             'Cancel'
           ),
-          _react.default.createElement(
+          _react.createElement(
             (_Button || _load_Button()).Button,
             {
               buttonType: (_Button || _load_Button()).ButtonTypes.PRIMARY,
@@ -187,7 +189,7 @@ ModalMultiSelect.defaultProps = {
 function DefaultLabelComponent(props) {
   const count = props.selectedOptions.length;
   const noun = count === 1 ? 'Item' : 'Items';
-  return _react.default.createElement(
+  return _react.createElement(
     'span',
     null,
     `${count} ${noun} Selected`

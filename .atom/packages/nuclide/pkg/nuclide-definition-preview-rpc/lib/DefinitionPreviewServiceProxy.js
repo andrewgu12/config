@@ -16,7 +16,29 @@ module.exports = _client => {
       return _client.callRemoteFunction("DefinitionPreviewService/getDefinitionPreview", "promise", args);
     }).then(value => {
       return _client.unmarshal(value, {
-        kind: "string"
+        kind: "nullable",
+        type: {
+          kind: "object",
+          fields: [{
+            name: "mime",
+            type: {
+              kind: "string"
+            },
+            optional: false
+          }, {
+            name: "contents",
+            type: {
+              kind: "string"
+            },
+            optional: false
+          }, {
+            name: "encoding",
+            type: {
+              kind: "string"
+            },
+            optional: false
+          }]
+        }
       });
     });
   };
@@ -92,7 +114,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "types.js",
-        line: 25
+        line: 15
       },
       name: "Definition",
       definition: {
@@ -119,15 +141,16 @@ Object.defineProperty(module.exports, "defs", {
           },
           optional: true
         }, {
-          name: "id",
+          name: "name",
           type: {
             kind: "string"
           },
           optional: true
         }, {
-          name: "name",
+          name: "projectRoot",
           type: {
-            kind: "string"
+            kind: "named",
+            name: "NuclideUri"
           },
           optional: true
         }, {
@@ -136,13 +159,6 @@ Object.defineProperty(module.exports, "defs", {
             kind: "string"
           },
           optional: false
-        }, {
-          name: "projectRoot",
-          type: {
-            kind: "named",
-            name: "NuclideUri"
-          },
-          optional: true
         }]
       }
     },
@@ -171,7 +187,29 @@ Object.defineProperty(module.exports, "defs", {
         returnType: {
           kind: "promise",
           type: {
-            kind: "string"
+            kind: "nullable",
+            type: {
+              kind: "object",
+              fields: [{
+                name: "mime",
+                type: {
+                  kind: "string"
+                },
+                optional: false
+              }, {
+                name: "contents",
+                type: {
+                  kind: "string"
+                },
+                optional: false
+              }, {
+                name: "encoding",
+                type: {
+                  kind: "string"
+                },
+                optional: false
+              }]
+            }
           }
         }
       }

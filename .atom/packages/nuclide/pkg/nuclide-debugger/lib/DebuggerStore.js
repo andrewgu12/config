@@ -60,11 +60,11 @@ class DebuggerStore {
     this._debuggerInstance = null;
     this._error = null;
     this._evaluationExpressionProviders = new Set();
-    this._processSocket = null;
     this._debuggerMode = DebuggerMode.STOPPED;
     this._togglePauseOnException = false;
     this._togglePauseOnCaughtException = false;
     this._enableSingleThreadStepping = false;
+    this._enableShowDisassembly = false;
     this._registerExecutor = null;
     this._consoleDisposable = null;
     this._customControlButtons = [];
@@ -112,10 +112,6 @@ class DebuggerStore {
 
   getError() {
     return this._error;
-  }
-
-  getProcessSocket() {
-    return this._processSocket;
   }
 
   getDebuggerMode() {
@@ -174,11 +170,24 @@ class DebuggerStore {
     return this._emitter.on(DEBUGGER_MODE_CHANGE_EVENT, callback);
   }
 
+  supportsSetVariable() {
+    const currentDebugInfo = this.getDebugProcessInfo();
+    return currentDebugInfo ? currentDebugInfo.getDebuggerCapabilities().setVariable : false;
+  }
+
+  setShowDisassembly(enable) {
+    this._enableShowDisassembly = enable;
+    if (this.isDebugging()) {
+      this.getBridge().setShowDisassembly(enable);
+    }
+  }
+
+  getShowDisassembly() {
+    return this._debugProcessInfo != null && this._debugProcessInfo.getDebuggerCapabilities().disassembly && this._enableShowDisassembly;
+  }
+
   _handlePayload(payload) {
     switch (payload.actionType) {
-      case (_DebuggerDispatcher || _load_DebuggerDispatcher()).ActionTypes.SET_PROCESS_SOCKET:
-        this._processSocket = payload.data;
-        break;
       case (_DebuggerDispatcher || _load_DebuggerDispatcher()).ActionTypes.SET_ERROR:
         this._error = payload.data;
         break;

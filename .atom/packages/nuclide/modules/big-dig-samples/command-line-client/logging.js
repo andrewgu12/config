@@ -37,7 +37,7 @@ function setupDefaultLogging(loggingFile) {
     (_log4js || _load_log4js()).default.shutdown(() => process.exit(1));
   });
 }
-// eslint-disable-next-line nuclide-internal/prefer-nuclide-uri
+// eslint-disable-next-line rulesdir/prefer-nuclide-uri
 /**
  * Copyright (c) 2017-present, Facebook, Inc.
  * All rights reserved.

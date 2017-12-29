@@ -22,7 +22,7 @@ let getCtagsService = (() => {
   };
 })();
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _featureConfig;
 
@@ -60,11 +60,13 @@ function _load_utils() {
   return _utils = require('./utils');
 }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // ctags doesn't have a true limit API, so having too many results slows down Nuclide.
 
-// eslint-disable-next-line nuclide-internal/no-cross-atom-imports
+// eslint-disable-next-line rulesdir/no-cross-atom-imports
 const MIN_QUERY_LENGTH = 2; /**
                              * Copyright (c) 2015-present, Facebook, Inc.
                              * All rights reserved.
@@ -101,19 +103,19 @@ class QuickOpenHelpers {
       icon = (_utils || _load_utils()).CTAGS_KIND_ICONS[item.kind];
     }
     icon = icon || DEFAULT_ICON;
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { title: kind },
-      _react.default.createElement(
+      _react.createElement(
         'span',
         { className: `file icon ${icon}` },
-        _react.default.createElement(
+        _react.createElement(
           'code',
           null,
           item.name
         )
       ),
-      _react.default.createElement(
+      _react.createElement(
         'span',
         { className: 'omnisearch-symbol-result-filename' },
         path
@@ -152,12 +154,13 @@ class QuickOpenHelpers {
           return !isHackProject || !tag.file.endsWith('.php');
         }).map(function (tag) {
           return Object.assign({}, tag, {
+            resultType: 'FILE',
             path: tag.file,
             dir,
             callback() {
               return (0, _asyncToGenerator.default)(function* () {
                 const line = yield (0, (_utils || _load_utils()).getLineNumberForTag)(tag);
-                (0, (_goToLocation || _load_goToLocation()).goToLocation)(tag.file, line);
+                (0, (_goToLocation || _load_goToLocation()).goToLocation)(tag.file, { line });
               })();
             }
           });

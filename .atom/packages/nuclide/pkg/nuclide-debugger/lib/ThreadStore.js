@@ -8,7 +8,13 @@ var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
 
 var _atom = require('atom');
 
-var _react = _interopRequireDefault(require('react'));
+var _UniversalDisposable;
+
+function _load_UniversalDisposable() {
+  return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
+}
+
+var _react = _interopRequireWildcard(require('react'));
 
 var _Icon;
 
@@ -28,17 +34,13 @@ function _load_DebuggerDispatcher() {
   return _DebuggerDispatcher = require('./DebuggerDispatcher');
 }
 
-var _passesGK;
-
-function _load_passesGK() {
-  return _passesGK = _interopRequireDefault(require('../../commons-node/passesGK'));
-}
-
 var _DebuggerStore;
 
 function _load_DebuggerStore() {
   return _DebuggerStore = require('./DebuggerStore');
 }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -53,16 +55,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @format
  */
 
-const GK_THREAD_SWITCH_UI = 'nuclide_debugger_thread_switch_ui';
-const GK_TIMEOUT = 5000;
-
 class ThreadStore {
 
   constructor(dispatcher) {
     const dispatcherToken = dispatcher.register(this._handlePayload.bind(this));
-    this._disposables = new _atom.CompositeDisposable(new _atom.Disposable(() => {
+    this._disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default(() => {
       dispatcher.unregister(dispatcherToken);
-    }));
+    });
     this._datatipService = null;
     this._emitter = new _atom.Emitter();
     this._threadMap = new Map();
@@ -167,10 +166,6 @@ class ThreadStore {
     var _this = this;
 
     return (0, _asyncToGenerator.default)(function* () {
-      const notifyThreadSwitches = yield (0, (_passesGK || _load_passesGK()).default)(GK_THREAD_SWITCH_UI, GK_TIMEOUT);
-      if (!notifyThreadSwitches) {
-        return;
-      }
       const path = (_nuclideUri || _load_nuclideUri()).default.uriToNuclideUri(sourceURL);
       // we want to put the message one line above the current line unless the selected
       // line is the top line, in which case we will put the datatip next to the line.
@@ -180,7 +175,7 @@ class ThreadStore {
       if (datatipService != null && path != null && atom.workspace != null) {
         // This should be goToLocation instead but since the searchAllPanes option is correctly
         // provided it's not urgent.
-        // eslint-disable-next-line nuclide-internal/atom-apis
+        // eslint-disable-next-line rulesdir/atom-apis
         atom.workspace.open(path, { searchAllPanes: true }).then(function (editor) {
           const buffer = editor.getBuffer();
           const rowRange = buffer.rangeForRow(notificationLineNumber);
@@ -211,10 +206,10 @@ class ThreadStore {
   }
 
   _createAlertComponentClass(message) {
-    return () => _react.default.createElement(
+    return () => _react.createElement(
       'div',
       { className: 'nuclide-debugger-thread-switch-alert' },
-      _react.default.createElement((_Icon || _load_Icon()).Icon, { icon: 'alert' }),
+      _react.createElement((_Icon || _load_Icon()).Icon, { icon: 'alert' }),
       message
     );
   }

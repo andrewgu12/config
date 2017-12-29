@@ -43,6 +43,18 @@ function _load_nuclideAnalytics() {
   return _nuclideAnalytics = require('../../nuclide-analytics');
 }
 
+var _textEditor;
+
+function _load_textEditor() {
+  return _textEditor = require('nuclide-commons-atom/text-editor');
+}
+
+var _UniversalDisposable;
+
+function _load_UniversalDisposable() {
+  return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
+}
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const PACKAGES_MISSING_MESSAGE = 'Could not open blame. Missing at least one blame provider.'; /**
@@ -64,24 +76,26 @@ class Activation {
     this._registeredProviders = new Set();
     this._textEditorToBlameGutter = new Map();
     this._textEditorToDestroySubscription = new Map();
-    this._packageDisposables = new _atom.CompositeDisposable();
+    this._packageDisposables = new (_UniversalDisposable || _load_UniversalDisposable()).default();
     this._packageDisposables.add(atom.contextMenu.add({
       'atom-text-editor': [{
         label: 'Source Control',
         submenu: [{
           label: 'Toggle Blame',
           command: 'nuclide-blame:toggle-blame',
-          shouldDisplay: event => this._canShowBlame() || this._canHideBlame()
+          shouldDisplay: event => this._canShowBlame(true /* fromContextMenu */) || this._canHideBlame(true /* fromContextMenu */)
         }]
       }]
     }));
-    this._packageDisposables.add(atom.commands.add('atom-text-editor', 'nuclide-blame:toggle-blame', () => {
+    this._packageDisposables.add(atom.commands.add('atom-workspace', 'nuclide-blame:toggle-blame', () => {
       if (this._canShowBlame()) {
         this._showBlame();
       } else if (this._canHideBlame()) {
         this._hideBlame();
       }
-    }), atom.commands.add('atom-text-editor', 'nuclide-blame:hide-blame', () => {
+    }),
+    // eslint-disable-next-line
+    atom.commands.add('atom-workspace', 'nuclide-blame:hide-blame', () => {
       if (this._canHideBlame()) {
         this._hideBlame();
       }
@@ -160,7 +174,7 @@ class Activation {
 
   _showBlame(event) {
     return (0, (_nuclideAnalytics || _load_nuclideAnalytics()).trackTiming)('blame.showBlame', () => {
-      const editor = atom.workspace.getActiveTextEditor();
+      const editor = getMostRelevantEditor();
       if (editor != null) {
         this._showBlameGutterForEditor(editor);
       }
@@ -169,20 +183,20 @@ class Activation {
 
   _hideBlame(event) {
     return (0, (_nuclideAnalytics || _load_nuclideAnalytics()).trackTiming)('blame.hideBlame', () => {
-      const editor = atom.workspace.getActiveTextEditor();
+      const editor = getMostRelevantEditor();
       if (editor != null) {
         this._removeBlameGutterForEditor(editor);
       }
     });
   }
 
-  _canShowBlame() {
-    const editor = atom.workspace.getActiveTextEditor();
-    return !(editor != null && this._textEditorToBlameGutter.has(editor));
+  _canShowBlame(fromContextMenu = false) {
+    const editor = getMostRelevantEditor(fromContextMenu);
+    return editor != null && !this._textEditorToBlameGutter.has(editor);
   }
 
-  _canHideBlame() {
-    const editor = atom.workspace.getActiveTextEditor();
+  _canHideBlame(fromContextMenu = false) {
+    const editor = getMostRelevantEditor(fromContextMenu);
     return editor != null && this._textEditorToBlameGutter.has(editor);
   }
 
@@ -273,4 +287,13 @@ function addItemsToFileTreeContextMenu(contextMenu) {
   }
 
   return activation.addItemsToFileTreeContextMenu(contextMenu);
+}
+
+function getMostRelevantEditor(fromContextMenu = false) {
+  const editor = atom.workspace.getActiveTextEditor();
+  if (fromContextMenu || editor != null) {
+    return editor;
+  }
+  const item = atom.workspace.getCenter().getActivePane().getActiveItem();
+  return (0, (_textEditor || _load_textEditor()).isValidTextEditor)(item) ? item : null;
 }

@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _string;
 
@@ -19,6 +19,8 @@ function _load_addTooltip() {
 }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; } /**
                                                                                                                                                                                                                               * Copyright (c) 2015-present, Facebook, Inc.
@@ -39,7 +41,7 @@ const DEFAULT_RERENDER_DELAY = 10000; // ms
  *
  * Does not respond to changes to the initial `delay` for simplicity's sake.
  */
-class RelativeDate extends _react.default.Component {
+class RelativeDate extends _react.Component {
 
   componentDidMount() {
     const { delay } = this.props;
@@ -62,7 +64,7 @@ class RelativeDate extends _react.default.Component {
       withToolip
     } = _props,
           remainingProps = _objectWithoutProperties(_props, ['date', 'delay', 'shorten', 'withToolip']);
-    return _react.default.createElement(
+    return _react.createElement(
       'span',
       Object.assign({}, remainingProps, {
         ref: withToolip ? (0, (_addTooltip || _load_addTooltip()).default)({

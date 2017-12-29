@@ -26,7 +26,9 @@ function _load_classnames() {
 
 var _electron = _interopRequireDefault(require('electron'));
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -50,7 +52,7 @@ if (!(remote != null)) {
 // For backwards compat, we have to do some conversion here.
 
 
-class Dropdown extends _react.default.Component {
+class Dropdown extends _react.Component {
   constructor(...args) {
     var _temp;
 
@@ -62,31 +64,35 @@ class Dropdown extends _react.default.Component {
   }
 
   render() {
-    const selectedOption = this._findSelectedOption(this.props.options);
-
-    let selectedLabel;
-    if (selectedOption == null) {
-      if (this.props.placeholder != null) {
-        selectedLabel = this.props.placeholder;
-      } else {
-        selectedLabel = this._renderSelectedLabel(this.props.options[0]);
-      }
+    const { label: providedLabel, options, placeholder } = this.props;
+    let label;
+    if (providedLabel != null) {
+      label = providedLabel;
     } else {
-      selectedLabel = this._renderSelectedLabel(selectedOption);
+      const selectedOption = this._findSelectedOption(options);
+
+      if (selectedOption == null) {
+        if (placeholder != null) {
+          label = placeholder;
+        } else {
+          label = this._renderSelectedLabel(options[0]);
+        }
+      } else {
+        label = this._renderSelectedLabel(selectedOption);
+      }
     }
 
-    return _react.default.createElement(
+    return _react.createElement(
       DropdownButton,
       {
         className: this.props.className,
         disabled: this.props.disabled,
         isFlat: this.props.isFlat,
-        title: this.props.title,
         buttonComponent: this.props.buttonComponent,
         onExpand: this._handleDropdownClick,
         size: this.props.size,
         tooltip: this.props.tooltip },
-      selectedLabel
+      label
     );
   }
 
@@ -183,13 +189,13 @@ function DropdownButton(props) {
     'nuclide-ui-dropdown-flat': props.isFlat === true
   });
 
-  const label = props.children == null ? null : _react.default.createElement(
+  const label = props.children == null ? null : _react.createElement(
     'span',
     { className: 'nuclide-dropdown-label-text-wrapper' },
     props.children
   );
 
-  return _react.default.createElement(
+  return _react.createElement(
     ButtonComponent,
     {
       tooltip: props.tooltip,
@@ -198,7 +204,7 @@ function DropdownButton(props) {
       disabled: props.disabled === true,
       onClick: props.onExpand || noop },
     label,
-    _react.default.createElement((_Icon || _load_Icon()).Icon, { icon: 'triangle-down', className: 'nuclide-ui-dropdown-icon' })
+    _react.createElement((_Icon || _load_Icon()).Icon, { icon: 'triangle-down', className: 'nuclide-ui-dropdown-icon' })
   );
 }
 

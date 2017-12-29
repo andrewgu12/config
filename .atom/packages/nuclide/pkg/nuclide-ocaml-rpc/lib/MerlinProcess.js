@@ -21,6 +21,7 @@ let getInstance = exports.getInstance = (() => {
     const flags = getMerlinFlags();
 
     const version = yield getMerlinVersion(merlinPath);
+    // eslint-disable-next-line eqeqeq
     if (version === null) {
       return null;
     }
@@ -28,6 +29,7 @@ let getInstance = exports.getInstance = (() => {
     const dotMerlinPath = yield (_fsPromise || _load_fsPromise()).default.findNearestFile('.merlin', file);
 
     const options = {
+      // flowlint-next-line sketchy-null-string:off
       cwd: dotMerlinPath ? (_nuclideUri || _load_nuclideUri()).default.dirname(dotMerlinPath) : '.',
       // Starts the process with the user's bashrc, which might contain a
       // different ocamlmerlin. See `getMerlinVersion` for the same consistent
@@ -46,6 +48,7 @@ let getInstance = exports.getInstance = (() => {
     const majorMinor = version.split('.').slice(0, 2).join('.');
     switch (majorMinor) {
       case '2.5':
+      case '3.0':
         merlinProcessInstance = new MerlinProcessV2_5(process);
         break;
       case '2.3':
@@ -56,6 +59,7 @@ let getInstance = exports.getInstance = (() => {
         return null;
     }
 
+    // flowlint-next-line sketchy-null-string:off
     if (dotMerlinPath) {
       // TODO(pieter) add support for multiple .dotmerlin files
       yield merlinProcessInstance.pushDotMerlinPath(dotMerlinPath);

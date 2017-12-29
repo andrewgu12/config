@@ -5,7 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.activate = activate;
 exports.deactivate = deactivate;
-exports.consumeWorkspaceViewsService = consumeWorkspaceViewsService;
 exports.consumeToolBar = consumeToolBar;
 
 var _viewableFromReactElement;
@@ -20,7 +19,7 @@ function _load_UniversalDisposable() {
   return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _SettingsPaneItem;
 
@@ -40,6 +39,14 @@ function _load_destroyItemWhere() {
   return _destroyItemWhere = require('nuclide-commons-atom/destroyItemWhere');
 }
 
+var _ToolbarUtils;
+
+function _load_ToolbarUtils() {
+  return _ToolbarUtils = require('../../nuclide-ui/ToolbarUtils');
+}
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
@@ -56,7 +63,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 let subscriptions = null;
 
 function activate(state) {
-  subscriptions = new (_UniversalDisposable || _load_UniversalDisposable()).default();
+  subscriptions = new (_UniversalDisposable || _load_UniversalDisposable()).default(registerCommandAndOpener());
 }
 
 function deactivate() {
@@ -64,13 +71,13 @@ function deactivate() {
   subscriptions = null;
 }
 
-function consumeWorkspaceViewsService(api) {
-  subscriptions.add(api.addOpener(uri => {
+function registerCommandAndOpener() {
+  return new (_UniversalDisposable || _load_UniversalDisposable()).default(atom.workspace.addOpener(uri => {
     if (uri === (_SettingsPaneItem2 || _load_SettingsPaneItem2()).WORKSPACE_VIEW_URI) {
-      return (0, (_viewableFromReactElement || _load_viewableFromReactElement()).viewableFromReactElement)(_react.default.createElement((_SettingsPaneItem || _load_SettingsPaneItem()).default, null));
+      return (0, (_viewableFromReactElement || _load_viewableFromReactElement()).viewableFromReactElement)(_react.createElement((_SettingsPaneItem || _load_SettingsPaneItem()).default, null));
     }
-  }), () => (0, (_destroyItemWhere || _load_destroyItemWhere()).destroyItemWhere)(item => item instanceof (_SettingsPaneItem || _load_SettingsPaneItem()).default), atom.commands.add('atom-workspace', 'nuclide-settings:toggle', event => {
-    api.toggle((_SettingsPaneItem2 || _load_SettingsPaneItem2()).WORKSPACE_VIEW_URI, event.detail);
+  }), () => (0, (_destroyItemWhere || _load_destroyItemWhere()).destroyItemWhere)(item => item instanceof (_SettingsPaneItem || _load_SettingsPaneItem()).default), atom.commands.add('atom-workspace', 'nuclide-settings:toggle', () => {
+    atom.workspace.toggle((_SettingsPaneItem2 || _load_SettingsPaneItem2()).WORKSPACE_VIEW_URI);
   }));
 }
 
@@ -79,12 +86,12 @@ function consumeToolBar(getToolBar) {
   toolBar.addSpacer({
     priority: -501
   });
-  toolBar.addButton({
+  toolBar.addButton((0, (_ToolbarUtils || _load_ToolbarUtils()).makeToolbarButtonSpec)({
     icon: 'gear',
     callback: 'nuclide-settings:toggle',
     tooltip: 'Open Nuclide Settings',
     priority: -500
-  });
+  }));
   const disposable = new (_UniversalDisposable || _load_UniversalDisposable()).default(() => {
     toolBar.removeItems();
   });

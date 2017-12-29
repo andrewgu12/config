@@ -108,29 +108,56 @@ let mkdirp = (() => {
  */
 
 
-/** @return true only if we are sure directoryPath is on NFS. */
-let isNfs = (() => {
+let getFileSystemType = (() => {
   var _ref4 = (0, _asyncToGenerator.default)(function* (entityPath) {
     if (process.platform === 'linux' || process.platform === 'darwin') {
       try {
         const stdout = yield (0, (_process || _load_process()).runCommand)('stat', ['-f', '-L', '-c', '%T', entityPath]).toPromise();
-        return stdout.trim() === 'nfs';
+        return stdout.trim();
       } catch (err) {
-        return false;
+        return null;
       }
     } else {
-      // TODO Handle other platforms (windows?): t9917576.
-      return false;
+      // TODO Handle other platforms (windows?)
+      return null;
     }
   });
 
-  return function isNfs(_x6) {
+  return function getFileSystemType(_x6) {
     return _ref4.apply(this, arguments);
   };
 })();
 
+/** @return true only if we are sure entityPath is on NFS. */
+
+
+let isNfs = (() => {
+  var _ref5 = (0, _asyncToGenerator.default)(function* (entityPath) {
+    return (yield getFileSystemType(entityPath)) === 'nfs';
+  });
+
+  return function isNfs(_x7) {
+    return _ref5.apply(this, arguments);
+  };
+})();
+
+/** @return true only if we are sure entityPath is on a Fuse filesystem like
+            dewey or gvfs.
+*/
+
+
+let isFuse = (() => {
+  var _ref6 = (0, _asyncToGenerator.default)(function* (entityPath) {
+    return (yield getFileSystemType(entityPath)) === 'fuseblk';
+  });
+
+  return function isFuse(_x8) {
+    return _ref6.apply(this, arguments);
+  };
+})();
+
 let isNonNfsDirectory = (() => {
-  var _ref5 = (0, _asyncToGenerator.default)(function* (directoryPath) {
+  var _ref7 = (0, _asyncToGenerator.default)(function* (directoryPath) {
     try {
       const stats = yield stat(directoryPath);
       if (stats.isDirectory()) {
@@ -146,13 +173,85 @@ let isNonNfsDirectory = (() => {
     }
   });
 
-  return function isNonNfsDirectory(_x7) {
-    return _ref5.apply(this, arguments);
+  return function isNonNfsDirectory(_x9) {
+    return _ref7.apply(this, arguments);
   };
 })();
 
 /**
  * Promisified wrappers around fs-plus functions.
+ */
+
+let copyFilePermissions = (() => {
+  var _ref8 = (0, _asyncToGenerator.default)(function* (sourcePath, destinationPath) {
+    try {
+      const { mode, uid, gid } = yield stat(sourcePath);
+      yield Promise.all([
+      // The user may not have permissions to use the uid/gid.
+      chown(destinationPath, uid, gid).catch(function () {}), chmod(destinationPath, mode)]);
+    } catch (e) {
+      // If the file does not exist, then ENOENT will be thrown.
+      if (e.code !== 'ENOENT') {
+        throw e;
+      }
+      // For new files, use the default process file creation mask.
+      yield chmod(destinationPath,
+      // $FlowIssue: umask argument is optional
+      0o666 & ~process.umask() // eslint-disable-line no-bitwise
+      );
+    }
+  });
+
+  return function copyFilePermissions(_x10, _x11) {
+    return _ref8.apply(this, arguments);
+  };
+})();
+
+/**
+ * TODO: the fs-plus `writeFile` implementation runs `mkdirp` first.
+ * We should use `fs.writeFile` and have callsites explicitly opt-in to this behaviour.
+ */
+
+
+let writeFileAtomic = (() => {
+  var _ref9 = (0, _asyncToGenerator.default)(function* (path, data, options) {
+    const tempFilePath = yield tempfile('nuclide');
+    try {
+      yield writeFile(tempFilePath, data, options);
+
+      // Expand the target path in case it contains symlinks.
+      let realPath = path;
+      try {
+        realPath = yield realpath(path);
+      } catch (e) {}
+      // Fallback to using the specified path if it cannot be expanded.
+      // Note: this is expected in cases where the remote file does not
+      // actually exist.
+
+
+      // Ensure file still has original permissions:
+      // https://github.com/facebook/nuclide/issues/157
+      // We update the mode of the temp file rather than the destination file because
+      // if we did the mv() then the chmod(), there would be a brief period between
+      // those two operations where the destination file might have the wrong permissions.
+      yield copyFilePermissions(realPath, tempFilePath);
+
+      // TODO: put renames into a queue so we don't write older save over new save.
+      // Use mv as fs.rename doesn't work across partitions.
+      yield mv(tempFilePath, realPath, { mkdirp: true });
+    } catch (err) {
+      yield unlink(tempFilePath);
+      throw err;
+    }
+  });
+
+  return function writeFileAtomic(_x12, _x13, _x14) {
+    return _ref9.apply(this, arguments);
+  };
+})();
+
+/**
+ * Promisified wrappers around fs functions.
  */
 
 var _fs = _interopRequireDefault(require('fs'));
@@ -173,6 +272,12 @@ var _mkdirp;
 
 function _load_mkdirp() {
   return _mkdirp = _interopRequireDefault(require('mkdirp'));
+}
+
+var _mv;
+
+function _load_mv() {
+  return _mv = _interopRequireDefault(require('mv'));
 }
 
 var _rimraf;
@@ -207,18 +312,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @param prefix optinal prefix for the temp directory name.
  * @return path to a temporary directory.
  */
-/**
- * Copyright (c) 2017-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * 
- * @format
- */
-
 function tempdir(prefix = '') {
   return new Promise((resolve, reject) => {
     (_temp || _load_temp()).default.mkdir(prefix, (err, result) => {
@@ -235,6 +328,18 @@ function tempdir(prefix = '') {
  * @return path to a temporary file. The caller is responsible for cleaning up
  *     the file.
  */
+/**
+ * Copyright (c) 2017-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * 
+ * @format
+ */
+
 function tempfile(options) {
   return new Promise((resolve, reject) => {
     (_temp || _load_temp()).default.open(options, (err, info) => {
@@ -265,7 +370,7 @@ function exists(filePath) {
   return new Promise((resolve, reject) => {
     _fs.default.exists(filePath, resolve);
   });
-}function rmdir(filePath) {
+}function rimrafWrapper(filePath) {
   return new Promise((resolve, reject) => {
     (0, (_rimraf || _load_rimraf()).default)(filePath, (err, result) => {
       if (err == null) {
@@ -301,22 +406,6 @@ function copy(source, dest) {
   });
 }
 
-function move(source, dest) {
-  return new Promise((resolve, reject) => {
-    (_fsPlus || _load_fsPlus()).default.move(source, dest, (err, result) => {
-      if (err == null) {
-        resolve(result);
-      } else {
-        reject(err);
-      }
-    });
-  });
-}
-
-/**
- * TODO: the fs-plus `writeFile` implementation runs `mkdirp` first.
- * We should use `fs.writeFile` and have callsites explicitly opt-in to this behaviour.
- */
 function writeFile(filename, data, options) {
   return new Promise((resolve, reject) => {
     (_fsPlus || _load_fsPlus()).default.writeFile(filename, data, options, (err, result) => {
@@ -328,10 +417,6 @@ function writeFile(filename, data, options) {
     });
   });
 }
-
-/**
- * Promisified wrappers around fs functions.
- */
 
 function chmod(path, mode) {
   return new Promise((resolve, reject) => {
@@ -376,6 +461,22 @@ function mkdir(path, mode) {
         resolve(result);
       } else {
         reject(err);
+      }
+    });
+  });
+}
+
+/**
+ * The key difference between 'mv' and 'rename' is that 'mv' works across devices.
+ * It's not uncommon to have temporary files in a different disk, for instance.
+ */
+function mv(sourcePath, destinationPath, options = {}) {
+  return new Promise((resolve, reject) => {
+    (0, (_mv || _load_mv()).default)(sourcePath, destinationPath, options, error => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve();
       }
     });
   });
@@ -434,18 +535,6 @@ function realpath(path, cache) {
   });
 }
 
-function rename(oldPath, newPath) {
-  return new Promise((resolve, reject) => {
-    _fs.default.rename(oldPath, newPath, (err, result) => {
-      if (err == null) {
-        resolve(result);
-      } else {
-        reject(err);
-      }
-    });
-  });
-}
-
 function stat(path) {
   return new Promise((resolve, reject) => {
     _fs.default.stat(path, (err, result) => {
@@ -482,6 +571,30 @@ function unlink(path) {
   });
 }
 
+function utimes(path, atime, mtime) {
+  return new Promise((resolve, reject) => {
+    _fs.default.utimes(path, atime, mtime, err => {
+      if (err == null) {
+        resolve();
+      } else {
+        reject(err);
+      }
+    });
+  });
+}
+
+function rmdir(path) {
+  return new Promise((resolve, reject) => {
+    _fs.default.rmdir(path, err => {
+      if (err == null) {
+        resolve();
+      } else {
+        reject(err);
+      }
+    });
+  });
+}
+
 exports.default = {
   tempdir,
   tempfile,
@@ -490,25 +603,29 @@ exports.default = {
   getCommonAncestorDirectory,
   exists,
   mkdirp,
-  rmdir,
+  rimraf: rimrafWrapper,
   isNfs,
+  isFuse,
   glob,
   isNonNfsDirectory,
 
   copy,
-  move,
+  copyFilePermissions,
   writeFile,
+  writeFileAtomic,
 
   chmod,
   chown,
   lstat,
   mkdir,
+  mv,
   readFile,
   readdir,
   readlink,
   realpath,
-  rename,
   stat,
   symlink,
-  unlink
+  unlink,
+  utimes,
+  rmdir
 };

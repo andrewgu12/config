@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.DevicePanelWorkspaceView = exports.WORKSPACE_VIEW_URI = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _renderReactRoot;
 
@@ -34,8 +34,6 @@ function _load_Actions() {
 }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
@@ -100,6 +98,7 @@ class DevicePanelWorkspaceView {
       deviceType: state.deviceType,
       device: state.device,
       infoTables: state.infoTables,
+      appInfoTables: state.appInfoTables,
       processes: state.processes,
       deviceTasks: state.deviceTasks,
       processTasks: state.processTasks,
@@ -118,7 +117,7 @@ class DevicePanelWorkspaceView {
     // $FlowFixMe: Teach flow about Symbol.observable
     _rxjsBundlesRxMinJs.Observable.from(this._store).distinctUntilChanged().map(state => this._appStateToProps(state)), (_RootPanel || _load_RootPanel()).RootPanel);
 
-    return (0, (_renderReactRoot || _load_renderReactRoot()).renderReactRoot)(_react.default.createElement(PreparedDevicePanel, null));
+    return (0, (_renderReactRoot || _load_renderReactRoot()).renderReactRoot)(_react.createElement(PreparedDevicePanel, null));
   }
 
   serialize() {

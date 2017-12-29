@@ -25,7 +25,7 @@ class StreamTransport {
     this._isClosed = false;
     this._messageLogger = messageLogger;
     this._output = output;
-    this._messages = (0, (_observable || _load_observable()).splitStream)((0, (_stream || _load_stream()).observeStream)(input)).do(message => {
+    this._messages = (0, (_observable || _load_observable()).splitStream)((0, (_stream || _load_stream()).observeStream)(input), false).do(message => {
       this._messageLogger('receive', message);
     });
   }

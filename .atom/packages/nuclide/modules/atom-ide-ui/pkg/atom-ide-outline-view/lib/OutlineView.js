@@ -11,7 +11,7 @@ function _load_UniversalDisposable() {
   return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _classnames;
 
@@ -37,22 +37,16 @@ function _load_LoadingSpinner() {
   return _LoadingSpinner = require('nuclide-commons-ui/LoadingSpinner');
 }
 
-var _PanelComponentScroller;
-
-function _load_PanelComponentScroller() {
-  return _PanelComponentScroller = require('nuclide-commons-ui/PanelComponentScroller');
-}
-
 var _EmptyState;
 
 function _load_EmptyState() {
   return _EmptyState = require('nuclide-commons-ui/EmptyState');
 }
 
-var _featureConfig;
+var _Tree;
 
-function _load_featureConfig() {
-  return _featureConfig = _interopRequireDefault(require('nuclide-commons-atom/feature-config'));
+function _load_Tree() {
+  return _Tree = require('nuclide-commons-ui/Tree');
 }
 
 var _OutlineViewSearch;
@@ -66,6 +60,8 @@ var _groupMatchIndexes;
 function _load_groupMatchIndexes() {
   return _groupMatchIndexes = _interopRequireDefault(require('nuclide-commons/groupMatchIndexes'));
 }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -81,8 +77,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @format
  */
 
-const SEARCH_ENABLED_DEFAULT = true;
-
 const TOKEN_KIND_TO_CLASS_NAME_MAP = {
   keyword: 'syntax--keyword',
   'class-name': 'syntax--entity syntax--name syntax--class',
@@ -95,16 +89,17 @@ const TOKEN_KIND_TO_CLASS_NAME_MAP = {
   type: 'syntax--support syntax--type'
 };
 
-class OutlineView extends _react.default.Component {
+class OutlineView extends _react.PureComponent {
+  constructor(...args) {
+    var _temp;
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      outline: {
-        kind: 'empty'
-      },
-      searchEnabled: (_featureConfig || _load_featureConfig()).default.getWithDefaults('atom-ide-outline-view.searchEnabled', SEARCH_ENABLED_DEFAULT)
-    };
+    return _temp = super(...args), this.state = {
+      fontFamily: atom.config.get('editor.fontFamily'),
+      fontSize: atom.config.get('editor.fontSize'),
+      lineHeight: atom.config.get('editor.lineHeight')
+    }, this._setOutlineViewRef = element => {
+      this._outlineViewRef = element;
+    }, _temp;
   }
 
   componentDidMount() {
@@ -112,15 +107,18 @@ class OutlineView extends _react.default.Component {
       throw new Error('Invariant violation: "this.subscription == null"');
     }
 
-    this.subscription = new (_UniversalDisposable || _load_UniversalDisposable()).default(this.props.outlines.subscribe(outline => {
-      this.setState({ outline });
-    }), (_featureConfig || _load_featureConfig()).default.observeAsStream('atom-ide-outline-view.searchEnabled').subscribe(searchEnabled => {
-      if (typeof searchEnabled === 'boolean') {
-        this.setState({ searchEnabled });
-      } else {
-        this.setState({ searchEnabled: SEARCH_ENABLED_DEFAULT });
-      }
+    this.subscription = new (_UniversalDisposable || _load_UniversalDisposable()).default(atom.config.observe('editor.fontSize', size => {
+      this.setState({ fontSize: size });
+    }), atom.config.observe('editor.fontFamily', font => {
+      this.setState({ fontFamily: font });
+    }), atom.config.observe('editor.lineHeight', size => {
+      this.setState({ lineHeight: size });
     }));
+
+    // Ensure that focus() gets called during the initial mount.
+    if (this.props.visible) {
+      this.focus();
+    }
   }
 
   componentWillUnmount() {
@@ -132,22 +130,37 @@ class OutlineView extends _react.default.Component {
     this.subscription = null;
   }
 
+  componentDidUpdate(prevProps) {
+    if (this.props.visible && !prevProps.visible) {
+      this.focus();
+    }
+  }
+
+  focus() {
+    if (this._outlineViewRef != null) {
+      this._outlineViewRef.focus();
+    }
+  }
+
   render() {
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
-      { style: { display: 'flex', flexDirection: 'column', width: '100%' } },
-      _react.default.createElement(
-        (_PanelComponentScroller || _load_PanelComponentScroller()).PanelComponentScroller,
-        null,
-        _react.default.createElement(
-          'div',
-          { className: 'nuclide-outline-view' },
-          _react.default.createElement(OutlineViewComponent, {
-            outline: this.state.outline,
-            searchEnabled: this.state.searchEnabled
-          })
-        )
-      )
+      { className: 'outline-view' },
+      _react.createElement('style', {
+        dangerouslySetInnerHTML: {
+          __html: `
+              .outline-view-core {
+                line-height: ${this.state.lineHeight};
+                font-size: ${this.state.fontSize}px;
+                font-family: ${this.state.fontFamily};
+              }
+          `
+        }
+      }),
+      _react.createElement(OutlineViewComponent, {
+        outline: this.props.outline,
+        ref: this._setOutlineViewRef
+      })
     );
   }
 }
@@ -155,116 +168,213 @@ class OutlineView extends _react.default.Component {
 exports.OutlineView = OutlineView;
 
 
-class OutlineViewComponent extends _react.default.Component {
+class OutlineViewComponent extends _react.PureComponent {
 
   constructor(props) {
     super(props);
-    this.state = { searchResults: new Map() };
+
+    this._setOutlineViewCoreRef = element => {
+      this._outlineViewCoreRef = element;
+    };
+  }
+
+  focus() {
+    if (this._outlineViewCoreRef != null) {
+      this._outlineViewCoreRef.focus();
+    }
   }
 
   render() {
-    const outline = this.props.outline;
+    const { outline } = this.props;
+
     switch (outline.kind) {
       case 'empty':
       case 'not-text-editor':
-        return _react.default.createElement((_EmptyState || _load_EmptyState()).EmptyState, {
+        return _react.createElement((_EmptyState || _load_EmptyState()).EmptyState, {
           title: 'No outline available',
-          message: 'You need to open a file to use outline view.'
+          message: 'Open a file to see its outline.'
         });
       case 'loading':
-        return _react.default.createElement(
+        return _react.createElement(
           'div',
-          { className: 'nuclide-outline-view-loading' },
-          _react.default.createElement((_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinner, {
+          { className: 'outline-view-loading' },
+          _react.createElement((_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinner, {
             className: 'inline-block',
             size: (_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinnerSizes.MEDIUM
           })
         );
       case 'no-provider':
-        return outline.grammar === 'Null Grammar' ? _react.default.createElement((_EmptyState || _load_EmptyState()).EmptyState, {
+        return outline.grammar === 'Null Grammar' ? _react.createElement((_EmptyState || _load_EmptyState()).EmptyState, {
           title: 'No outline available',
-          message: 'The current file doesn\'t have an associated grammar. You may want to save it.'
-        }) : _react.default.createElement((_EmptyState || _load_EmptyState()).EmptyState, {
+          message: 'Atom doesn\'t recognize this file\'s language. Make sure this file has an extension and has been saved.'
+        }) : _react.createElement((_EmptyState || _load_EmptyState()).EmptyState, {
           title: 'No outline available',
-          message: 'Outline view does not currently support ' + outline.grammar + '.'
+          message: _react.createElement(
+            'div',
+            null,
+            outline.grammar,
+            ' files do not currently support outlines.',
+            ' ',
+            _react.createElement(
+              'a',
+              {
+                href: '#',
+                onClick: () => (0, (_goToLocation || _load_goToLocation()).goToLocation)(`atom://config/install/package:ide-${outline.grammar}`) },
+              'Install an IDE package first.'
+            )
+          )
         });
       case 'provider-no-outline':
-        return _react.default.createElement((_EmptyState || _load_EmptyState()).EmptyState, {
+        return _react.createElement((_EmptyState || _load_EmptyState()).EmptyState, {
           title: 'No outline available',
-          message: 'There are no outline providers registered.'
+          message: 'This is likely an error with the language package.'
         });
       case 'outline':
-        return _react.default.createElement(
-          'div',
-          null,
-          this.props.searchEnabled ? _react.default.createElement((_OutlineViewSearch || _load_OutlineViewSearch()).OutlineViewSearchComponent, {
-            outlineTrees: outline.outlineTrees,
-            editor: outline.editor,
-            updateSearchResults: searchResults => {
-              this.setState({ searchResults });
-            }
-          }) : null,
-          renderTrees(outline.editor, outline.outlineTrees, this.state.searchResults)
-        );
+        return _react.createElement(OutlineViewCore, {
+          outline: outline,
+          ref: this._setOutlineViewCoreRef
+        });
       default:
         outline;
     }
   }
 }
 
-class OutlineTree extends _react.default.PureComponent {
+/**
+ * Contains both the search field and the scrollable outline tree
+ */
+class OutlineViewCore extends _react.PureComponent {
+  constructor(...args) {
+    var _temp2;
+
+    return _temp2 = super(...args), this.state = {
+      searchResults: new Map()
+    }, this._setSearchRef = element => {
+      this._searchRef = element;
+    }, _temp2;
+  }
+
+  focus() {
+    if (this._searchRef != null) {
+      this._searchRef.focus();
+    }
+  }
 
   render() {
-    const { editor, outline, searchResults } = this.props;
+    const { outline } = this.props;
 
-    const onClick = () => {
-      const pane = atom.workspace.paneForItem(editor);
-      if (pane == null) {
-        return;
-      }
+    if (!(outline.kind === 'outline')) {
+      throw new Error('Invariant violation: "outline.kind === \'outline\'"');
+    }
+
+    return _react.createElement(
+      'div',
+      { className: 'outline-view-core' },
+      _react.createElement((_OutlineViewSearch || _load_OutlineViewSearch()).OutlineViewSearchComponent, {
+        outlineTrees: outline.outlineTrees,
+        editor: outline.editor,
+        updateSearchResults: searchResults => {
+          this.setState({ searchResults });
+        },
+        ref: this._setSearchRef
+      }),
+      _react.createElement(
+        'div',
+        { className: 'outline-view-trees-scroller' },
+        _react.createElement(
+          (_Tree || _load_Tree()).Tree,
+          { className: 'outline-view-trees' },
+          renderTrees(outline.editor, outline.outlineTrees, this.state.searchResults)
+        )
+      )
+    );
+  }
+}
+
+class OutlineTree extends _react.PureComponent {
+  constructor(...args) {
+    var _temp3;
+
+    return _temp3 = super(...args), this._handleSelect = () => {
+      const { editor, outline } = this.props;
+      // single click moves the cursor, but does not focus the editor
       (_analytics || _load_analytics()).default.track('atom-ide-outline-view:go-to-location');
-      pane.activate();
-      pane.activateItem(editor);
-      (0, (_goToLocation || _load_goToLocation()).goToLocationInEditor)(editor, outline.startPosition.row, outline.startPosition.column);
-    };
-
-    const onDoubleClick = () => {
-      // Assumes that the click handler has already run, activating the text editor and moving the
-      // cursor to the start of the symbol.
+      const landingPosition = outline.landingPosition != null ? outline.landingPosition : outline.startPosition;
+      (0, (_goToLocation || _load_goToLocation()).goToLocationInEditor)(editor, {
+        line: landingPosition.row,
+        column: landingPosition.column
+      });
+    }, this._handleConfirm = () => {
+      this._focusEditor();
+    }, this._handleTripleClick = () => {
+      const { editor, outline } = this.props;
+      // triple click selects the symbol's region
       const endPosition = outline.endPosition;
       if (endPosition != null) {
         editor.selectToBufferPosition(endPosition);
       }
-    };
+      this._focusEditor();
+    }, this._focusEditor = () => {
+      const { editor } = this.props;
+      // double and triple clicks focus the editor afterwards
+      const pane = atom.workspace.paneForItem(editor);
+      if (pane == null) {
+        return;
+      }
 
-    const classNames = ['list-nested-item'];
-    if (outline.kind) {
-      classNames.push(`kind-${outline.kind}`);
-    }
-    const classes = (0, (_classnames || _load_classnames()).default)(classNames, {
+      // Assumes that the click handler has already run, which moves the
+      // cursor to the start of the symbol. Let's activate the pane now.
+      pane.activate();
+      pane.activateItem(editor);
+    }, _temp3;
+  }
+
+  render() {
+    const { editor, outline, searchResults } = this.props;
+
+    const classes = (0, (_classnames || _load_classnames()).default)('outline-view-item', outline.kind ? `kind-${outline.kind}` : null, {
       selected: outline.highlighted
     });
-    return _react.default.createElement(
-      'li',
-      { className: classes },
-      _react.default.createElement(
-        'div',
+
+    const childTrees = renderTrees(editor, outline.children, searchResults);
+    const itemContent = renderItem(outline, searchResults.get(outline));
+
+    if (childTrees.length === 0) {
+      return _react.createElement(
+        (_Tree || _load_Tree()).TreeItem,
         {
-          className: 'list-item nuclide-outline-view-item',
-          onClick: onClick,
-          onDoubleClick: onDoubleClick },
-        renderItem(outline, searchResults.get(outline))
-      ),
-      renderTrees(editor, outline.children, searchResults)
+          className: classes,
+          onConfirm: this._handleConfirm,
+          onSelect: this._handleSelect,
+          onTripleClick: this._handleTripleClick },
+        itemContent
+      );
+    }
+    return (
+      // Set fontSize for the li to make the highlighted region of selected
+      // lines (set equal to 2em) look reasonable relative to size of the font.
+      _react.createElement(
+        (_Tree || _load_Tree()).NestedTreeItem,
+        {
+          className: classes,
+          onConfirm: this._handleConfirm,
+          onSelect: this._handleSelect,
+          onTripleClick: this._handleTripleClick,
+          title: itemContent },
+        childTrees
+      )
     );
   }
 }
 
 function renderItem(outline, searchResult) {
   const r = [];
+  const icon =
+  // flowlint-next-line sketchy-null-string:off
+  outline.icon || outline.kind && OUTLINE_KIND_TO_ICON[outline.kind];
 
-  if (outline.icon != null) {
-    r.push(_react.default.createElement('span', { className: `icon icon-${outline.icon}` }));
+  if (icon != null) {
+    r.push(_react.createElement('span', { key: `icon-${icon}`, className: `icon icon-${icon}` }));
     // Note: icons here are fixed-width, so the text lines up.
   }
 
@@ -281,12 +391,17 @@ function renderItem(outline, searchResult) {
   } else {
     r.push('Missing text');
   }
-  return r;
+
+  return _react.createElement(
+    'span',
+    null,
+    r
+  );
 }
 
 function renderTextToken(token, index, searchResult, offset) {
   const className = TOKEN_KIND_TO_CLASS_NAME_MAP[token.kind];
-  return _react.default.createElement(
+  return _react.createElement(
     'span',
     { className: className, key: index },
     searchResult && searchResult.matchingCharacters ? (0, (_groupMatchIndexes || _load_groupMatchIndexes()).default)(token.value, searchResult.matchingCharacters.map(el => el - offset).filter(el => el >= 0 && el < token.value.length), renderMatchedSubsequence, renderUnmatchedSubsequence) : token.value
@@ -294,7 +409,7 @@ function renderTextToken(token, index, searchResult, offset) {
 }
 
 function renderSubsequence(seq, props) {
-  return _react.default.createElement(
+  return _react.createElement(
     'span',
     props,
     seq
@@ -308,29 +423,39 @@ function renderUnmatchedSubsequence(seq, key) {
 function renderMatchedSubsequence(seq, key) {
   return renderSubsequence(seq, {
     key,
-    className: 'atom-ide-outline-view-match'
+    className: 'outline-view-match'
   });
 }
 
 function renderTrees(editor, outlines, searchResults) {
-  if (outlines.length === 0) {
-    return null;
-  }
-  return (
-    // Add `position: relative;` to let `li.selected` style position itself relative to the list
-    // tree rather than to its container.
-    _react.default.createElement(
-      'ul',
-      { className: 'list-tree', style: { position: 'relative' } },
-      outlines.map((outline, index) => {
-        const result = searchResults.get(outline);
-        return !result || result.visible ? _react.default.createElement(OutlineTree, {
-          editor: editor,
-          outline: outline,
-          key: index,
-          searchResults: searchResults
-        }) : null;
-      })
-    )
-  );
+  return outlines.map((outline, index) => {
+    const result = searchResults.get(outline);
+    return !result || result.visible ? _react.createElement(OutlineTree, {
+      editor: editor,
+      outline: outline,
+      key: index,
+      searchResults: searchResults
+    }) : null;
+  });
 }
+
+const OUTLINE_KIND_TO_ICON = {
+  array: 'type-array',
+  boolean: 'type-boolean',
+  class: 'type-class',
+  constant: 'type-constant',
+  constructor: 'type-constructor',
+  enum: 'type-enum',
+  field: 'type-field',
+  file: 'type-file',
+  function: 'type-function',
+  interface: 'type-interface',
+  method: 'type-method',
+  module: 'type-module',
+  namespace: 'type-namespace',
+  number: 'type-number',
+  package: 'type-package',
+  property: 'type-property',
+  string: 'type-string',
+  variable: 'type-variable'
+};

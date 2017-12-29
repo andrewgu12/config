@@ -71,11 +71,11 @@ class FileCache {
     this._requests.onEvent(event);
 
     // invariant: because the above two lines have updated both _buffers and _requests,
-    // then getBufferAtVersion will necessarily return immediately and succesfully.
-    // And getBufferForFileEdit will also succeed.
+    // then getBufferAtVersion will necessarily return immediately and successfully.
+    // And getBufferForFileEvent will also succeed.
 
-    if (!(event.kind !== 'edit' || this.getBufferForFileEdit(event))) {
-      throw new Error('Invariant violation: "event.kind !== \'edit\' || this.getBufferForFileEdit(event)"');
+    if (!(event.kind !== 'edit' || this.getBufferForFileEvent(event))) {
+      throw new Error('Invariant violation: "event.kind !== \'edit\' || this.getBufferForFileEvent(event)"');
     }
 
     this._fileEvents.next(event);
@@ -123,6 +123,9 @@ class FileCache {
           return event;
         });
         break;
+      case (_constants || _load_constants()).FileEventKind.SAVE:
+        this._save(filePath, changeCount);
+        break;
       case (_constants || _load_constants()).FileEventKind.SYNC:
         if (buffer == null) {
           this._open(filePath, event.contents, changeCount);
@@ -131,16 +134,28 @@ class FileCache {
         }
         break;
       default:
+        event.kind;
         throw new Error(`Unexpected FileEvent.kind: ${event.kind}`);
     }
     return Promise.resolve(undefined);
   }
 
-  onDirectoriesChanged(openDirectories) {
+  getTotalBufferSize() {
     var _this = this;
 
     return (0, _asyncToGenerator.default)(function* () {
-      _this._directoryEvents.next(openDirectories);
+      const addLength = function (acc, buffer) {
+        return acc + buffer.getText().length;
+      };
+      return [..._this._buffers.values()].reduce(addLength, 0);
+    })();
+  }
+
+  onDirectoriesChanged(openDirectories) {
+    var _this2 = this;
+
+    return (0, _asyncToGenerator.default)(function* () {
+      _this2._directoryEvents.next(openDirectories);
     })();
   }
 
@@ -179,6 +194,12 @@ class FileCache {
     buffer.destroy();
   }
 
+  _save(filePath, changeCount) {
+    this.update(() => {
+      return createSaveEvent(this.createFileVersion(filePath, changeCount));
+    });
+  }
+
   dispose() {
     // The _close routine will delete elements from the _buffers map.
     for (const [filePath, buffer] of this._buffers.entries()) {
@@ -208,23 +229,23 @@ class FileCache {
   // then returns null. See comments in _requests.waitForBufferAtVersion for
   // the subtle scenarios where it might return null.
   getBufferAtVersion(fileVersion) {
-    var _this2 = this;
+    var _this3 = this;
 
     return (0, _asyncToGenerator.default)(function* () {
       // TODO: change this to return a string, like getBuffer() above.
-      if (!(yield _this2._requests.waitForBufferAtVersion(fileVersion))) {
+      if (!(yield _this3._requests.waitForBufferAtVersion(fileVersion))) {
         return null;
       }
-      const buffer = _this2.getBuffer(fileVersion.filePath);
+      const buffer = _this3.getBuffer(fileVersion.filePath);
       return buffer != null && buffer.changeCount === fileVersion.version ? buffer : null;
     })();
   }
 
-  // getBufferForFileEdit - this function may be called immediately when an edit event
-  // happens, before any awaits. At that time the buffer is guaranteed to be
+  // getBufferForFileEvent - this function may be called immediately when an edit or save
+  // event happens, before any awaits. At that time the buffer is guaranteed to be
   // available. If called at any other time, the buffer may no longer be available,
   // in which case it may throw.
-  getBufferForFileEdit(fileEvent) {
+  getBufferForFileEvent(fileEvent) {
     // TODO: change this to return a string, like getBuffer() above.
     const fileVersion = fileEvent.fileVersion;
 
@@ -297,6 +318,13 @@ function createOpenEvent(fileVersion, contents) {
 function createCloseEvent(fileVersion) {
   return {
     kind: (_constants || _load_constants()).FileEventKind.CLOSE,
+    fileVersion
+  };
+}
+
+function createSaveEvent(fileVersion) {
+  return {
+    kind: (_constants || _load_constants()).FileEventKind.SAVE,
     fileVersion
   };
 }

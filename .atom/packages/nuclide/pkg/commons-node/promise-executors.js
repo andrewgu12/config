@@ -5,10 +5,10 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.PromiseQueue = exports.PromisePool = undefined;
 
-var _dequeue;
+var _doubleEndedQueue;
 
-function _load_dequeue() {
-  return _dequeue = _interopRequireDefault(require('dequeue'));
+function _load_doubleEndedQueue() {
+  return _doubleEndedQueue = _interopRequireDefault(require('double-ended-queue'));
 }
 
 var _events = _interopRequireDefault(require('events'));
@@ -37,7 +37,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 class PromisePool {
 
   constructor(poolSize) {
-    this._fifo = new (_dequeue || _load_dequeue()).default();
+    this._fifo = new (_doubleEndedQueue || _load_doubleEndedQueue()).default();
     this._emitter = new _events.default();
     this._numPromisesRunning = 0;
     this._poolSize = poolSize;
@@ -68,11 +68,12 @@ class PromisePool {
       return;
     }
 
-    if (this._fifo.length === 0) {
+    const first = this._fifo.shift();
+    if (first == null) {
       return;
     }
 
-    const { id, executor } = this._fifo.shift();
+    const { id, executor } = first;
     this._numPromisesRunning++;
 
     executor().then(result => {

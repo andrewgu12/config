@@ -17,17 +17,22 @@ exports.setMaxMessageCount = setMaxMessageCount;
 exports.removeSource = removeSource;
 exports.unregisterExecutor = unregisterExecutor;
 exports.updateStatus = updateStatus;
-const CLEAR_RECORDS = exports.CLEAR_RECORDS = 'CLEAR_RECORDS'; /**
-                                                                * Copyright (c) 2015-present, Facebook, Inc.
-                                                                * All rights reserved.
-                                                                *
-                                                                * This source code is licensed under the license found in the LICENSE file in
-                                                                * the root directory of this source tree.
-                                                                *
-                                                                * 
-                                                                * @format
-                                                                */
+exports.setCreatePasteFunction = setCreatePasteFunction;
+exports.setWatchEditor = setWatchEditor;
+/**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the license found in the LICENSE file in
+ * the root directory of this source tree.
+ *
+ * 
+ * @format
+ */
 
+const CLEAR_RECORDS = exports.CLEAR_RECORDS = 'CLEAR_RECORDS';
+const SET_CREATE_PASTE_FUNCTION = exports.SET_CREATE_PASTE_FUNCTION = 'SET_CREATE_PASTE_FUNCTION';
+const SET_WATCH_EDITOR_FUNCTION = exports.SET_WATCH_EDITOR_FUNCTION = 'SET_WATCH_EDITOR_FUNCTION';
 const REGISTER_EXECUTOR = exports.REGISTER_EXECUTOR = 'REGISTER_EXECUTOR';
 const EXECUTE = exports.EXECUTE = 'EXECUTE';
 const REGISTER_RECORD_PROVIDER = exports.REGISTER_RECORD_PROVIDER = 'REGISTER_RECORD_PROVIDER';
@@ -75,6 +80,7 @@ function registerOutputProvider(outputProvider) {
       level: message.level,
       data: message.data,
       tags: message.tags,
+      repeatCount: 1,
 
       kind: 'message',
       sourceId: outputProvider.id,
@@ -136,5 +142,19 @@ function updateStatus(providerId, status) {
   return {
     type: UPDATE_STATUS,
     payload: { providerId, status }
+  };
+}
+
+function setCreatePasteFunction(createPasteFunction) {
+  return {
+    type: SET_CREATE_PASTE_FUNCTION,
+    payload: { createPasteFunction }
+  };
+}
+
+function setWatchEditor(watchEditor) {
+  return {
+    type: SET_WATCH_EDITOR_FUNCTION,
+    payload: { watchEditor }
   };
 }

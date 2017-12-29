@@ -28,13 +28,15 @@ function _load_nuclideUri() {
   return _nuclideUri = _interopRequireDefault(require('nuclide-commons/nuclideUri'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _ChangedFile;
 
 function _load_ChangedFile() {
   return _ChangedFile = _interopRequireDefault(require('./ChangedFile'));
 }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -56,8 +58,7 @@ function isHgPath(path) {
 
 const FILE_CHANGES_INITIAL_PAGE_SIZE = 100;
 
-class ChangedFilesList extends _react.default.Component {
-
+class ChangedFilesList extends _react.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -79,7 +80,9 @@ class ChangedFilesList extends _react.default.Component {
       onFileChecked,
       onFileChosen,
       onForgetFile,
+      onMarkFileResolved,
       onOpenFileInDiffView,
+      openInDiffViewOption,
       onRevertFile,
       rootPath,
       selectedFile
@@ -95,7 +98,7 @@ class ChangedFilesList extends _react.default.Component {
       collapsed: this.state.isCollapsed
     });
 
-    const showMoreFilesElement = fileStatuses.size > filesToShow ? _react.default.createElement('div', {
+    const showMoreFilesElement = fileStatuses.size > filesToShow ? _react.createElement('div', {
       className: 'icon icon-ellipsis',
       ref: (0, (_addTooltip || _load_addTooltip()).default)({
         title: 'Show more files with uncommitted changes',
@@ -108,19 +111,19 @@ class ChangedFilesList extends _react.default.Component {
     }) : null;
 
     const isHgRoot = isHgPath(rootPath);
-    return _react.default.createElement(
+    return _react.createElement(
       'ul',
-      { className: 'list-tree has-collapsable-children' },
-      _react.default.createElement(
+      { className: 'list-tree has-collapsable-children nuclide-changed-files-list' },
+      _react.createElement(
         'li',
         { className: rootClassName },
-        this.props.shouldShowFolderName ? _react.default.createElement(
+        this.props.shouldShowFolderName ? _react.createElement(
           'div',
           {
             className: 'list-item',
             key: this.props.rootPath,
             onClick: () => this.setState({ isCollapsed: !this.state.isCollapsed }) },
-          _react.default.createElement(
+          _react.createElement(
             'span',
             {
               className: 'icon icon-file-directory nuclide-file-changes-root-entry',
@@ -128,10 +131,10 @@ class ChangedFilesList extends _react.default.Component {
             (_nuclideUri || _load_nuclideUri()).default.basename(this.props.rootPath)
           )
         ) : null,
-        _react.default.createElement(
+        _react.createElement(
           'ul',
           { className: 'list-tree has-flat-children' },
-          sizeLimitedFileChanges.map(([filePath, fileStatus]) => _react.default.createElement((_ChangedFile || _load_ChangedFile()).default, {
+          sizeLimitedFileChanges.map(([filePath, fileStatus]) => _react.createElement((_ChangedFile || _load_ChangedFile()).default, {
             commandPrefix: commandPrefix,
             enableFileExpansion: enableFileExpansion,
             enableInlineActions: enableInlineActions,
@@ -147,11 +150,13 @@ class ChangedFilesList extends _react.default.Component {
             onFileChecked: onFileChecked,
             onFileChosen: onFileChosen,
             onForgetFile: onForgetFile,
+            onMarkFileResolved: onMarkFileResolved,
             onOpenFileInDiffView: onOpenFileInDiffView,
+            openInDiffViewOption: openInDiffViewOption,
             onRevertFile: onRevertFile,
             rootPath: rootPath
           })),
-          _react.default.createElement(
+          _react.createElement(
             'li',
             null,
             showMoreFilesElement

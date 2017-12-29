@@ -107,9 +107,9 @@ module.exports = _client => {
   };
 
   remoteModule.notifyDiagnostics = function () {
-    return Observable.fromPromise(_client.marshalArguments(Array.from(arguments), []).then(args => {
+    return Observable.fromPromise(_client.marshalArguments(Array.from(arguments), [])).switchMap(args => {
       return _client.callRemoteFunction("notifyDiagnostics", "observable", args);
-    })).concatMap(id => id).concatMap(value => {
+    }).concatMap(value => {
       return _client.unmarshal(value, {
         kind: "named",
         name: "HackDiagnosticsMessage"

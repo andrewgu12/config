@@ -29,6 +29,7 @@
   }
 
   .entry {
+    position: relative;
     // This fixes https://github.com/atom/tree-view/issues/110, see that issue for more details
     &:before {
       content: '';
@@ -56,6 +57,50 @@
     }
   }
 
+  &:focus .selected {
+    .list-item,
+    .name {
+      color: contrast(@button-background-color-selected) !important;
+    }
+
+    &::before {
+      background: @button-background-color-selected;
+    }
+  }
+}
+
+// This is almost identical to the .nuclide-ui-panel-component-scroller, but without the
+// overflow: scroll, since the scrolling is being done by the react-virtualized elements
+.file-tree-scroller {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  /*
+   * Chromium on OS X with a Touchpad acts like scrolling containers have
+   * `overflow-scrolling: touch;` content, which creates large, extraneous layers in the
+   * nuclide-file-tree because of the new stacking context. Force a new stacking context and
+   * wrapping layer to prevent Chromium from creating those extraneous layers.
+   *
+   * This dramatically reduces the cost of layer tree updates ("Update Layer Tree" events in the
+   * devtools "Timeline" tab) that occur frequently while typing.
+   */
+  isolation: isolate;
+}
+
+/**
+ * A silly no-op style that forces custom scrollbars when scrollbars are set to "always show".
+ * A Chromium bug prevents custom scrollbars from triggering a redraw if they load after render.
+ * Themes are loaded *after* Nuclide has finished activating, so we're stuck with ugly scrollbars.
+ * If we pre-emptively create a custom scrollbar, this mitigates the bug...
+ * All major Atom themes use custom scrollbars in "always show" mode.. so this is fairly safe.
+ *
+ * Will likely be fixed when this patch lands in Electron (Committed on 2017/08/11)
+ * https://bugs.chromium.org/p/chromium/issues/detail?id=454346
+ */
+.scrollbars-visible-always .file-tree-scroller::-webkit-scrollbar {
+  display: block;
 }
 
 .nuclide-file-tree-filter {
@@ -116,6 +161,9 @@
   opacity: 0.4;
 }
 
+.nuclide-file-tree-root-being-reordered {
+  opacity: 0.5;
+}
 
 .nuclide-file-tree-locked-height {
   display: flex;
@@ -152,6 +200,7 @@
 .nuclide-file-tree-open-files-list {
   position: relative;
   width: 100%;
+  min-width: min-content;
 
   .list-item:hover {
     color: @text-color-highlight;
@@ -182,8 +231,21 @@
 .nuclide-file-tree-sidebar-uncommitted-changes {
   display: flex;
   max-height: 20vh;
+  width: 100%;
+}
+
+.nuclide-file-tree .list-item {
+  position: relative;
 }
 
 .nuclide-file-tree .list-item::before {
   vertical-align: middle;
+}
+
+.nuclide-file-tree .list-item.generated-fully {
+  color: mix(@text-color, @tree-view-background-color, 33%);
+}
+
+.nuclide-file-tree .list-item.generated-partly {
+  color: mix(@text-color, @tree-view-background-color, 66%);
 }

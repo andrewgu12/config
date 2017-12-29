@@ -36,6 +36,19 @@ Object.defineProperty(exports, 'DebuggerRpcWebSocketService', {
   }
 });
 
+var _VsDebugSessionTranslator;
+
+function _load_VsDebugSessionTranslator() {
+  return _VsDebugSessionTranslator = require('./VsDebugSessionTranslator');
+}
+
+Object.defineProperty(exports, 'VsDebugSessionTranslator', {
+  enumerable: true,
+  get: function () {
+    return _interopRequireDefault(_VsDebugSessionTranslator || _load_VsDebugSessionTranslator()).default;
+  }
+});
+
 var _FileCache;
 
 function _load_FileCache() {

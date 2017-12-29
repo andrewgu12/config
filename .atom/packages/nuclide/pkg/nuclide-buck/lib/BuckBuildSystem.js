@@ -99,7 +99,7 @@ class BuckBuildSystem {
         socketEvents = (0, (_BuckEventStream || _load_BuckEventStream()).getEventsFromSocket)(buckService.getWebSocketStream(buckRoot, httpPort).refCount()).share();
       }
 
-      const args = runArguments.length > 0 && (subcommand === 'run' || subcommand === 'install') ? buildArguments.concat(['--']).concat(runArguments) : buildArguments;
+      const args = runArguments.length > 0 && (subcommand === 'run' || subcommand === 'install' || subcommand === 'test') ? buildArguments.concat(['--']).concat(runArguments) : buildArguments;
 
       const processMessages = runBuckCommand(buckService, buckRoot, targetString, subcommand, args, isDebug, udid).share();
       const processEvents = (0, (_BuckEventStream || _load_BuckEventStream()).getEventsFromProcess)(processMessages).share();
@@ -169,7 +169,7 @@ class BuckBuildSystem {
           messages.push(diagnostic);
           changedFiles.set(diagnostic.filePath, messages);
         });
-        this._diagnosticUpdates.next({ filePathToMessages: changedFiles });
+        this._diagnosticUpdates.next(changedFiles);
       } else if (event.type === 'error') {
         errorMessage = event.message;
       }

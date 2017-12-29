@@ -186,7 +186,7 @@ class NavigationStackController {
 
   onOptInNavigation(editor) {
     log(`onOptInNavigation ${(0, (_string || _load_string()).maybeToString)(editor.getPath())}`);
-    // Opt-in navigation is handled in the same way as a file open with no preceeding activation
+    // Opt-in navigation is handled in the same way as a file open with no preceding activation
     this.onOpen(editor);
   }
 

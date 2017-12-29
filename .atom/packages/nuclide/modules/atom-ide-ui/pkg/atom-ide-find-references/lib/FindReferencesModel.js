@@ -118,6 +118,7 @@ class FindReferencesModel {
   }
 
   getPreviewContext() {
+    // flowlint-next-line sketchy-null-number:off
     return this._options.previewContext || 1;
   }
 
@@ -177,6 +178,7 @@ class FindReferencesModel {
       const uri = fileReferences[0];
       let refGroups = fileReferences[1];
       const fileContents = yield readFileContents(uri);
+      // flowlint-next-line sketchy-null-string:off
       if (!fileContents) {
         return null;
       }

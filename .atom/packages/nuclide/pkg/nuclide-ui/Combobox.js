@@ -25,9 +25,17 @@ function _load_Portal() {
   return _Portal = require('./Portal');
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactDom = _interopRequireDefault(require('react-dom'));
+
+var _scrollIntoView;
+
+function _load_scrollIntoView() {
+  return _scrollIntoView = require('nuclide-commons-ui/scrollIntoView');
+}
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -39,7 +47,20 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * TODO use generic search provider
  * TODO move combobox to separate package.
  */
-class Combobox extends _react.default.Component {
+/**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the license found in the LICENSE file in
+ * the root directory of this source tree.
+ *
+ * 
+ * @format
+ */
+
+/* globals Element */
+
+class Combobox extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -85,13 +106,7 @@ class Combobox extends _react.default.Component {
     };
 
     this._handleInputBlur = event => {
-      const { relatedTarget } = event;
-      if (relatedTarget == null ||
-      // TODO(hansonw): Move this check inside AtomInput.
-      // See https://github.com/atom/atom/blob/master/src/text-editor-element.coffee#L145
-      relatedTarget.tagName === 'INPUT' && relatedTarget.classList.contains('hidden-input') ||
-      // Selecting a menu item registers on the portal container.
-      relatedTarget === this._getOptionsElement().parentNode) {
+      if (!this._shouldBlur) {
         return;
       }
       this._handleCancel();
@@ -102,6 +117,7 @@ class Combobox extends _react.default.Component {
     };
 
     this._handleInputClick = () => {
+      this._shouldBlur = true;
       this.setState({ optionsVisible: true });
     };
 
@@ -138,13 +154,13 @@ class Combobox extends _react.default.Component {
 
     this._scrollSelectedOptionIntoViewIfNeeded = () => {
       const selectedOption = _reactDom.default.findDOMNode(this.refs.selectedOption);
-      if (selectedOption) {
-        // $FlowFixMe
-        selectedOption.scrollIntoViewIfNeeded();
+      if (selectedOption instanceof Element) {
+        (0, (_scrollIntoView || _load_scrollIntoView()).scrollIntoViewIfNeeded)(selectedOption);
       }
     };
 
     this._subscriptions = new (_UniversalDisposable || _load_UniversalDisposable()).default();
+    this._shouldBlur = true;
     this.state = {
       error: null,
       filteredOptions: [],
@@ -163,11 +179,7 @@ class Combobox extends _react.default.Component {
     // $FlowFixMe
     atom.commands.add(node, 'core:move-up', this._handleMoveUp),
     // $FlowFixMe
-    atom.commands.add(node, 'core:move-down', this._handleMoveDown),
-    // $FlowFixMe
-    atom.commands.add(node, 'core:cancel', this._handleCancel),
-    // $FlowFixMe
-    atom.commands.add(node, 'core:confirm', this._handleConfirm), this.refs.freeformInput.onDidChange(this._handleTextInputChange));
+    atom.commands.add(node, 'core:move-down', this._handleMoveDown));
   }
 
   componentWillUnmount() {
@@ -217,6 +229,7 @@ class Combobox extends _react.default.Component {
   }
 
   focus(showOptions) {
+    this._shouldBlur = true;
     this.refs.freeformInput.focus();
     this.setState({ optionsVisible: showOptions });
   }
@@ -274,6 +287,7 @@ class Combobox extends _react.default.Component {
   }
 
   _handleItemClick(selectedValue, event) {
+    this._shouldBlur = false;
     this.selectValue(selectedValue, () => {
       // Focus the input again because the click will cause the input to blur. This mimics native
       // <select> behavior by keeping focus in the form being edited.
@@ -295,11 +309,12 @@ class Combobox extends _react.default.Component {
     let optionsContainer;
     const options = [];
 
+    // flowlint-next-line sketchy-null-string:off
     if (this.props.loadingMessage && this.state.loadingOptions) {
-      options.push(_react.default.createElement(
+      options.push(_react.createElement(
         'li',
         { key: 'loading-text', className: 'loading' },
-        _react.default.createElement(
+        _react.createElement(
           'span',
           { className: 'loading-message' },
           this.props.loadingMessage
@@ -309,7 +324,7 @@ class Combobox extends _react.default.Component {
 
     if (this.state.error != null && this.props.formatRequestOptionsErrorMessage != null) {
       const message = this.props.formatRequestOptionsErrorMessage(this.state.error);
-      options.push(_react.default.createElement(
+      options.push(_react.createElement(
         'li',
         { key: 'text-error', className: 'text-error' },
         message
@@ -332,7 +347,7 @@ class Combobox extends _react.default.Component {
           beforeMatch = option;
         }
         const isSelected = i === this.state.selectedIndex;
-        return _react.default.createElement(
+        return _react.createElement(
           'li',
           {
             className: isSelected ? 'selected' : null,
@@ -341,7 +356,7 @@ class Combobox extends _react.default.Component {
             onMouseOver: this._setSelectedIndex.bind(this, i),
             ref: isSelected ? 'selectedOption' : null },
           beforeMatch,
-          _react.default.createElement(
+          _react.createElement(
             'strong',
             { className: 'text-highlight' },
             highlightedMatch
@@ -351,7 +366,7 @@ class Combobox extends _react.default.Component {
       }));
 
       if (!options.length) {
-        options.push(_react.default.createElement(
+        options.push(_react.createElement(
           'li',
           { className: 'text-subtle', key: 'no-results-found' },
           'No results found'
@@ -360,16 +375,16 @@ class Combobox extends _react.default.Component {
 
       const rect = this.state.optionsRect || { left: 0, top: 0, width: 300 };
 
-      optionsContainer = _react.default.createElement(
+      optionsContainer = _react.createElement(
         (_Portal || _load_Portal()).Portal,
         { container: this._getOptionsElement() },
-        _react.default.createElement(
+        _react.createElement(
           'div',
           { className: 'nuclide-combobox-options', style: rect },
-          _react.default.createElement(
+          _react.createElement(
             'div',
             { className: 'select-list' },
-            _react.default.createElement(
+            _react.createElement(
               'ol',
               { className: 'nuclide-combobox-list-group list-group' },
               options
@@ -383,16 +398,19 @@ class Combobox extends _react.default.Component {
     const wrapperStyle = {
       width: width == null ? undefined : `${width}px`
     };
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       {
         className: 'select-list popover-list popover-list-subtle ' + this.props.className,
         style: wrapperStyle },
-      _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+      _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
         initialValue: initialTextInput,
         onBlur: this._handleInputBlur,
         onClick: this._handleInputClick,
         onFocus: this._handleInputFocus,
+        onConfirm: this._handleConfirm,
+        onCancel: this._handleCancel,
+        onDidChange: this._handleTextInputChange,
         placeholderText: placeholderText,
         ref: 'freeformInput',
         size: size,
@@ -403,17 +421,7 @@ class Combobox extends _react.default.Component {
     );
   }
 }
-exports.Combobox = Combobox; /**
-                              * Copyright (c) 2015-present, Facebook, Inc.
-                              * All rights reserved.
-                              *
-                              * This source code is licensed under the license found in the LICENSE file in
-                              * the root directory of this source tree.
-                              *
-                              * 
-                              * @format
-                              */
-
+exports.Combobox = Combobox;
 Combobox.defaultProps = {
   className: '',
   maxOptionCount: 10,

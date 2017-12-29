@@ -60,6 +60,7 @@ exports.default = {
 
       return results.map(function (result) {
         return {
+          resultType: 'FILE',
           path: result.path,
           score: result.score,
           matchIndexes: result.matchIndexes,

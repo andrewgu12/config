@@ -6,25 +6,21 @@ module.exports = _client => {
   const remoteModule = {};
   remoteModule.FileNotifier = class {
     onFileEvent(arg0) {
-      return _client.marshalArguments(Array.from(arguments), [{
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "event",
         type: {
           kind: "named",
           name: "FileEvent"
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "rpc-types.js",
-            line: 50
-          },
-          name: "FileNotifier"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "onFileEvent", "promise", args);
-        });
-      }).then(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "rpc-types.js",
+          line: 60
+        },
+        name: "FileNotifier"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "onFileEvent", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "void"
         });
@@ -32,7 +28,7 @@ module.exports = _client => {
     }
 
     onDirectoriesChanged(arg0) {
-      return _client.marshalArguments(Array.from(arguments), [{
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "openDirectories",
         type: {
           kind: "set",
@@ -41,21 +37,33 @@ module.exports = _client => {
             name: "NuclideUri"
           }
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "rpc-types.js",
-            line: 50
-          },
-          name: "FileNotifier"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "onDirectoriesChanged", "promise", args);
-        });
-      }).then(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "rpc-types.js",
+          line: 60
+        },
+        name: "FileNotifier"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "onDirectoriesChanged", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "void"
+        });
+      });
+    }
+
+    getTotalBufferSize() {
+      return Promise.all([_client.marshalArguments(Array.from(arguments), []), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "rpc-types.js",
+          line: 60
+        },
+        name: "FileNotifier"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "getTotalBufferSize", "promise", args)).then(value => {
+        return _client.unmarshal(value, {
+          kind: "number"
         });
       });
     }
@@ -67,7 +75,7 @@ module.exports = _client => {
   };
   remoteModule.AtomCommands = class {
     openFile(arg0, arg1, arg2, arg3) {
-      return Observable.fromPromise(_client.marshalArguments(Array.from(arguments), [{
+      return Observable.fromPromise(Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "filePath",
         type: {
           kind: "named",
@@ -88,19 +96,15 @@ module.exports = _client => {
         type: {
           kind: "boolean"
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "rpc-types.js",
-            line: 16
-          },
-          name: "AtomCommands"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "openFile", "observable", args);
-        });
-      })).concatMap(id => id).concatMap(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "rpc-types.js",
+          line: 16
+        },
+        name: "AtomCommands"
+      })])).switchMap(([args, id]) => _client.callRemoteMethod(id, "openFile", "observable", args)).concatMap(value => {
         return _client.unmarshal(value, {
           kind: "named",
           name: "AtomFileEvent"
@@ -109,7 +113,7 @@ module.exports = _client => {
     }
 
     openRemoteFile(arg0, arg1, arg2, arg3) {
-      return Observable.fromPromise(_client.marshalArguments(Array.from(arguments), [{
+      return Observable.fromPromise(Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "uri",
         type: {
           kind: "string"
@@ -129,19 +133,15 @@ module.exports = _client => {
         type: {
           kind: "boolean"
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "rpc-types.js",
-            line: 16
-          },
-          name: "AtomCommands"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "openRemoteFile", "observable", args);
-        });
-      })).concatMap(id => id).concatMap(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "rpc-types.js",
+          line: 16
+        },
+        name: "AtomCommands"
+      })])).switchMap(([args, id]) => _client.callRemoteMethod(id, "openRemoteFile", "observable", args)).concatMap(value => {
         return _client.unmarshal(value, {
           kind: "named",
           name: "AtomFileEvent"
@@ -150,25 +150,21 @@ module.exports = _client => {
     }
 
     addProject(arg0) {
-      return _client.marshalArguments(Array.from(arguments), [{
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "projectPath",
         type: {
           kind: "named",
           name: "NuclideUri"
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "rpc-types.js",
-            line: 16
-          },
-          name: "AtomCommands"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "addProject", "promise", args);
-        });
-      }).then(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "rpc-types.js",
+          line: 16
+        },
+        name: "AtomCommands"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "addProject", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "void"
         });
@@ -284,7 +280,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "rpc-types.js",
-        line: 56
+        line: 67
       },
       name: "FileVersion",
       definition: {
@@ -425,6 +421,33 @@ Object.defineProperty(module.exports, "defs", {
         }]
       }
     },
+    FileSaveEvent: {
+      kind: "alias",
+      location: {
+        type: "source",
+        fileName: "rpc-types.js",
+        line: 41
+      },
+      name: "FileSaveEvent",
+      definition: {
+        kind: "object",
+        fields: [{
+          name: "kind",
+          type: {
+            kind: "string-literal",
+            value: "save"
+          },
+          optional: false
+        }, {
+          name: "fileVersion",
+          type: {
+            kind: "named",
+            name: "FileVersion"
+          },
+          optional: false
+        }]
+      }
+    },
     FileSyncEvent: {
       kind: "alias",
       location: {
@@ -463,7 +486,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "rpc-types.js",
-        line: 42
+        line: 47
       },
       name: "FileEvent",
       definition: {
@@ -557,6 +580,23 @@ Object.defineProperty(module.exports, "defs", {
             name: "kind",
             type: {
               kind: "string-literal",
+              value: "save"
+            },
+            optional: false
+          }, {
+            name: "fileVersion",
+            type: {
+              kind: "named",
+              name: "FileVersion"
+            },
+            optional: false
+          }]
+        }, {
+          kind: "object",
+          fields: [{
+            name: "kind",
+            type: {
+              kind: "string-literal",
               value: "sync"
             },
             optional: false
@@ -584,7 +624,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "rpc-types.js",
-        line: 50
+        line: 60
       },
       constructorArgs: null,
       staticMethods: {},
@@ -593,7 +633,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "rpc-types.js",
-            line: 51
+            line: 61
           },
           kind: "function",
           argumentTypes: [{
@@ -614,7 +654,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "rpc-types.js",
-            line: 52
+            line: 62
           },
           kind: "function",
           argumentTypes: [{
@@ -634,11 +674,26 @@ Object.defineProperty(module.exports, "defs", {
             }
           }
         },
+        getTotalBufferSize: {
+          location: {
+            type: "source",
+            fileName: "rpc-types.js",
+            line: 63
+          },
+          kind: "function",
+          argumentTypes: [],
+          returnType: {
+            kind: "promise",
+            type: {
+              kind: "number"
+            }
+          }
+        },
         dispose: {
           location: {
             type: "source",
             fileName: "rpc-types.js",
-            line: 53
+            line: 64
           },
           kind: "function",
           argumentTypes: [],

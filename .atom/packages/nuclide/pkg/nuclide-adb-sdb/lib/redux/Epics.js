@@ -60,6 +60,6 @@ function setAdbPortEpic(actions, store) {
       throw new Error('Invariant violation: "action.type === Actions.SET_ADB_PORT"');
     }
 
-    (0, (_nuclideRemoteConnection || _load_nuclideRemoteConnection()).getAdbServiceByNuclideUri)(action.payload.host).setAdbPort(action.payload.port);
+    (0, (_nuclideRemoteConnection || _load_nuclideRemoteConnection()).getAdbServiceByNuclideUri)(action.payload.host).addAdbPort(action.payload.port);
   }).ignoreElements();
 }

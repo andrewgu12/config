@@ -161,6 +161,7 @@ function decryptConfig(remoteProjectConfig) {
 
   const password = (_keytarWrapper || _load_keytarWrapper()).default.getPassword('nuclide.remoteProjectConfig', sha1sum);
 
+  // flowlint-next-line sketchy-null-string:off
   if (!password) {
     throw new Error('Cannot find password for encrypted client key');
   }
@@ -170,6 +171,7 @@ function decryptConfig(remoteProjectConfig) {
     clientCertificate,
     clientKey
   } = remoteProjectConfig;
+  // flowlint-next-line sketchy-null-string:off
 
   if (!clientKey) {
     throw new Error('Invariant violation: "clientKey"');
@@ -188,9 +190,13 @@ function decryptConfig(remoteProjectConfig) {
       (0, (_log4js || _load_log4js()).getLogger)('nuclide-remote-connection').error(`decrypted client key did not start with expected header: ${restoredClientKey}`);
     }
 
+  // flowlint-next-line sketchy-null-string:off
+
   if (!certificateAuthorityCertificate) {
     throw new Error('Invariant violation: "certificateAuthorityCertificate"');
   }
+  // flowlint-next-line sketchy-null-string:off
+
 
   if (!clientCertificate) {
     throw new Error('Invariant violation: "clientCertificate"');

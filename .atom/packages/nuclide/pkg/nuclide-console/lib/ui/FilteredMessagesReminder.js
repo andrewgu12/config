@@ -4,11 +4,11 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-class FilteredMessagesReminder extends _react.default.Component {
+class FilteredMessagesReminder extends _react.Component {
   constructor(...args) {
     var _temp;
 
@@ -24,13 +24,13 @@ class FilteredMessagesReminder extends _react.default.Component {
       return null;
     }
 
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'nuclide-console-filtered-reminder' },
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { style: { flex: 1 } },
-        _react.default.createElement(
+        _react.createElement(
           'pre',
           null,
           filteredRecordCount,
@@ -39,10 +39,10 @@ class FilteredMessagesReminder extends _react.default.Component {
           ' hidden by filters.'
         )
       ),
-      _react.default.createElement(
+      _react.createElement(
         'a',
         { href: '#', onClick: this.handleClick },
-        _react.default.createElement(
+        _react.createElement(
           'pre',
           null,
           'Show all messages.'

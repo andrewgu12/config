@@ -25,6 +25,12 @@ function _load_log4js() {
 
 var _rxjsBundlesRxMinJs = require('rxjs/bundles/Rx.min.js');
 
+var _ConsoleContainer;
+
+function _load_ConsoleContainer() {
+  return _ConsoleContainer = require('./ui/ConsoleContainer');
+}
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
@@ -38,17 +44,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *   4. Provides centralized (and fallback) error handling for errors that occur during the
  *      "startup" phase (before the process has signalled that it's ready), and afterwards.
  */
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the license found in the LICENSE file in
- * the root directory of this source tree.
- *
- * 
- * @format
- */
-
 class LogTailer {
 
   constructor(options) {
@@ -63,7 +58,8 @@ class LogTailer {
     this._startCount = 0;
     this._statuses = new _rxjsBundlesRxMinJs.BehaviorSubject('stopped');
 
-    this._messages = _rxjsBundlesRxMinJs.Observable.merge(messages, this._ready == null ? _rxjsBundlesRxMinJs.Observable.empty() : this._ready.ignoreElements()).do({
+    this._messages = _rxjsBundlesRxMinJs.Observable.merge(messages, this._ready == null ? _rxjsBundlesRxMinJs.Observable.empty() : this._ready.ignoreElements() // For the errors.
+    ).do({
       complete: () => {
         // If the process completed without ever entering the "running" state, invoke the
         // `onRunning` callback with a cancellation error.
@@ -125,7 +121,7 @@ class LogTailer {
   }
 
   stop() {
-    // If the process is explicitly stopped, call all of the running callbacks with a cancelation
+    // If the process is explicitly stopped, call all of the running callbacks with a cancellation
     // error.
     this._startCount = 0;
     this._runningCallbacks.forEach(cb => {
@@ -143,6 +139,10 @@ class LogTailer {
 
   observeStatus(cb) {
     return new (_UniversalDisposable || _load_UniversalDisposable()).default(this._statuses.subscribe(cb));
+  }
+
+  getStatus() {
+    return this._statuses.getValue();
   }
 
   /**
@@ -167,7 +167,8 @@ class LogTailer {
   }
 
   _start(trackCall) {
-    atom.commands.dispatch(atom.views.getView(atom.workspace), 'nuclide-console:toggle', { visible: true });
+    // eslint-disable-next-line rulesdir/atom-apis
+    atom.workspace.open((_ConsoleContainer || _load_ConsoleContainer()).WORKSPACE_VIEW_URI, { searchAllPanes: true });
 
     const currentStatus = this._statuses.getValue();
     if (currentStatus === 'starting') {
@@ -222,7 +223,17 @@ class LogTailer {
   }
 }
 
-exports.LogTailer = LogTailer;
+exports.LogTailer = LogTailer; /**
+                                * Copyright (c) 2015-present, Facebook, Inc.
+                                * All rights reserved.
+                                *
+                                * This source code is licensed under the license found in the LICENSE file in
+                                * the root directory of this source tree.
+                                *
+                                * 
+                                * @format
+                                */
+
 class ProcessCancelledError extends Error {
   constructor(logProducerName) {
     super(`${logProducerName} was stopped`);

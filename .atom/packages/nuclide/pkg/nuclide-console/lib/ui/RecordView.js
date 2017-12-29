@@ -10,7 +10,7 @@ function _load_classnames() {
   return _classnames = _interopRequireDefault(require('classnames'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _LazyNestedValueComponent;
 
@@ -60,20 +60,29 @@ function _load_string() {
   return _string = require('nuclide-commons/string');
 }
 
+var _featureConfig;
+
+function _load_featureConfig() {
+  return _featureConfig = _interopRequireDefault(require('nuclide-commons-atom/feature-config'));
+}
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const ONE_DAY = 1000 * 60 * 60 * 24; /**
-                                      * Copyright (c) 2015-present, Facebook, Inc.
-                                      * All rights reserved.
-                                      *
-                                      * This source code is licensed under the license found in the LICENSE file in
-                                      * the root directory of this source tree.
-                                      *
-                                      * 
-                                      * @format
-                                      */
+/**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the license found in the LICENSE file in
+ * the root directory of this source tree.
+ *
+ * 
+ * @format
+ */
 
-class RecordView extends _react.default.Component {
+const ONE_DAY = 1000 * 60 * 60 * 24;
+class RecordView extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -128,7 +137,7 @@ class RecordView extends _react.default.Component {
       // TODO: We really want to use a text editor to render this so that we can get syntax
       // highlighting, but they're just too expensive. Figure out a less-expensive way to get syntax
       // highlighting.
-      return _react.default.createElement(
+      return _react.createElement(
         'pre',
         null,
         record.text || ' '
@@ -142,7 +151,7 @@ class RecordView extends _react.default.Component {
     } else {
       // If there's not text, use a space to make sure the row doesn't collapse.
       const text = record.text || ' ';
-      return _react.default.createElement(
+      return _react.createElement(
         'pre',
         null,
         parseText(text)
@@ -159,7 +168,7 @@ class RecordView extends _react.default.Component {
     const getProperties = provider == null ? null : provider.getProperties;
     const type = record.data == null ? null : record.data.type;
     const simpleValueComponent = getComponent(type);
-    return _react.default.createElement((_LazyNestedValueComponent || _load_LazyNestedValueComponent()).LazyNestedValueComponent, {
+    return _react.createElement((_LazyNestedValueComponent || _load_LazyNestedValueComponent()).LazyNestedValueComponent, {
       className: 'nuclide-console-lazy-nested-value',
       evaluationResult: record.data,
       fetchChildren: getProperties,
@@ -180,8 +189,9 @@ class RecordView extends _react.default.Component {
     });
 
     const iconName = getIconName(record);
-    const icon = iconName ? _react.default.createElement('span', { className: `icon icon-${iconName}` }) : null;
-    const sourceLabel = this.props.showSourceLabel ? _react.default.createElement(
+    // flowlint-next-line sketchy-null-string:off
+    const icon = iconName ? _react.createElement('span', { className: `icon icon-${iconName}` }) : null;
+    const sourceLabel = this.props.showSourceLabel ? _react.createElement(
       'span',
       {
         className: `nuclide-console-record-source-label ${getHighlightClassName(level)}` },
@@ -190,24 +200,33 @@ class RecordView extends _react.default.Component {
     let renderedTimestamp;
     if (timestamp != null) {
       const timestampLabel = Date.now() - timestamp > ONE_DAY ? timestamp.toLocaleString() : timestamp.toLocaleTimeString();
-      renderedTimestamp = _react.default.createElement(
+      renderedTimestamp = _react.createElement(
         'div',
         { className: 'nuclide-console-record-timestamp' },
         timestampLabel
       );
     }
-    return _react.default.createElement(
+    return _react.createElement(
       (_MeasuredComponent || _load_MeasuredComponent()).MeasuredComponent,
       {
         onMeasurementsChanged: this._debouncedMeasureAndNotifyHeight },
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { ref: this._handleRecordWrapper, className: classNames },
         icon,
-        _react.default.createElement(
+        _react.createElement(
           'div',
           { className: 'nuclide-console-record-content-wrapper' },
-          this._renderContent(displayableRecord)
+          displayableRecord.record.repeatCount > 1 && _react.createElement(
+            'div',
+            { className: 'nuclide-console-record-duplicate-number' },
+            displayableRecord.record.repeatCount
+          ),
+          _react.createElement(
+            'div',
+            { className: 'nuclide-console-record-content' },
+            this._renderContent(displayableRecord)
+          )
         ),
         sourceLabel,
         renderedTimestamp
@@ -265,14 +284,68 @@ function getIconName(record) {
   }
 }
 
+/**
+ * Parse special entities into links. In the future, it would be great to add a service so that we
+ * could add new clickable things and to allow providers to mark specific ranges as links to things
+ * that only they can know (e.g. relative paths output in BUCK messages). For now, however, we'll
+ * just use some pattern settings and hardcode the patterns we care about.
+ */
 function parseText(text) {
-  return text.split((_string || _load_string()).URL_REGEX).map((chunk, i) => {
-    // Since we're splitting on the URL regex, every other piece will be a URL.
-    const isURL = i % 2 !== 0;
-    return isURL ? _react.default.createElement(
+  const chunks = [];
+  let lastIndex = 0;
+  let index = 0;
+  while (true) {
+    const match = CLICKABLE_RE.exec(text);
+    if (match == null) {
+      break;
+    }
+
+    const matchedText = match[0];
+
+    // Add all the text since our last match.
+    chunks.push(text.slice(lastIndex, CLICKABLE_RE.lastIndex - matchedText.length));
+    lastIndex = CLICKABLE_RE.lastIndex;
+
+    let href;
+    if (match[1] != null) {
+      // It's a diff
+      const url = toString((_featureConfig || _load_featureConfig()).default.get('nuclide-console.diffUrlPattern'));
+      if (url !== '') {
+        href = url.replace('%s', matchedText);
+      }
+    } else if (match[2] != null) {
+      // It's a task
+      const url = toString((_featureConfig || _load_featureConfig()).default.get('nuclide-console.taskUrlPattern'));
+      if (url !== '') {
+        href = url.replace('%s', matchedText.slice(1));
+      }
+    } else if (match[3] != null) {
+      // It's a URL
+      href = matchedText;
+    }
+
+    chunks.push(
+    // flowlint-next-line sketchy-null-string:off
+    href ? _react.createElement(
       'a',
-      { key: `d${i}`, href: chunk, target: '_blank' },
-      chunk
-    ) : chunk;
-  });
+      { key: `r${index}`, href: href, target: '_blank' },
+      matchedText
+    ) : matchedText);
+
+    index++;
+  }
+
+  // Add any remaining text.
+  chunks.push(text.slice(lastIndex));
+
+  return chunks;
+}
+
+const DIFF_PATTERN = '\\b[dD][1-9][0-9]{5,}\\b';
+const TASK_PATTERN = '\\b[tT]\\d+\\b';
+const CLICKABLE_PATTERNS = `(${DIFF_PATTERN})|(${TASK_PATTERN})|${(_string || _load_string()).URL_REGEX.source}`;
+const CLICKABLE_RE = new RegExp(CLICKABLE_PATTERNS, 'g');
+
+function toString(value) {
+  return typeof value === 'string' ? value : '';
 }

@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.renderReactRoot = renderReactRoot;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _ReactMountRootElement;
 
@@ -14,6 +14,8 @@ function _load_ReactMountRootElement() {
 }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 /**
  * Create a DOM element and mount the React element in it. It will be unmounted when the node is

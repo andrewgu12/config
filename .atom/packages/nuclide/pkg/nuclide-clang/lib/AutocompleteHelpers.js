@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.__test__ = undefined;
+exports.__test__ = exports.ClangCursorToAutocompletionTypes = undefined;
 
 var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
 
@@ -62,7 +62,7 @@ const MAX_LINE_LENGTH = 120;
 const TAB_LENGTH = 2;
 const VALID_EMPTY_SUFFIX = /(->|\.|::|\()$/;
 
-const ClangCursorToAutocompletionTypes = Object.freeze({
+const ClangCursorToAutocompletionTypes = exports.ClangCursorToAutocompletionTypes = Object.freeze({
   STRUCT_DECL: 'class',
   UNION_DECL: 'class',
   CLASS_DECL: 'class',
@@ -94,6 +94,7 @@ function getCompletionBody(completion, columnOffset, indentation) {
   const inlineBody = getCompletionBodyInline(completion);
   const multiLineBody = getCompletionBodyMultiLine(completion, columnOffset, indentation);
 
+  // flowlint-next-line sketchy-null-string:off
   if (columnOffset + inlineBody.length > MAX_LINE_LENGTH && multiLineBody) {
     return multiLineBody;
   }
@@ -293,6 +294,7 @@ class AutocompleteHelpers {
           type,
           leftLabel: completion.result_type,
           rightLabel,
+          // flowlint-next-line sketchy-null-string:off
           description: completion.brief_comment || completion.result_type,
           filterText: completion.typed_name
         };

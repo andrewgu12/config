@@ -116,6 +116,7 @@ function convertSearchResults(hackRoot, searchResponse) {
       continue;
     }
     result.push({
+      resultType: 'SYMBOL',
       line: entry.line - 1,
       column: entry.char_start - 1,
       name: entry.name,
@@ -144,6 +145,7 @@ const ICONS = {
 };
 
 function bestIconForDesc(desc) {
+  // flowlint-next-line sketchy-null-string:off
   if (!desc) {
     return ICONS.default;
   }

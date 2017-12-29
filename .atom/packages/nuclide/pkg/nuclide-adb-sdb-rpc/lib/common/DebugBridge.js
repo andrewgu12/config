@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.DebugBridge = undefined;
+exports.DebugBridge = exports.DEFAULT_ADB_PORT = undefined;
 
 var _rxjsBundlesRxMinJs = require('rxjs/bundles/Rx.min.js');
 
@@ -24,9 +24,7 @@ function _load_process() {
  * @format
  */
 
-function getPortArg(port) {
-  return port != null ? ['-P', String(port)] : [];
-}
+const DEFAULT_ADB_PORT = exports.DEFAULT_ADB_PORT = 5037;
 
 class DebugBridge {
 
@@ -35,23 +33,34 @@ class DebugBridge {
   }
 
   runShortCommand(...command) {
-    return this.constructor.configObs.switchMap(config => (0, (_process || _load_process()).runCommand)(config.path, this._getDeviceArg(this._device).concat(getPortArg(config.port)).concat(command)));
+    return this.constructor.configObs.switchMap(config => (0, (_process || _load_process()).runCommand)(config.path, this.getDeviceArgs().concat(command)));
   }
 
   runLongCommand(...command) {
     // TODO(T17463635)
-    return this.constructor.configObs.switchMap(config => (0, (_process || _load_process()).observeProcess)(config.path, this._getDeviceArg(this._device).concat(getPortArg(config.port)).concat(command), {
+    return this.constructor.configObs.switchMap(config => (0, (_process || _load_process()).observeProcess)(config.path, this.getDeviceArgs().concat(command), {
       killTreeWhenDone: true,
       /* TODO(T17353599) */isExitError: () => false
     }).catch(error => _rxjsBundlesRxMinJs.Observable.of({ kind: 'error', error }))); // TODO(T17463635)
   }
 
-  _getDeviceArg(device) {
-    return device !== '' ? ['-s', device] : [];
+  getDeviceArgs() {
+    throw new Error('Needs to be implemented by subclass!');
+  }
+
+  static _parseDevicesCommandOutput(stdout, port) {
+    return stdout.split(/\n+/g).slice(1).filter(s => s.length > 0 && !s.trim().startsWith('*')).map(s => s.split(/\s+/g)).filter(a => a[0] !== '').map(a => ({
+      name: a[0],
+      port
+    }));
   }
 
   static getDevices() {
-    return this.configObs.switchMap(config => (0, (_process || _load_process()).runCommand)(config.path, getPortArg(config.port).concat(['devices'])).map(stdout => stdout.split(/\n+/g).slice(1).filter(s => s.length > 0 && !s.trim().startsWith('*')).map(s => s.split(/\s+/g)).filter(a => a[0] !== '').map(a => a[0])));
+    return this.configObs.switchMap(config => {
+      const commandObs = config.ports.length > 0 ? _rxjsBundlesRxMinJs.Observable.concat(...config.ports.map(port => (0, (_process || _load_process()).runCommand)(config.path, ['-P', String(port), 'devices']).map(stdout => this._parseDevicesCommandOutput(stdout, port)))) : _rxjsBundlesRxMinJs.Observable.concat((0, (_process || _load_process()).runCommand)(config.path, ['devices']).map(stdout => this._parseDevicesCommandOutput(stdout, -1)));
+
+      return commandObs.toArray().switchMap(deviceList => _rxjsBundlesRxMinJs.Observable.of(deviceList.reduce((a, b) => a != null ? a.concat(...b) : b)));
+    });
   }
 }
 exports.DebugBridge = DebugBridge;

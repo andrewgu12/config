@@ -26,7 +26,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 /* eslint-disable no-console */
 
 const { ipcRenderer, remote } = _electron.default;
-// eslint-disable-next-line nuclide-internal/prefer-nuclide-uri
+// eslint-disable-next-line rulesdir/prefer-nuclide-uri
 
 if (!(ipcRenderer != null && remote != null)) {
   throw new Error('Invariant violation: "ipcRenderer != null && remote != null"');

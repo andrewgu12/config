@@ -9,7 +9,7 @@ var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
 
 var _rxjsBundlesRxMinJs = require('rxjs/bundles/Rx.min.js');
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _UniversalDisposable;
 
@@ -101,13 +101,11 @@ function _load_nuclideUri() {
   return _nuclideUri = _interopRequireDefault(require('nuclide-commons/nuclideUri.js'));
 }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/**
- * The primary controller for spawning SwiftPM tasks, such as building a
- * package, or running its tests. This class conforms to Nuclide's TaskRunner
- * interface.
- */
+// This must match URI defined in ../../../nuclide-console/lib/ui/ConsoleContainer
 
 
 /**
@@ -121,6 +119,24 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * Actions are routed to the store via a Flux.Dispatcher (instantiated by
  * SwiftPMTaskRunner).
  */
+const CONSOLE_VIEW_URI = 'atom://nuclide/console';
+
+/**
+ * The primary controller for spawning SwiftPM tasks, such as building a
+ * package, or running its tests. This class conforms to Nuclide's TaskRunner
+ * interface.
+ */
+/**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the license found in the LICENSE file in
+ * the root directory of this source tree.
+ *
+ * 
+ * @format
+ */
+
 class SwiftPMTaskRunner {
 
   constructor(initialState) {
@@ -141,15 +157,15 @@ class SwiftPMTaskRunner {
 
   getExtraUi() {
     const { store, actions } = this._getFlux();
-    return class ExtraUi extends _react.default.Component {
+    return class ExtraUi extends _react.Component {
       render() {
-        return _react.default.createElement((_SwiftPMTaskRunnerToolbar || _load_SwiftPMTaskRunnerToolbar()).default, { store: store, actions: actions });
+        return _react.createElement((_SwiftPMTaskRunnerToolbar || _load_SwiftPMTaskRunnerToolbar()).default, { store: store, actions: actions });
       }
     };
   }
 
   getIcon() {
-    return () => _react.default.createElement((_Icon || _load_Icon()).Icon, { icon: 'nuclicon-swift', className: 'nuclide-swift-task-runner-icon' });
+    return () => _react.createElement((_Icon || _load_Icon()).Icon, { icon: 'nuclicon-swift', className: 'nuclide-swift-task-runner-icon' });
   }
 
   runTask(taskName) {
@@ -170,7 +186,9 @@ class SwiftPMTaskRunner {
         throw new Error(`Unknown task name: ${taskName}`);
     }
 
-    atom.commands.dispatch(atom.views.getView(atom.workspace), 'nuclide-console:toggle', { visible: true });
+    // eslint-disable-next-line rulesdir/atom-apis
+    atom.workspace.open(CONSOLE_VIEW_URI, { searchAllPanes: true });
+
     const observable = (0, (_tasks || _load_tasks()).createMessage)(`${command.command} ${command.args.join(' ')}`, 'log').concat((0, (_process || _load_process()).observeProcess)(command.command, command.args, {
       /* TODO(T17353599) */isExitError: () => false
     }).catch(error => _rxjsBundlesRxMinJs.Observable.of({ kind: 'error', error })) // TODO(T17463635)
@@ -207,6 +225,7 @@ class SwiftPMTaskRunner {
     const storeReady = (0, (_event || _load_event()).observableFromSubscribeFunction)(this._getFlux().store.subscribe.bind(this._getFlux().store)).map(() => this._getFlux().store).startWith(this._getFlux().store).filter(store => store.getProjectRoot() === path).share();
 
     const enabledObservable = storeReady.map(store => store.getProjectRoot()).distinctUntilChanged().switchMap(root => {
+      // flowlint-next-line sketchy-null-string:off
       if (!root || (_nuclideUri || _load_nuclideUri()).default.isRemote(root)) {
         return _rxjsBundlesRxMinJs.Observable.of(false);
       }
@@ -239,13 +258,4 @@ class SwiftPMTaskRunner {
     return this._flux;
   }
 }
-exports.SwiftPMTaskRunner = SwiftPMTaskRunner; /**
-                                                * Copyright (c) 2015-present, Facebook, Inc.
-                                                * All rights reserved.
-                                                *
-                                                * This source code is licensed under the license found in the LICENSE file in
-                                                * the root directory of this source tree.
-                                                *
-                                                * 
-                                                * @format
-                                                */
+exports.SwiftPMTaskRunner = SwiftPMTaskRunner;

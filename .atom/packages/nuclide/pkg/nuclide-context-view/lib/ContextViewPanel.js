@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ContextViewPanel = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _Icon;
 
@@ -13,7 +13,7 @@ function _load_Icon() {
   return _Icon = require('nuclide-commons-ui/Icon');
 }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
@@ -27,13 +27,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  */
 
 const ContextViewPanel = exports.ContextViewPanel = props => {
-  return _react.default.createElement(
+  return _react.createElement(
     'div',
     { className: 'nuclide-context-view-content padded' },
-    _react.default.createElement(
+    _react.createElement(
       'p',
       null,
-      props.locked ? _react.default.createElement((_Icon || _load_Icon()).Icon, { icon: 'lock' }) : null,
+      props.locked ? _react.createElement((_Icon || _load_Icon()).Icon, { icon: 'lock' }) : null,
       'Click on a symbol (variable, function, type, etc) in an open file to see more information about it below.'
     ),
     props.children

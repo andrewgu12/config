@@ -29,12 +29,11 @@ function _load_ButtonGroup() {
   return _ButtonGroup = require('nuclide-commons-ui/ButtonGroup');
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-class ATCustomDBPathModal extends _react.default.Component {
-
+class ATCustomDBPathModal extends _react.Component {
   constructor(props) {
     super(props);
 
@@ -51,55 +50,52 @@ class ATCustomDBPathModal extends _react.default.Component {
       this.setState({ customPath: customPath.length === 0 ? null : customPath });
     };
 
+    this._handleCopyToClipboard = () => {
+      if (this.props.activePath != null) {
+        atom.clipboard.write(this.props.activePath);
+      }
+    };
+
     this.state = { customPath: this.props.currentCustomPath };
   }
 
   _getActiveConfig() {
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
-      null,
-      _react.default.createElement(
+      { className: 'nuclide-adb-sdb-path' },
+      _react.createElement(
         'label',
         null,
         'Active ',
         this.props.type,
         ' path:',
         ' ',
-        _react.default.createElement(
+        _react.createElement(
           'i',
           null,
-          _react.default.createElement(
+          _react.createElement(
             'strong',
             null,
             this.props.activePath
           )
         )
       ),
-      _react.default.createElement(
-        'label',
-        null,
-        'Active ',
-        this.props.type,
-        ' port:',
-        ' ',
-        _react.default.createElement(
-          'i',
-          null,
-          _react.default.createElement(
-            'strong',
-            null,
-            this.props.activePort || 'default'
-          )
-        )
+      this.props.activePath == null ? null : _react.createElement(
+        (_Button || _load_Button()).Button,
+        {
+          onClick: this._handleCopyToClipboard,
+          size: 'SMALL',
+          className: 'nuclide-adb-sdb-copy-path-btn' },
+        'Copy path to clipboard'
       )
     );
   }
 
   _getPathSelector() {
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       null,
-      _react.default.createElement((_Dropdown || _load_Dropdown()).Dropdown, {
+      _react.createElement((_Dropdown || _load_Dropdown()).Dropdown, {
         options: this.props.registeredPaths.map(path => ({
           label: path,
           value: path
@@ -108,10 +104,10 @@ class ATCustomDBPathModal extends _react.default.Component {
         placeholder: `Set a fixed ${this.props.type} from a registered path`,
         value: null
       }),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'nuclide-adb-sdb-custom-path-input' },
-        _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+        _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
           size: 'sm',
           value: this.state.customPath || '',
           placeholderText: '... or from a custom path',
@@ -122,18 +118,18 @@ class ATCustomDBPathModal extends _react.default.Component {
   }
 
   _getFooter() {
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'nuclide-adb-sdb-custom-path-footer' },
-      _react.default.createElement(
+      _react.createElement(
         (_ButtonGroup || _load_ButtonGroup()).ButtonGroup,
         null,
-        _react.default.createElement(
+        _react.createElement(
           (_Button || _load_Button()).Button,
           { onClick: this._handleConfirm, buttonType: 'PRIMARY' },
           'Confirm'
         ),
-        _react.default.createElement(
+        _react.createElement(
           (_Button || _load_Button()).Button,
           { onClick: this._handleCancel },
           'Cancel'
@@ -143,10 +139,10 @@ class ATCustomDBPathModal extends _react.default.Component {
   }
 
   _getInfoBox() {
-    return _react.default.createElement(
+    return _react.createElement(
       'p',
       null,
-      _react.default.createElement(
+      _react.createElement(
         'small',
         null,
         'A custom ',
@@ -155,7 +151,7 @@ class ATCustomDBPathModal extends _react.default.Component {
         ' ',
         this.props.type,
         ' from the command line along with nuclide.',
-        _react.default.createElement('br', null),
+        _react.createElement('br', null),
         'Keep in mind that using two different versions of ',
         this.props.type,
         ' ',
@@ -165,25 +161,25 @@ class ATCustomDBPathModal extends _react.default.Component {
   }
 
   render() {
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       null,
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'block' },
         this._getActiveConfig()
       ),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'block' },
         this._getPathSelector()
       ),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'block' },
         this._getInfoBox()
       ),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'block' },
         this._getFooter()

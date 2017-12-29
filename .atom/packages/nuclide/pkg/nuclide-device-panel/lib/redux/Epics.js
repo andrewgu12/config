@@ -6,8 +6,10 @@ Object.defineProperty(exports, "__esModule", {
 exports.pollDevicesEpic = pollDevicesEpic;
 exports.pollProcessesEpic = pollProcessesEpic;
 exports.setDeviceEpic = setDeviceEpic;
+exports.setDeviceTypesEpic = setDeviceTypesEpic;
 exports.setDeviceTypeEpic = setDeviceTypeEpic;
 exports.setProcessesEpic = setProcessesEpic;
+exports.setAppInfoEpic = setAppInfoEpic;
 
 var _rxjsBundlesRxMinJs = require('rxjs/bundles/Rx.min.js');
 
@@ -64,7 +66,7 @@ function pollDevicesEpic(actions, store) {
 
     return _rxjsBundlesRxMinJs.Observable.of([store.getState(), action.payload.isActive]);
   }).distinctUntilChanged(([stateA, isActiveA], [stateB, isActiveB]) => stateA.deviceType === stateB.deviceType && stateA.host === stateB.host && isActiveA === isActiveB).switchMap(([state, isActive]) => {
-    if (state.deviceType === null || !isActive) {
+    if (state.deviceType == null || !isActive) {
       return _rxjsBundlesRxMinJs.Observable.empty();
     }
     for (const fetcher of (0, (_providers || _load_providers()).getProviders)().deviceList) {
@@ -90,7 +92,7 @@ function pollProcessesEpic(actions, store) {
     }
     const providers = Array.from((0, (_providers || _load_providers()).getProviders)().deviceProcesses).filter(provider => provider.getType() === state.deviceType);
     if (providers[0] != null) {
-      return providers[0].observe(state.host, device.name).map(processes => (_Actions || _load_Actions()).setProcesses(processes));
+      return providers[0].observe(state.host, device).map(processes => (_Actions || _load_Actions()).setProcesses(processes));
     }
     return _rxjsBundlesRxMinJs.Observable.empty();
   });
@@ -107,24 +109,68 @@ function setDeviceEpic(actions, store) {
   });
 }
 
+function setDeviceTypesEpic(actions, store) {
+  return actions.ofType((_Actions || _load_Actions()).SET_DEVICE_TYPES).switchMap(action => {
+    if (!(action.type === (_Actions || _load_Actions()).SET_DEVICE_TYPES)) {
+      throw new Error('Invariant violation: "action.type === Actions.SET_DEVICE_TYPES"');
+    }
+
+    const state = store.getState();
+    const deviceType = state.deviceType != null ? state.deviceType : state.deviceTypes[0];
+    return _rxjsBundlesRxMinJs.Observable.merge(_rxjsBundlesRxMinJs.Observable.of((_Actions || _load_Actions()).setDeviceType(deviceType)), _rxjsBundlesRxMinJs.Observable.of((_Actions || _load_Actions()).toggleDevicePolling(state.isPollingDevices)));
+  });
+}
+
 const deviceTypeTaskCache = new (_cache || _load_cache()).Cache({
   keyFactory: ([state, providerName]) => JSON.stringify([state.host, state.deviceType, providerName])
 });
 function setDeviceTypeEpic(actions, store) {
   return actions.ofType((_Actions || _load_Actions()).SET_DEVICE_TYPE).switchMap(action => {
     const state = store.getState();
-    return _rxjsBundlesRxMinJs.Observable.of(Array.from((0, (_providers || _load_providers()).getProviders)().deviceTypeTask).filter(provider => provider.getType() === state.deviceType).map(provider => deviceTypeTaskCache.getOrCreate([state, provider.getName()], () => new (_DeviceTask || _load_DeviceTask()).DeviceTask(() => provider.getTask(state.host), provider.getName())))).map(tasks => (_Actions || _load_Actions()).setDeviceTypeTasks(tasks));
+    return _rxjsBundlesRxMinJs.Observable.of(Array.from((0, (_providers || _load_providers()).getProviders)().deviceTypeTask).filter(provider => provider.getType() === state.deviceType).map(provider => deviceTypeTaskCache.getOrCreate([state, provider.getName()], () => new (_DeviceTask || _load_DeviceTask()).DeviceTask(() => provider.getTask(state.host), provider.getName())))).map(tasks => (_Actions || _load_Actions()).setDeviceTypeTasks(tasks.sort((a, b) => a.getName().localeCompare(b.getName()))));
   });
 }
 
 function setProcessesEpic(actions, store) {
   return actions.ofType((_Actions || _load_Actions()).SET_PROCESSES).switchMap(action => {
-    if (!(action.type === (_Actions || _load_Actions()).SET_PROCESSES)) {
-      throw new Error('Invariant violation: "action.type === Actions.SET_PROCESSES"');
-    }
-
     const state = store.getState();
     return getProcessTasks(state).switchMap(processTasks => _rxjsBundlesRxMinJs.Observable.of((_Actions || _load_Actions()).setProcessTasks(processTasks)));
+  });
+}
+
+function setAppInfoEpic(actions, store) {
+  return actions.ofType((_Actions || _load_Actions()).SET_PROCESSES).switchMap(action => {
+    const state = store.getState();
+    const device = state.device;
+    if (device == null) {
+      return _rxjsBundlesRxMinJs.Observable.empty();
+    }
+
+    const runningProcessNames = new Set();
+    state.processes.getOrDefault([]).forEach(process => runningProcessNames.add(process.name));
+    return _rxjsBundlesRxMinJs.Observable.merge(...Array.from((0, (_providers || _load_providers()).getProviders)().appInfo).filter(provider => provider.getType() === state.deviceType).filter(provider => runningProcessNames.has(provider.getProcessName())).map(provider => {
+      return provider.observe(state.host, device).map(value => ({
+        appName: provider.getAppName(),
+        name: provider.getName(),
+        value
+      })).catch(error => _rxjsBundlesRxMinJs.Observable.of({
+        appName: provider.getAppName(),
+        name: provider.getName(),
+        value: error.message,
+        isError: true
+      }));
+    })).toArray().map(appInfoItems => {
+      const appInfoTables = new Map();
+      appInfoItems.forEach(item => {
+        let itemSet = appInfoTables.get(item.appName);
+        if (itemSet == null) {
+          itemSet = new Set();
+          appInfoTables.set(item.appName, itemSet);
+        }
+        itemSet.add(item);
+      });
+      return (_Actions || _load_Actions()).setAppInfoTables(appInfoTables);
+    });
   });
 }
 
@@ -138,7 +184,7 @@ function getInfoTables(state) {
       if (!isSupported) {
         return _rxjsBundlesRxMinJs.Observable.empty();
       }
-      return provider.fetch(state.host, device.name).map(list => ({
+      return provider.fetch(state.host, device).map(list => ({
         title: provider.getTitle(),
         list,
         priority: provider.getPriority === undefined ? -1 : provider.getPriority()
@@ -153,10 +199,11 @@ function getProcessTasks(state) {
     return _rxjsBundlesRxMinJs.Observable.of([]);
   }
   return _rxjsBundlesRxMinJs.Observable.merge(...Array.from((0, (_providers || _load_providers()).getProviders)().processTask).filter(provider => provider.getType() === state.deviceType).map(provider => {
-    return provider.getSupportedPIDs(state.host, device.name, state.processes).map(supportedSet => {
+    const processes = state.processes.isError ? [] : state.processes.value;
+    return provider.getSupportedPIDs(state.host, device, processes).map(supportedSet => {
       return {
         type: provider.getTaskType(),
-        run: proc => provider.run(state.host, device.name, proc),
+        run: proc => provider.run(state.host, device, proc),
         isSupported: proc => supportedSet.has(proc.pid),
         name: provider.getName()
       };
@@ -179,7 +226,7 @@ function getDeviceTasks(state) {
       if (!isSupported) {
         return _rxjsBundlesRxMinJs.Observable.empty();
       }
-      return _rxjsBundlesRxMinJs.Observable.of(deviceTaskCache.getOrCreate([state, provider.getName()], () => new (_DeviceTask || _load_DeviceTask()).DeviceTask(() => provider.getTask(state.host, device.name), provider.getName())));
+      return _rxjsBundlesRxMinJs.Observable.of(deviceTaskCache.getOrCreate([state, provider.getName()], () => new (_DeviceTask || _load_DeviceTask()).DeviceTask(() => provider.getTask(state.host, device), provider.getName())));
     }).catch(() => _rxjsBundlesRxMinJs.Observable.empty());
   })).toArray().map(actions => actions.sort((a, b) => a.getName().localeCompare(b.getName())));
 }

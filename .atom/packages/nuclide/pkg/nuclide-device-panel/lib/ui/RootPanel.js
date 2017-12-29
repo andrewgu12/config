@@ -23,7 +23,7 @@ function _load_DeviceTask() {
   return _DeviceTask = require('../DeviceTask');
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _PanelComponentScroller;
 
@@ -49,10 +49,9 @@ function _load_DevicePanel() {
   return _DevicePanel = require('./DevicePanel');
 }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-class RootPanel extends _react.default.Component {
-
+class RootPanel extends _react.Component {
   constructor(props) {
     super(props);
 
@@ -74,10 +73,11 @@ class RootPanel extends _react.default.Component {
   }
 
   _createDeviceTable() {
+    // eslint-disable-next-line eqeqeq
     if (this.props.deviceType === null) {
       return null;
     }
-    return _react.default.createElement((_DeviceTable || _load_DeviceTable()).DeviceTable, {
+    return _react.createElement((_DeviceTable || _load_DeviceTable()).DeviceTable, {
       devices: this.props.devices,
       device: this.props.device,
       setDevice: this.props.setDevice
@@ -97,9 +97,9 @@ class RootPanel extends _react.default.Component {
   _getTasks() {
     const tasks = Array.from(this.props.deviceTypeTasks).map(task => {
       const StreamedTaskButton = (0, (_bindObservableAsProps || _load_bindObservableAsProps()).bindObservableAsProps)(task.getTaskEvents().distinctUntilChanged().map(taskEvent => this._taskEventsToProps(task, taskEvent)), (_TaskButton || _load_TaskButton()).TaskButton);
-      return _react.default.createElement(StreamedTaskButton, { key: task.getName() });
+      return _react.createElement(StreamedTaskButton, { key: task.getName() });
     });
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'block nuclide-device-panel-tasks-container' },
       tasks
@@ -108,11 +108,12 @@ class RootPanel extends _react.default.Component {
 
   _getInnerPanel() {
     if (this.props.device != null) {
-      return _react.default.createElement(
+      return _react.createElement(
         'div',
         { className: 'block' },
-        _react.default.createElement((_DevicePanel || _load_DevicePanel()).DevicePanel, {
+        _react.createElement((_DevicePanel || _load_DevicePanel()).DevicePanel, {
           infoTables: this.props.infoTables,
+          appInfoTables: this.props.appInfoTables,
           processes: this.props.processes,
           processTasks: this.props.processTasks,
           deviceTasks: this.props.deviceTasks,
@@ -122,22 +123,23 @@ class RootPanel extends _react.default.Component {
         })
       );
     }
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       null,
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'block' },
-        _react.default.createElement((_Selectors || _load_Selectors()).Selectors, {
+        _react.createElement((_Selectors || _load_Selectors()).Selectors, {
           deviceType: this.props.deviceType,
           deviceTypes: this.props.deviceTypes,
           hosts: this.props.hosts,
           host: this.props.host,
           setDeviceType: this.props.setDeviceType,
+          toggleDevicePolling: this.props.toggleDevicePolling,
           setHost: this.props.setHost
         })
       ),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'block' },
         this._createDeviceTable()
@@ -147,10 +149,10 @@ class RootPanel extends _react.default.Component {
   }
 
   render() {
-    return _react.default.createElement(
+    return _react.createElement(
       (_PanelComponentScroller || _load_PanelComponentScroller()).PanelComponentScroller,
       null,
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'nuclide-device-panel-container' },
         this._getInnerPanel()

@@ -11,9 +11,13 @@ function _load_classnames() {
   return _classnames = _interopRequireDefault(require('classnames'));
 }
 
-var _atom = require('atom');
+var _UniversalDisposable;
 
-var _react = _interopRequireDefault(require('react'));
+function _load_UniversalDisposable() {
+  return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
+}
+
+var _react = _interopRequireWildcard(require('react'));
 
 var _bindObservableAsProps;
 
@@ -27,9 +31,11 @@ function _load_WatchExpressionComponent() {
   return _WatchExpressionComponent = require('./WatchExpressionComponent');
 }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-class WatchView extends _react.default.PureComponent {
+class WatchView extends _react.PureComponent {
 
   constructor(props) {
     super(props);
@@ -41,13 +47,13 @@ class WatchView extends _react.default.PureComponent {
     const actions = model.getActions();
     const WatchExpressionComponentWrapped = this._watchExpressionComponentWrapped;
 
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: (0, (_classnames || _load_classnames()).default)('nuclide-debugger-container-new') },
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'nuclide-debugger-pane-content' },
-        _react.default.createElement(WatchExpressionComponentWrapped, {
+        _react.createElement(WatchExpressionComponentWrapped, {
           onAddWatchExpression: actions.addWatchExpression.bind(model),
           onRemoveWatchExpression: actions.removeWatchExpression.bind(model),
           onUpdateWatchExpression: actions.updateWatchExpression.bind(model),

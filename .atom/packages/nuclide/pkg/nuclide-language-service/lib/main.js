@@ -29,3 +29,22 @@ Object.defineProperty(exports, 'getHostServices', {
     return (_HostServices || _load_HostServices()).getHostServices;
   }
 });
+
+var _AutocompleteProvider;
+
+function _load_AutocompleteProvider() {
+  return _AutocompleteProvider = require('./AutocompleteProvider');
+}
+
+Object.defineProperty(exports, 'updateAutocompleteResults', {
+  enumerable: true,
+  get: function () {
+    return (_AutocompleteProvider || _load_AutocompleteProvider()).updateAutocompleteResults;
+  }
+});
+Object.defineProperty(exports, 'updateAutocompleteFirstResults', {
+  enumerable: true,
+  get: function () {
+    return (_AutocompleteProvider || _load_AutocompleteProvider()).updateAutocompleteFirstResults;
+  }
+});

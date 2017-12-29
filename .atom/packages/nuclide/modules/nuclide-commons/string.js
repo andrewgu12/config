@@ -16,6 +16,7 @@ exports.shorten = shorten;
 exports.splitOnce = splitOnce;
 exports.indent = indent;
 exports.pluralize = pluralize;
+exports.capitalize = capitalize;
 
 var _shellQuote;
 
@@ -70,6 +71,7 @@ function relativeDate(input_, reference_, useShortVariant = false) {
   if (input instanceof Date) {
     input = input.getTime();
   }
+  // flowlint-next-line sketchy-null-number:off
   if (!reference) {
     reference = new Date().getTime();
   }
@@ -174,6 +176,10 @@ function indent(str, level = 2, char = ' ') {
 
 function pluralize(noun, count) {
   return count === 1 ? noun : noun + 's';
+}
+
+function capitalize(str) {
+  return str.length === 0 ? str : str.charAt(0).toUpperCase().concat(str.slice(1));
 }
 
 // Originally copied from:

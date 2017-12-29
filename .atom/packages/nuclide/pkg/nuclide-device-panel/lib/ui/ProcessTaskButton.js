@@ -11,7 +11,7 @@ function _load_Dropdown() {
   return _Dropdown = require('../../../nuclide-ui/Dropdown');
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _Icon;
 
@@ -19,10 +19,9 @@ function _load_Icon() {
   return _Icon = require('nuclide-commons-ui/Icon');
 }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-class ProcessTaskButton extends _react.default.Component {
-
+class ProcessTaskButton extends _react.Component {
   _getTaskOptions() {
     return this.props.tasks.filter(task => task.type === this.props.taskType && task.isSupported(this.props.proc)).map(task => ({ value: task, label: task.name }));
   }
@@ -30,26 +29,29 @@ class ProcessTaskButton extends _react.default.Component {
   render() {
     const options = this._getTaskOptions();
     if (options.length === 0) {
-      return _react.default.createElement('div', null);
+      return _react.createElement('div', null);
     } else if (options.length === 1) {
-      return _react.default.createElement(
+      return _react.createElement(
         'span',
         { onClick: () => options[0].value.run(this.props.proc) },
-        _react.default.createElement((_Icon || _load_Icon()).Icon, {
+        _react.createElement((_Icon || _load_Icon()).Icon, {
           icon: this.props.icon,
           title: options[0].label,
           className: this.props.className
         })
       );
     } else {
-      const placeholder = _react.default.createElement((_Icon || _load_Icon()).Icon, { icon: this.props.icon, title: this.props.nameIfManyTasks });
-      return _react.default.createElement((_Dropdown || _load_Dropdown()).Dropdown, {
-        isFlat: true,
-        options: options,
-        placeholder: placeholder,
-        size: 'xs',
-        onChange: task => task != null && task.run(this.props.proc)
-      });
+      const placeholder = _react.createElement((_Icon || _load_Icon()).Icon, { icon: this.props.icon, title: this.props.nameIfManyTasks });
+      return (
+        // $FlowFixMe(>=0.53.0) Flow suppress
+        _react.createElement((_Dropdown || _load_Dropdown()).Dropdown, {
+          isFlat: true,
+          options: options,
+          placeholder: placeholder,
+          size: 'xs',
+          onChange: task => task != null && task.run(this.props.proc)
+        })
+      );
     }
   }
 }

@@ -168,5 +168,7 @@ function createStatus(status) {
 }
 
 function createStep(stepName, action) {
-  return _rxjsBundlesRxMinJs.Observable.concat(_rxjsBundlesRxMinJs.Observable.of({ type: 'progress', progress: null }), stepName ? _rxjsBundlesRxMinJs.Observable.of({ type: 'status', status: stepName }) : _rxjsBundlesRxMinJs.Observable.empty(), _rxjsBundlesRxMinJs.Observable.defer(action));
+  return _rxjsBundlesRxMinJs.Observable.concat(_rxjsBundlesRxMinJs.Observable.of({ type: 'progress', progress: null }),
+  // flowlint-next-line sketchy-null-string:off
+  stepName ? _rxjsBundlesRxMinJs.Observable.of({ type: 'status', status: stepName }) : _rxjsBundlesRxMinJs.Observable.empty(), _rxjsBundlesRxMinJs.Observable.defer(action));
 }

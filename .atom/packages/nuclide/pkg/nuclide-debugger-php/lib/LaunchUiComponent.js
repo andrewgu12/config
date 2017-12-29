@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.LaunchUiComponent = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _AtomInput;
 
@@ -55,45 +55,54 @@ function _load_nuclideDebuggerBase() {
   return _nuclideDebuggerBase = require('../../nuclide-debugger-base');
 }
 
+var _Checkbox;
+
+function _load_Checkbox() {
+  return _Checkbox = require('nuclide-commons-ui/Checkbox');
+}
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const MAX_RECENTLY_LAUNCHED = 5; /**
-                                  * Copyright (c) 2015-present, Facebook, Inc.
-                                  * All rights reserved.
-                                  *
-                                  * This source code is licensed under the license found in the LICENSE file in
-                                  * the root directory of this source tree.
-                                  *
-                                  * 
-                                  * @format
-                                  */
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+/**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the license found in the LICENSE file in
+ * the root directory of this source tree.
+ *
+ * 
+ * @format
+ */
 
 /* global localStorage */
 
-class LaunchUiComponent extends _react.default.Component {
+const MAX_RECENTLY_LAUNCHED = 5;
 
-  constructor(props) {
-    super(props);
+class LaunchUiComponent extends _react.Component {
+  constructor(...args) {
+    var _temp;
 
-    this._handleRecentSelectionChange = newValue => {
+    return _temp = super(...args), this._disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default(), this.state = {
+      recentlyLaunchedScripts: this._getRecentlyLaunchedScripts(),
+      recentlyLaunchedScript: null,
+      runInTerminal: false
+    }, this._handleRecentSelectionChange = newValue => {
       this.setState({
         recentlyLaunchedScript: newValue
       });
-    };
-
-    this._handleLaunchButtonClick = () => {
+    }, this._handleLaunchButtonClick = () => {
       const scriptPath = this.refs.scriptPath.getText().trim();
       this._setRecentlyLaunchedScript(scriptPath, this.state.recentlyLaunchedScripts);
 
-      const processInfo = new (_LaunchProcessInfo || _load_LaunchProcessInfo()).LaunchProcessInfo(this.props.targetUri, scriptPath);
+      const processInfo = new (_LaunchProcessInfo || _load_LaunchProcessInfo()).LaunchProcessInfo(this.props.targetUri, scriptPath, null, this.state.runInTerminal);
       (0, (_consumeFirstProvider || _load_consumeFirstProvider()).default)('nuclide-debugger.remote').then(debuggerService => debuggerService.startDebugging(processInfo));
 
       (0, (_nuclideDebuggerBase || _load_nuclideDebuggerBase()).serializeDebuggerConfig)(...this._getSerializationArgs(), {
         scriptPath
       });
-    };
-
-    this._getActiveFilePath = () => {
+    }, this._getActiveFilePath = () => {
       const editor = atom.workspace.getActiveTextEditor();
       if (editor != null) {
         const fileUri = editor.getPath();
@@ -102,15 +111,7 @@ class LaunchUiComponent extends _react.default.Component {
         }
       }
       return '';
-    };
-
-    this._disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default();
-    this.state = {
-      pathsDropdownIndex: 0,
-      pathMenuItems: this._getPathMenuItems(),
-      recentlyLaunchedScripts: this._getRecentlyLaunchedScripts(),
-      recentlyLaunchedScript: null
-    };
+    }, _temp;
   }
 
   _getSerializationArgs() {
@@ -147,32 +148,39 @@ class LaunchUiComponent extends _react.default.Component {
   }
 
   render() {
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'block' },
-      _react.default.createElement(
+      _react.createElement(
         'label',
         null,
         'Recently launched commands: '
       ),
-      _react.default.createElement((_Dropdown || _load_Dropdown()).Dropdown, {
+      _react.createElement((_Dropdown || _load_Dropdown()).Dropdown, {
         className: 'inline-block nuclide-debugger-recently-launched',
         options: [{ label: '', value: null }, ...this.state.recentlyLaunchedScripts],
         onChange: this._handleRecentSelectionChange,
         value: this.state.recentlyLaunchedScript
       }),
-      _react.default.createElement(
+      _react.createElement(
         'label',
         null,
         'Command: '
       ),
-      _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+      _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
         ref: 'scriptPath',
         tabIndex: '11',
         placeholderText: '/path/to/my/script.php arg1 arg2',
         initialValue: this._getActiveFilePath(),
         value: this.state.recentlyLaunchedScript || '',
         onDidChange: value => this.setState({ recentlyLaunchedScript: value })
+      }),
+      _react.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
+        checked: this.state.runInTerminal,
+        label: 'Run in Terminal',
+        ref: 'runInTerminal',
+        onChange: checked => this.setState({ runInTerminal: checked }),
+        title: 'When checked, the target script\'s STDIN and STDOUT will be redirected to a new Nuclide Terminal pane'
       })
     );
   }

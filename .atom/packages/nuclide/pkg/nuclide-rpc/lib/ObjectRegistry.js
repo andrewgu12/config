@@ -13,12 +13,14 @@ function _load_log4js() {
   return _log4js = require('log4js');
 }
 
+var _eventKit;
+
+function _load_eventKit() {
+  return _eventKit = require('event-kit');
+}
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const logger = (0, (_log4js || _load_log4js()).getLogger)('nuclide-rpc');
-
-// All remotable objects have some set of named functions,
-// and they also have a dispose method.
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -30,15 +32,21 @@ const logger = (0, (_log4js || _load_log4js()).getLogger)('nuclide-rpc');
  * @format
  */
 
+const logger = (0, (_log4js || _load_log4js()).getLogger)('nuclide-rpc');
+
+// All remotable objects have some set of named functions,
+// and they also have a dispose method.
+
+
 // Handles lifetimes of marshalling wrappers remote objects.
 //
 // Object passed by reference over RPC are assigned an ID.
 // Positive IDs represent objects which live on the server,
 // negative IDs represent objects which live on the client.
 class ObjectRegistry {
-  // null means the proxy has been disposed.
+  // Maps service name to proxy
 
-  // These members handle local objects which have been marshalled remotely.
+  // These members handle remote objects.
   constructor(kind, serviceRegistry, context) {
     this._delta = kind === 'server' ? 1 : -1;
     this._nextObjectId = this._delta;
@@ -50,14 +58,23 @@ class ObjectRegistry {
     this._serviceRegistry = serviceRegistry;
     this._services = new Map();
     this._context = context;
+    this._emitter = new (_eventKit || _load_eventKit()).Emitter();
   }
-  // Maps service name to proxy
+  // null means the proxy has been disposed.
 
-  // These members handle remote objects.
+  // These members handle local objects which have been marshalled remotely.
 
 
-  hasService(serviceName) {
-    return this._serviceRegistry.hasService(serviceName);
+  onRegisterLocal(callback) {
+    return this._emitter.on('register-local', callback);
+  }
+
+  onUnregisterLocal(callback) {
+    return this._emitter.on('unregister-local', callback);
+  }
+
+  onRegisterRemote(callback) {
+    return this._emitter.on('register-remote', callback);
   }
 
   getService(serviceName) {
@@ -112,7 +129,7 @@ class ObjectRegistry {
     const result = this._isLocalId(id) ? this._registrationsById.get(id) : this._proxiesById.get(id);
 
     if (!(result != null)) {
-      throw new Error('Invariant violation: "result != null"');
+      throw new Error(`Unknown registration ${id}`);
     }
 
     return result;
@@ -126,6 +143,7 @@ class ObjectRegistry {
     var _this = this;
 
     return (0, _asyncToGenerator.default)(function* () {
+      _this._emitter.emit('unregister-local', remoteId);
       const registration = _this._getRegistration(remoteId);
       const object = registration.object;
 
@@ -182,6 +200,7 @@ class ObjectRegistry {
       object
     };
 
+    this._emitter.emit('register-local', objectId);
     this._registrationsById.set(objectId, registration);
     this._registrationsByObject.set(object, registration);
 
@@ -269,12 +288,17 @@ class ObjectRegistry {
         throw new Error('Invariant violation: "!this._proxiesById.has(id)"');
       }
 
+      _this4._emitter.emit('register-remote', id);
       _this4._proxiesById.set(id, {
         interface: interfaceName,
         remoteId: id,
         object: proxy
       });
     })();
+  }
+
+  isRegistered(object) {
+    return this._registrationsByObject.has(object);
   }
 
   _isRemoteObject(object) {

@@ -11,7 +11,7 @@ function _load_classnames() {
   return _classnames = _interopRequireDefault(require('classnames'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactDom = _interopRequireDefault(require('react-dom'));
 
@@ -36,8 +36,10 @@ function _load_ButtonGroup() {
 var _HR;
 
 function _load_HR() {
-  return _HR = require('../../nuclide-ui/HR');
+  return _HR = require('nuclide-commons-ui/HR');
 }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -52,7 +54,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @format
  */
 
-class WorkingSetSelectionComponent extends _react.default.Component {
+class WorkingSetSelectionComponent extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -150,7 +152,7 @@ class WorkingSetSelectionComponent extends _react.default.Component {
 
   render() {
     const applicableDefinitions = this.state.applicableDefinitions.map((def, index) => {
-      return _react.default.createElement(ApplicableDefinitionLine, {
+      return _react.createElement(ApplicableDefinitionLine, {
         key: def.name,
         def: def,
         index: index,
@@ -165,23 +167,23 @@ class WorkingSetSelectionComponent extends _react.default.Component {
     let notApplicableSection;
     if (this.state.notApplicableDefinitions.length > 0) {
       const notApplicableDefinitions = this.state.notApplicableDefinitions.map(def => {
-        return _react.default.createElement(NonApplicableDefinitionLine, {
+        return _react.createElement(NonApplicableDefinitionLine, {
           key: def.name,
           def: def,
           onDeleteWorkingSet: this._deleteWorkingSet
         });
       });
 
-      notApplicableSection = _react.default.createElement(
+      notApplicableSection = _react.createElement(
         'div',
         null,
-        _react.default.createElement((_HR || _load_HR()).HR, null),
-        _react.default.createElement(
+        _react.createElement((_HR || _load_HR()).HR, null),
+        _react.createElement(
           'span',
           null,
           'The working sets below are not applicable to your current project folders'
         ),
-        _react.default.createElement(
+        _react.createElement(
           'ol',
           { className: 'list-group' },
           notApplicableDefinitions
@@ -189,10 +191,10 @@ class WorkingSetSelectionComponent extends _react.default.Component {
       );
     }
 
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'select-list', tabIndex: '0', onBlur: this._checkFocus },
-      _react.default.createElement(
+      _react.createElement(
         'ol',
         { className: 'list-group mark-active', style: { 'max-height': '80vh' } },
         applicableDefinitions
@@ -210,7 +212,7 @@ class WorkingSetSelectionComponent extends _react.default.Component {
 exports.WorkingSetSelectionComponent = WorkingSetSelectionComponent;
 
 
-class ApplicableDefinitionLine extends _react.default.Component {
+class ApplicableDefinitionLine extends _react.Component {
   constructor(...args) {
     var _temp;
 
@@ -232,29 +234,29 @@ class ApplicableDefinitionLine extends _react.default.Component {
       clearfix: true
     };
 
-    return _react.default.createElement(
+    return _react.createElement(
       'li',
       {
         className: (0, (_classnames || _load_classnames()).default)(classes),
         onMouseOver: () => this.props.onSelect(this.props.index),
         onClick: this._lineOnClick },
-      _react.default.createElement(
+      _react.createElement(
         (_ButtonGroup || _load_ButtonGroup()).ButtonGroup,
         { className: 'pull-right' },
-        _react.default.createElement((_Button || _load_Button()).Button, {
+        _react.createElement((_Button || _load_Button()).Button, {
           icon: 'trashcan',
           onClick: this._deleteButtonOnClick,
           tabIndex: '-1',
           title: 'Delete this working set'
         }),
-        _react.default.createElement((_Button || _load_Button()).Button, {
+        _react.createElement((_Button || _load_Button()).Button, {
           icon: 'pencil',
           onClick: this._editButtonOnClick,
           tabIndex: '-1',
           title: 'Edit this working set'
         })
       ),
-      _react.default.createElement(
+      _react.createElement(
         'span',
         null,
         this.props.def.name
@@ -264,8 +266,7 @@ class ApplicableDefinitionLine extends _react.default.Component {
 
 }
 
-class NonApplicableDefinitionLine extends _react.default.Component {
-
+class NonApplicableDefinitionLine extends _react.Component {
   constructor(props) {
     super(props);
 
@@ -278,17 +279,17 @@ class NonApplicableDefinitionLine extends _react.default.Component {
   }
 
   render() {
-    return _react.default.createElement(
+    return _react.createElement(
       'li',
       { className: 'clearfix' },
-      _react.default.createElement((_Button || _load_Button()).Button, {
+      _react.createElement((_Button || _load_Button()).Button, {
         className: 'pull-right',
         icon: 'trashcan',
         onClick: this._deleteButtonOnClick,
         tabIndex: '-1',
         title: 'Delete this working set'
       }),
-      _react.default.createElement(
+      _react.createElement(
         'span',
         { className: 'text-subtle' },
         this.props.def.name

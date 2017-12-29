@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.MessageExamples = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _Block;
 
@@ -19,18 +19,18 @@ function _load_Message() {
   return _Message = require('./Message');
 }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-const MessageExample = () => _react.default.createElement(
+const MessageExample = () => _react.createElement(
   'div',
   null,
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement(
+    _react.createElement(
       (_Message || _load_Message()).Message,
       null,
-      _react.default.createElement(
+      _react.createElement(
         'h2',
         null,
         'Message'
@@ -38,14 +38,14 @@ const MessageExample = () => _react.default.createElement(
       'Hello, I\'m a simple message.'
     )
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement(
+    _react.createElement(
       (_Message || _load_Message()).Message,
       { type: (_Message || _load_Message()).MessageTypes.info },
       'Hello I\'m an ',
-      _react.default.createElement(
+      _react.createElement(
         'strong',
         null,
         'info'
@@ -53,14 +53,14 @@ const MessageExample = () => _react.default.createElement(
       ' message.'
     )
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement(
+    _react.createElement(
       (_Message || _load_Message()).Message,
       { type: (_Message || _load_Message()).MessageTypes.success },
       'Hello I\'m a ',
-      _react.default.createElement(
+      _react.createElement(
         'strong',
         null,
         'success'
@@ -68,14 +68,14 @@ const MessageExample = () => _react.default.createElement(
       ' message.'
     )
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement(
+    _react.createElement(
       (_Message || _load_Message()).Message,
       { type: (_Message || _load_Message()).MessageTypes.warning },
       'Hello I\'m a ',
-      _react.default.createElement(
+      _react.createElement(
         'strong',
         null,
         'warning'
@@ -83,14 +83,14 @@ const MessageExample = () => _react.default.createElement(
       ' message.'
     )
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement(
+    _react.createElement(
       (_Message || _load_Message()).Message,
       { type: (_Message || _load_Message()).MessageTypes.error },
       'Hello I\'m an ',
-      _react.default.createElement(
+      _react.createElement(
         'strong',
         null,
         'error'

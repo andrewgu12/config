@@ -49,7 +49,8 @@ let _build = exports._build = (() => {
 
     try {
       yield runBuckCommandFromProjectRoot(rootPath, args, options.commandOptions, false, // Do not add the client ID, since we already do it in the build args.
-      true);
+      true // Build commands are blocking.
+      );
     } catch (e) {
       // The build failed. However, because --keep-going was specified, the
       // build report should have still been written unless any of the target
@@ -253,10 +254,12 @@ function getPool(path, readOnly) {
   if (!run) {
     args.push('--keep-going');
   }
+  // flowlint-next-line sketchy-null-string:off
   if (pathToBuildReport) {
     args = args.concat(['--build-report', pathToBuildReport]);
   }
   if (doInstall) {
+    // flowlint-next-line sketchy-null-string:off
     if (simulator) {
       args.push('--udid');
       args.push(simulator);

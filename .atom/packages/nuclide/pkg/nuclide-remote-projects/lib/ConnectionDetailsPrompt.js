@@ -33,7 +33,7 @@ function _load_connectionProfileUtils() {
 var _HR;
 
 function _load_HR() {
-  return _HR = require('../../nuclide-ui/HR');
+  return _HR = require('nuclide-commons-ui/HR');
 }
 
 var _MutableListSelector;
@@ -42,7 +42,9 @@ function _load_MutableListSelector() {
   return _MutableListSelector = require('../../nuclide-ui/MutableListSelector');
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -65,7 +67,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @format
  */
 
-class ConnectionDetailsPrompt extends _react.default.Component {
+class ConnectionDetailsPrompt extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -131,7 +133,7 @@ class ConnectionDetailsPrompt extends _react.default.Component {
   componentDidUpdate(prevProps, prevState) {
     // Manually update the contents of an existing `ConnectionDetailsForm`, because it contains
     // `AtomInput` components (which don't update their contents when their props change).
-    if (prevProps.indexOfSelectedConnectionProfile !== this.props.indexOfSelectedConnectionProfile ||
+    if (prevProps.selectedProfileIndex !== this.props.selectedProfileIndex ||
     // If the connection profiles changed length, the effective selected profile also changed.
     prevProps.connectionProfiles != null && this.props.connectionProfiles != null && prevProps.connectionProfiles.length !== this.props.connectionProfiles.length) {
       const existingConnectionDetailsForm = this.refs['connection-details-form'];
@@ -166,8 +168,8 @@ class ConnectionDetailsPrompt extends _react.default.Component {
   getPrefilledConnectionParams() {
     // If there are profiles, pre-fill the form with the information from the specified selected
     // profile.
-    if (this.props.connectionProfiles != null && this.props.connectionProfiles.length > 0 && this.props.indexOfSelectedConnectionProfile != null) {
-      const selectedProfile = this.props.connectionProfiles[this.props.indexOfSelectedConnectionProfile];
+    if (this.props.connectionProfiles != null && this.props.connectionProfiles.length > 0 && this.props.selectedProfileIndex != null) {
+      const selectedProfile = this.props.connectionProfiles[this.props.selectedProfileIndex];
       return selectedProfile.params;
     }
   }
@@ -204,22 +206,22 @@ class ConnectionDetailsPrompt extends _react.default.Component {
     } else {
       uniqueHosts = (0, (_connectionProfileUtils || _load_connectionProfileUtils()).getUniqueHostsForProfiles)(connectionProfiles);
       const mostRecentClassName = (0, (_classnames || _load_classnames()).default)('list-item', {
-        selected: this.props.indexOfSelectedConnectionProfile === 0
+        selected: this.props.selectedProfileIndex === 0
       });
 
-      defaultConnectionProfileList = _react.default.createElement(
+      defaultConnectionProfileList = _react.createElement(
         'div',
         { className: 'block select-list' },
-        _react.default.createElement(
+        _react.createElement(
           'ol',
           { className: 'list-group', style: { marginTop: 0 } },
-          _react.default.createElement(
+          _react.createElement(
             'li',
             {
               className: mostRecentClassName,
               onClick: this._onDefaultProfileClicked,
               onDoubleClick: this.props.onConfirm },
-            _react.default.createElement('span', {
+            _react.createElement('span', {
               className: 'icon icon-info pull-right connection-details-icon-info',
               ref: (0, (_addTooltip || _load_addTooltip()).default)({
                 // Intentionally *not* an arrow function so the jQuery Tooltip plugin can set the
@@ -236,7 +238,7 @@ class ConnectionDetailsPrompt extends _react.default.Component {
             'Most Recent'
           )
         ),
-        _react.default.createElement((_HR || _load_HR()).HR, null)
+        _react.createElement((_HR || _load_HR()).HR, null)
       );
 
       listSelectorItems = connectionProfiles.slice(1).map((profile, index) => {
@@ -253,7 +255,8 @@ class ConnectionDetailsPrompt extends _react.default.Component {
 
     // The default profile is sliced from the Array to render it separately, which means
     // decrementing the effective index into the Array passed to the `MutableListSelector`.
-    let idOfSelectedItem = this.props.indexOfSelectedConnectionProfile == null ? null : this.props.indexOfSelectedConnectionProfile - 1;
+    let idOfSelectedItem = this.props.selectedProfileIndex == null ? null : this.props.selectedProfileIndex - 1;
+    // eslint-disable-next-line eqeqeq
     if (idOfSelectedItem === null || idOfSelectedItem < 0) {
       idOfSelectedItem = null;
     } else {
@@ -262,7 +265,7 @@ class ConnectionDetailsPrompt extends _react.default.Component {
 
     let toolTipWarning;
     if (this.state.shouldDisplayTooltipWarning) {
-      toolTipWarning = _react.default.createElement('span', {
+      toolTipWarning = _react.createElement('span', {
         style: { paddingLeft: 10 },
         className: 'icon icon-info pull-right nuclide-remote-projects-tooltip-warning',
         ref: (0, (_addTooltip || _load_addTooltip()).default)({
@@ -280,20 +283,20 @@ class ConnectionDetailsPrompt extends _react.default.Component {
       });
     }
 
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'nuclide-remote-projects-connection-dialog' },
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'nuclide-remote-projects-connection-profiles' },
         defaultConnectionProfileList,
-        _react.default.createElement(
+        _react.createElement(
           'h6',
           null,
           'Profiles',
           toolTipWarning
         ),
-        _react.default.createElement((_MutableListSelector || _load_MutableListSelector()).MutableListSelector, {
+        _react.createElement((_MutableListSelector || _load_MutableListSelector()).MutableListSelector, {
           items: listSelectorItems,
           idOfSelectedItem: idOfSelectedItem,
           onItemClicked: this._onProfileClicked,
@@ -302,7 +305,7 @@ class ConnectionDetailsPrompt extends _react.default.Component {
           onDeleteButtonClicked: this._onDeleteProfileClicked
         })
       ),
-      _react.default.createElement((_ConnectionDetailsForm || _load_ConnectionDetailsForm()).default, {
+      _react.createElement((_ConnectionDetailsForm || _load_ConnectionDetailsForm()).default, {
         className: 'nuclide-remote-projects-connection-details',
         initialUsername: prefilledConnectionParams.username,
         initialServer: prefilledConnectionParams.server,

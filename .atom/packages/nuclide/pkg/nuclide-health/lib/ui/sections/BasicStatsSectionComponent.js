@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _Button;
 
@@ -12,10 +12,9 @@ function _load_Button() {
   return _Button = require('nuclide-commons-ui/Button');
 }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-class BasicStatsSectionComponent extends _react.default.Component {
-
+class BasicStatsSectionComponent extends _react.Component {
   updateToolbarJewel(value) {
     this.props.updateToolbarJewel(value);
   }
@@ -42,33 +41,33 @@ class BasicStatsSectionComponent extends _react.default.Component {
     }];
 
     const updateToolbarJewel = this.updateToolbarJewel;
-    return _react.default.createElement(
+    return _react.createElement(
       'table',
       { className: 'table' },
-      _react.default.createElement(
+      _react.createElement(
         'thead',
         null,
-        _react.default.createElement(
+        _react.createElement(
           'tr',
           null,
-          _react.default.createElement(
+          _react.createElement(
             'th',
             { width: '30%' },
             'Metric'
           ),
-          _react.default.createElement(
+          _react.createElement(
             'th',
             { width: '50%' },
             'Value'
           ),
-          _react.default.createElement(
+          _react.createElement(
             'th',
             { width: '20%', className: 'text-right' },
             'Toolbar'
           )
         )
       ),
-      _react.default.createElement(
+      _react.createElement(
         'tbody',
         null,
         stats.map((stat, s) => {
@@ -80,23 +79,23 @@ class BasicStatsSectionComponent extends _react.default.Component {
             jewelLabel = 'Hide';
             jewelValue = 'None';
           }
-          return _react.default.createElement(
+          return _react.createElement(
             'tr',
             Object.assign({}, props, { key: s }),
-            _react.default.createElement(
+            _react.createElement(
               'th',
               null,
               stat.name
             ),
-            _react.default.createElement(
+            _react.createElement(
               'td',
               null,
               stat.value
             ),
-            _react.default.createElement(
+            _react.createElement(
               'td',
               { className: 'text-right' },
-              _react.default.createElement(
+              _react.createElement(
                 (_Button || _load_Button()).Button,
                 {
                   size: (_Button || _load_Button()).ButtonSizes.EXTRA_SMALL,

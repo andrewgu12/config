@@ -1,16 +1,15 @@
 "*":
-  "atom-alignment": {}
-  "atom-package-deps":
-    ignored: []
-  "autocomplete-ruby":
-    rsensePath: "/Users/mingbo/.rbenv/shims/rsense"
+  "atom-clock":
+    showClockIcon: true
+  "atom-ide-ui":
+    "atom-ide-code-format":
+      formatOnType: false
   core:
-    automaticallyUpdate: false
     customFileTypes:
       "source.ini": [
         ".buckconfig"
-        ".flowconfig"
         ".hgrc"
+        ".flowconfig"
       ]
       "source.json": [
         "BUCK.autodeps"
@@ -19,31 +18,26 @@
         "BUCK"
       ]
     disabledPackages: [
-      "welcome"
-      "autocomplete-ruby"
+      "tree-view"
     ]
     telemetryConsent: "no"
     themes: [
-      "one-dark-ui"
+      "city-lights-ui"
       "firewatch-syntax"
     ]
     titleBar: "custom"
   editor:
     fontFamily: "Source Code Pro"
-    fontSize: 12
-    invisibles: {}
+    fontSize: 13
     preferredLineLength: 800
     showIndentGuide: true
   "exception-reporting":
-    userId: "36c62b06-0db9-4df5-89f9-1f0c74c32fe4"
-  "fuzzy-finder": {}
-  "linter-ui-default":
-    panelHeight: 69
+    userId: "35af83ae-4998-434b-9d8d-47617c17f014"
   nuclide:
     "nuclide-home":
       showHome: false
-    "nuclide-python":
-      enableLinting: false
-  "tree-view": {}
   welcome:
     showOnStartup: false
+".reason.source":
+  editor:
+    preferredLineLength: 110

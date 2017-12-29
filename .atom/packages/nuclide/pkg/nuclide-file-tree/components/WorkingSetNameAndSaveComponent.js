@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.WorkingSetNameAndSaveComponent = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _AtomInput;
 
@@ -19,10 +19,9 @@ function _load_Button() {
   return _Button = require('nuclide-commons-ui/Button');
 }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-class WorkingSetNameAndSaveComponent extends _react.default.Component {
-
+class WorkingSetNameAndSaveComponent extends _react.Component {
   constructor(props) {
     super(props);
 
@@ -57,20 +56,20 @@ class WorkingSetNameAndSaveComponent extends _react.default.Component {
   render() {
     let setNameText;
     if (this.state.name === '') {
-      setNameText = _react.default.createElement(
+      setNameText = _react.createElement(
         'atom-panel',
         { 'class': 'nuclide-file-tree-working-set-name-missing' },
         'Name is missing'
       );
     }
 
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       null,
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'nuclide-file-tree-working-set-name-outline' },
-        _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+        _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
           placeholderText: 'name',
           size: 'sm',
           className: 'nuclide-file-tree-working-set-name inline-block-tight',
@@ -80,7 +79,7 @@ class WorkingSetNameAndSaveComponent extends _react.default.Component {
           onCancel: this.props.onCancel
         })
       ),
-      _react.default.createElement((_Button || _load_Button()).Button, {
+      _react.createElement((_Button || _load_Button()).Button, {
         buttonType: (_Button || _load_Button()).ButtonTypes.SUCCESS,
         disabled: this.state.name === '',
         icon: 'check',

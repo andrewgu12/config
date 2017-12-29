@@ -4,6 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = observePaneItemVisibility;
+exports.observeVisibleItems = observeVisibleItems;
 
 var _event;
 
@@ -15,6 +16,12 @@ var _memoizeUntilChanged;
 
 function _load_memoizeUntilChanged() {
   return _memoizeUntilChanged = _interopRequireDefault(require('nuclide-commons/memoizeUntilChanged'));
+}
+
+var _collection;
+
+function _load_collection() {
+  return _collection = require('nuclide-commons/collection');
 }
 
 var _rxjsBundlesRxMinJs = require('rxjs/bundles/Rx.min.js');
@@ -29,25 +36,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 // TODO(T17495608): Currently, docks don't have a way of observing their visibility so this will
 //   have some false positives when an item is its pane's active item but its dock is hidden.
-/**
- * Copyright (c) 2017-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * 
- * @format
- */
-
 function observePaneItemVisibility(item) {
   patchDocks();
 
+  const workspaceEl = atom.workspace.getElement();
   return _rxjsBundlesRxMinJs.Observable.combineLatest(
   // atom.workspace.reset() (in tests) resets all the panes.
-  // Pass in atom.workspace.getElement() to act as a cache-breaker.
-  observeActiveItems(atom.workspace.getElement()), observePaneContainerVisibilities(atom.workspace.getElement())).map(([activeItems, locationVisibilities]) => {
+  // Pass in the workspace dom element to act as a cache-breaker.
+  observeActiveItems(workspaceEl), observePaneContainerVisibilities(workspaceEl)).map(([activeItems, locationVisibilities]) => {
     // If it's not active, it's not visible.
     if (!activeItems.has(item)) {
       return false;
@@ -56,6 +52,31 @@ function observePaneItemVisibility(item) {
     const paneContainer = atom.workspace.paneContainerForItem(item);
     return paneContainer == null ? false : locationVisibilities[paneContainer.getLocation()];
   }).distinctUntilChanged();
+} /**
+   * Copyright (c) 2017-present, Facebook, Inc.
+   * All rights reserved.
+   *
+   * This source code is licensed under the BSD-style license found in the
+   * LICENSE file in the root directory of this source tree. An additional grant
+   * of patent rights can be found in the PATENTS file in the same directory.
+   *
+   * 
+   * @format
+   */
+
+function observeVisibleItems() {
+  patchDocks();
+
+  const workspaceEl = atom.workspace.getElement();
+  return _rxjsBundlesRxMinJs.Observable.combineLatest(observeActiveItems(workspaceEl), observePaneContainerVisibilities(workspaceEl)).map(([activeItems, locationVisibilities]) => {
+    // If it's not active, it's not visible.
+    // If it's active, it's only visible if its container is.
+    return (0, (_collection || _load_collection()).setFilter)(activeItems, item => {
+      const paneContainer = atom.workspace.paneContainerForItem(item);
+      const location = paneContainer && paneContainer.getLocation();
+      return location ? Boolean(locationVisibilities[location]) : false;
+    });
+  });
 }
 
 const observeActiveItems = (0, (_memoizeUntilChanged || _load_memoizeUntilChanged()).default)(_cacheKey => {

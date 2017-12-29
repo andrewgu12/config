@@ -33,43 +33,41 @@ function _load_UniversalDisposable() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the license found in the LICENSE file in
- * the root directory of this source tree.
- *
- * 
- * @format
- */
-
 class CodeFormatProvider {
 
-  constructor(name, grammarScopes, priority, analyticsEventName, connectionToLanguageService, busySignalProvider) {
+  constructor(name, grammarScopes, priority, analyticsEventName, connectionToLanguageService) {
     this.name = name;
     this.grammarScopes = grammarScopes;
     this.priority = priority;
     this._analyticsEventName = analyticsEventName;
     this._connectionToLanguageService = connectionToLanguageService;
-    this._busySignalProvider = busySignalProvider;
   }
 
-  static register(name, grammarScopes, config, connectionToLanguageService, busySignalProvider) {
-    const disposable = new (_UniversalDisposable || _load_UniversalDisposable()).default(config.canFormatRanges ? atom.packages.serviceHub.provide('code-format.range', config.version, new RangeFormatProvider(name, grammarScopes, config.priority, config.analyticsEventName, connectionToLanguageService, busySignalProvider).provide()) : atom.packages.serviceHub.provide('code-format.file', config.version, new FileFormatProvider(name, grammarScopes, config.priority, config.analyticsEventName, connectionToLanguageService, busySignalProvider).provide()));
+  static register(name, grammarScopes, config, connectionToLanguageService) {
+    const disposable = new (_UniversalDisposable || _load_UniversalDisposable()).default(config.canFormatRanges ? atom.packages.serviceHub.provide('code-format.range', config.version, new RangeFormatProvider(name, grammarScopes, config.priority, config.analyticsEventName, connectionToLanguageService).provide()) : atom.packages.serviceHub.provide('code-format.file', config.version, new FileFormatProvider(name, grammarScopes, config.priority, config.analyticsEventName, connectionToLanguageService).provide()));
 
     if (config.canFormatAtPosition) {
-      disposable.add(atom.packages.serviceHub.provide('code-format.onType', config.version, new PositionFormatProvider(name, grammarScopes, config.priority, config.analyticsEventName, connectionToLanguageService, busySignalProvider).provide()));
+      disposable.add(atom.packages.serviceHub.provide('code-format.onType', config.version, new PositionFormatProvider(name, grammarScopes, config.priority, config.analyticsEventName, connectionToLanguageService).provide()));
     }
 
     return disposable;
   }
 }
 
-exports.CodeFormatProvider = CodeFormatProvider;
+exports.CodeFormatProvider = CodeFormatProvider; /**
+                                                  * Copyright (c) 2015-present, Facebook, Inc.
+                                                  * All rights reserved.
+                                                  *
+                                                  * This source code is licensed under the license found in the LICENSE file in
+                                                  * the root directory of this source tree.
+                                                  *
+                                                  * 
+                                                  * @format
+                                                  */
+
 class RangeFormatProvider extends CodeFormatProvider {
-  constructor(name, grammarScopes, priority, analyticsEventName, connectionToLanguageService, busySignalProvider) {
-    super(name, grammarScopes, priority, analyticsEventName, connectionToLanguageService, busySignalProvider);
+  constructor(name, grammarScopes, priority, analyticsEventName, connectionToLanguageService) {
+    super(name, grammarScopes, priority, analyticsEventName, connectionToLanguageService);
   }
 
   formatCode(editor, range) {
@@ -79,9 +77,7 @@ class RangeFormatProvider extends CodeFormatProvider {
       const fileVersion = yield (0, (_nuclideOpenFiles || _load_nuclideOpenFiles()).getFileVersionOfEditor)(editor);
       const languageService = _this._connectionToLanguageService.getForUri(editor.getPath());
       if (languageService != null && fileVersion != null) {
-        const result = yield _this._busySignalProvider.reportBusyWhile(`${_this.name}: Formatting ${fileVersion.filePath}`, (0, _asyncToGenerator.default)(function* () {
-          return (yield languageService).formatSource(fileVersion, range);
-        }));
+        const result = yield (yield languageService).formatSource(fileVersion, range, getFormatOptions(editor));
         if (result != null) {
           return result;
         }
@@ -101,8 +97,8 @@ class RangeFormatProvider extends CodeFormatProvider {
 }
 
 class FileFormatProvider extends CodeFormatProvider {
-  constructor(name, grammarScopes, priority, analyticsEventName, connectionToLanguageService, busySignalProvider) {
-    super(name, grammarScopes, priority, analyticsEventName, connectionToLanguageService, busySignalProvider);
+  constructor(name, grammarScopes, priority, analyticsEventName, connectionToLanguageService) {
+    super(name, grammarScopes, priority, analyticsEventName, connectionToLanguageService);
   }
 
   formatEntireFile(editor, range) {
@@ -112,9 +108,7 @@ class FileFormatProvider extends CodeFormatProvider {
       const fileVersion = yield (0, (_nuclideOpenFiles || _load_nuclideOpenFiles()).getFileVersionOfEditor)(editor);
       const languageService = _this2._connectionToLanguageService.getForUri(editor.getPath());
       if (languageService != null && fileVersion != null) {
-        const result = yield _this2._busySignalProvider.reportBusyWhile(`${_this2.name}: Formatting ${fileVersion.filePath}`, (0, _asyncToGenerator.default)(function* () {
-          return (yield languageService).formatEntireFile(fileVersion, range);
-        }));
+        const result = yield (yield languageService).formatEntireFile(fileVersion, range, getFormatOptions(editor));
         if (result != null) {
           return result;
         }
@@ -141,9 +135,7 @@ class PositionFormatProvider extends CodeFormatProvider {
       const fileVersion = yield (0, (_nuclideOpenFiles || _load_nuclideOpenFiles()).getFileVersionOfEditor)(editor);
       const languageService = _this3._connectionToLanguageService.getForUri(editor.getPath());
       if (languageService != null && fileVersion != null) {
-        const result = yield _this3._busySignalProvider.reportBusyWhile(`${_this3.name}: Formatting ${fileVersion.filePath}`, (0, _asyncToGenerator.default)(function* () {
-          return (yield languageService).formatAtPosition(fileVersion, position, character);
-        }));
+        const result = yield (yield languageService).formatAtPosition(fileVersion, position, character, getFormatOptions(editor));
         if (result != null) {
           return result;
         }
@@ -160,4 +152,11 @@ class PositionFormatProvider extends CodeFormatProvider {
       priority: this.priority
     };
   }
+}
+
+function getFormatOptions(editor) {
+  return {
+    tabSize: editor.getTabLength(),
+    insertSpaces: editor.getSoftTabs()
+  };
 }

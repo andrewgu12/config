@@ -86,7 +86,9 @@ class BootstrapInfo extends (_nuclideDebuggerBase || _load_nuclideDebuggerBase()
       logLevel: (0, (_utils || _load_utils()).getConfig)().serverLogLevel,
       pythonBinaryPath: (0, (_utils || _load_utils()).getConfig)().pythonBinaryPath,
       buckConfigRootFile: (0, (_utils || _load_utils()).getConfig)().buckConfigRootFile,
-      lldbPythonPath: this._bootstrapInfo.lldbPythonPath || (0, (_utils || _load_utils()).getConfig)().lldbPythonPath,
+      lldbPythonPath:
+      // flowlint-next-line sketchy-null-string:off
+      this._bootstrapInfo.lldbPythonPath || (0, (_utils || _load_utils()).getConfig)().lldbPythonPath,
       envPythonPath: ''
     };
   }

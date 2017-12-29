@@ -43,23 +43,27 @@ const logger = (0, (_log4js || _load_log4js()).getLogger)('nuclide-rpc'); /**
 class ServiceRegistry {
 
   /**
-   * Store a mapping from function name to a structure holding both the local implementation and
-   * the type definition of the function.
+   * Store a mapping from a class name to a struct containing it's local constructor and it's
+   * interface definition.
    */
-  constructor(predefinedTypes, services, protocol = (_config || _load_config()).SERVICE_FRAMEWORK3_PROTOCOL) {
+  constructor(predefinedTypes, services, protocol = (_config || _load_config()).SERVICE_FRAMEWORK3_PROTOCOL, options = {}) {
     this._protocol = protocol;
     this._typeRegistry = new (_TypeRegistry || _load_TypeRegistry()).TypeRegistry(predefinedTypes);
     this._predefinedTypes = predefinedTypes.map(predefinedType => predefinedType.typeName);
     this._functionsByName = new Map();
     this._classesByName = new Map();
     this._services = new Map();
-
-    this.addServices(services);
+    this._serviceConfigs = new Map(services.map(service => [service.name, service]));
+    if (options.lazy !== true) {
+      services.map(service => this.addService(service));
+    }
   }
+  // Cache the configs for lazy loading.
+
 
   /**
-   * Store a mapping from a class name to a struct containing it's local constructor and it's
-   * interface definition.
+   * Store a mapping from function name to a structure holding both the local implementation and
+   * the type definition of the function.
    */
 
 
@@ -67,18 +71,12 @@ class ServiceRegistry {
     return this._protocol;
   }
 
-  addServices(services) {
-    services.forEach(this.addService, this);
-  }
-
   addService(service) {
     const preserveFunctionNames = service.preserveFunctionNames != null && service.preserveFunctionNames;
     try {
       const factory = (0, (_main || _load_main()).createProxyFactory)(service.name, preserveFunctionNames, service.definition, this._predefinedTypes);
-      this._services.set(service.name, {
-        name: service.name,
-        factory
-      });
+      const serviceDefinition = { name: service.name, factory };
+      this._services.set(service.name, serviceDefinition);
 
       // Register type aliases.
       const defs = factory.defs;
@@ -109,6 +107,8 @@ class ServiceRegistry {
             break;
         }
       });
+
+      return serviceDefinition;
     } catch (e) {
       logger.error(`Failed to load service ${service.name}. Stack Trace:\n${e.stack}`);
       throw e;
@@ -170,21 +170,17 @@ class ServiceRegistry {
     return this._typeRegistry;
   }
 
-  getServices() {
-    return this._services.values();
-  }
-
-  hasService(serviceName) {
-    return this._services.has(serviceName);
-  }
-
   getService(serviceName) {
-    const result = this._services.get(serviceName);
+    let result = this._services.get(serviceName);
+    if (result == null) {
+      const config = this._serviceConfigs.get(serviceName);
 
-    if (!(result != null)) {
-      throw new Error('Invariant violation: "result != null"');
+      if (!(config != null)) {
+        throw new Error(`Service ${serviceName} does not exist`);
+      }
+
+      result = this.addService(config);
     }
-
     return result;
   }
 }

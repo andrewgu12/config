@@ -6,7 +6,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
 
-var _atom = require('atom');
+var _UniversalDisposable;
+
+function _load_UniversalDisposable() {
+  return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
+}
 
 var _nuclideAnalytics;
 
@@ -53,7 +57,7 @@ class FileWatcher {
       logger.warn('No editor instance on this._editor');
       return;
     }
-    const _subscriptions = new _atom.CompositeDisposable();
+    const _subscriptions = new (_UniversalDisposable || _load_UniversalDisposable()).default();
     _subscriptions.add(this._editor.onDidConflict(() => {
       if (this._shouldPromptToReload()) {
         logger.info(`Conflict at file: ${this._editor.getPath() || 'File not found'}`);
@@ -107,7 +111,7 @@ class FileWatcher {
       // TODO: We can use the diff-view here when ready.
       // TODO: Figure out wtf is going on here (why are we passing the empty string as a path) and
       // consider using goToLocation instead.
-      // eslint-disable-next-line nuclide-internal/atom-apis
+      // eslint-disable-next-line rulesdir/atom-apis
       const splitEditor = yield atom.workspace.open('', { split: 'right' });
 
       splitEditor.insertText(contents);

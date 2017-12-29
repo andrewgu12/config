@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.DropdownExamples = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _Dropdown;
 
@@ -25,7 +25,7 @@ function _load_SplitButtonDropdown() {
   return _SplitButtonDropdown = require('./SplitButtonDropdown');
 }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
@@ -42,19 +42,19 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 const DropdownExample = (() => {
   const options = [{ value: 1, label: 'One' }, { value: 2, label: 'Two' }, { value: 3, label: 'Three' }, { value: 4, label: 'Four' }];
-  return () => _react.default.createElement(
+  return () => _react.createElement(
     'div',
     null,
-    _react.default.createElement((_Dropdown || _load_Dropdown()).Dropdown, { options: options, value: 2 })
+    _react.createElement((_Dropdown || _load_Dropdown()).Dropdown, { options: options, value: 2 })
   );
 })();
 
 const SplitButtonDropdownExample = (() => {
   const options = [{ value: 1, label: 'Build', icon: 'tools' }, { value: 2, label: 'Run', icon: 'triangle-right', selectedLabel: 'Run It!' }, { value: 3, label: 'Rocket', icon: 'rocket' }, { type: 'separator' }, { value: 4, label: 'Squirrel', icon: 'squirrel' }, { value: 5, label: 'Beaker', icon: 'telescope', disabled: true }];
-  return () => _react.default.createElement(
+  return () => _react.createElement(
     'div',
     null,
-    _react.default.createElement((_SplitButtonDropdown || _load_SplitButtonDropdown()).SplitButtonDropdown, {
+    _react.createElement((_SplitButtonDropdown || _load_SplitButtonDropdown()).SplitButtonDropdown, {
       options: options,
       value: 2,
       onConfirm: // eslint-disable-next-line no-alert
@@ -63,8 +63,7 @@ const SplitButtonDropdownExample = (() => {
   );
 })();
 
-class ModalMultiSelectExample extends _react.default.Component {
-
+class ModalMultiSelectExample extends _react.Component {
   constructor(props) {
     super(props);
     this.state = { value: [2] };
@@ -72,7 +71,7 @@ class ModalMultiSelectExample extends _react.default.Component {
 
   render() {
     const options = [{ value: 1, label: 'One' }, { value: 2, label: 'Two' }, { value: 3, label: 'Three' }, { value: 4, label: 'Four' }];
-    return _react.default.createElement((_ModalMultiSelect || _load_ModalMultiSelect()).ModalMultiSelect, {
+    return _react.createElement((_ModalMultiSelect || _load_ModalMultiSelect()).ModalMultiSelect, {
       options: options,
       onChange: value => {
         this.setState({ value });

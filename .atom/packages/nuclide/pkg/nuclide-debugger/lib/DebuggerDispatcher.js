@@ -42,7 +42,6 @@ const ActionTypes = exports.ActionTypes = Object.freeze({
   REMOVE_REGISTER_EXECUTOR: 'REMOVE_REGISTER_EXECUTOR',
   REGISTER_CONSOLE: 'REGISTER_CONSOLE',
   UNREGISTER_CONSOLE: 'UNREGISTER_CONSOLE',
-  OPEN_DEV_TOOLS: 'OPEN_DEV_TOOLS',
   OPEN_SOURCE_LOCATION: 'OPEN_SOURCE_LOCATION',
   CLEAR_INTERFACE: 'CLEAR_INTERFACE',
   UPDATE_CALLSTACK: 'UPDATE_CALLSTACK',
@@ -77,6 +76,7 @@ const ActionTypes = exports.ActionTypes = Object.freeze({
 });
 
 // Flow hack: Every DebuggerAction actionType must be in ActionTypes.
+// $FlowFixMe(>=0.55.0) Flow suppress
 '';
 
 class DebuggerDispatcher extends (_Dispatcher || _load_Dispatcher()).default {}

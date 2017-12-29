@@ -1,5 +1,7 @@
 'use strict';
 
+var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
+
 var _atom = require('atom');
 
 var _ProviderRegistry;
@@ -30,6 +32,12 @@ var _UniversalDisposable;
 
 function _load_UniversalDisposable() {
   return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
+}
+
+var _passesGK;
+
+function _load_passesGK() {
+  return _passesGK = _interopRequireDefault(require('../../commons-node/passesGK'));
 }
 
 var _refactorActions;
@@ -83,7 +91,7 @@ class Activation {
       this._store.dispatch((_refactorActions || _load_refactorActions()).open('generic'));
     }), atom.commands.add('atom-text-editor',
     // We don't actually want people calling this directly.
-    // eslint-disable-next-line nuclide-internal/atom-commands
+    // eslint-disable-next-line rulesdir/atom-commands
     'nuclide-refactorizer:refactorize-from-context-menu', () => {
       const mouseEvent = lastMouseEvent;
       lastMouseEvent = null;
@@ -139,6 +147,46 @@ class Activation {
       this._providerRegistry.removeProvider(provider);
       this._checkAllEditorContextMenus();
     });
+  }
+
+  provideCodeActions() {
+    const store = this._store;
+    const providerRegistry = this._providerRegistry;
+    return {
+      priority: 1,
+      getCodeActions(editor, range, diagnostics) {
+        return (0, _asyncToGenerator.default)(function* () {
+          const provider = providerRegistry.getProviderForEditor(editor);
+          if (provider == null || !(yield (0, (_passesGK || _load_passesGK()).default)('nuclide_refactorizer_code_actions'))) {
+            return [];
+          }
+
+          const refactors = yield provider.refactoringsAtPoint(editor, range.start);
+
+          return refactors.filter(function (refactor) {
+            return refactor.kind === 'freeform' && !refactor.disabled;
+          }).map(function (refactor) {
+            if (!(refactor.kind === 'freeform')) {
+              throw new Error('Invariant violation: "refactor.kind === \'freeform\'"');
+            }
+
+            return {
+              apply() {
+                return (0, _asyncToGenerator.default)(function* () {
+                  return store.dispatch((_refactorActions || _load_refactorActions()).inlinePickedRefactor(editor, range.start, provider, refactor));
+                })();
+              },
+              getTitle() {
+                return (0, _asyncToGenerator.default)(function* () {
+                  return refactor.name;
+                })();
+              },
+              dispose() {}
+            };
+          });
+        })();
+      }
+    };
   }
 }
 

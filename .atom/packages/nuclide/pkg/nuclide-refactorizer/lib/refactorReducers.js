@@ -25,6 +25,8 @@ function refactorReducers(state_, action) {
       return close(state);
     case 'picked-refactor':
       return pickedRefactor(state, action);
+    case 'inline-picked-refactor':
+      return inlinePickedRefactor(state, action);
     case 'execute':
       return executeRefactor(state, action);
     case 'confirm':
@@ -102,14 +104,35 @@ function pickedRefactor(state, action) {
     throw new Error('Invariant violation: "state.phase.type === \'pick\'"');
   }
 
+  const { refactoring } = action.payload;
+  const { provider, editor, originalPoint } = state.phase;
+
   return {
     type: 'open',
     ui: state.ui,
-    phase: getRefactoringPhase(action.payload.refactoring, state.phase)
+    phase: getRefactoringPhase(refactoring, provider, editor, originalPoint)
   };
 }
 
-function getRefactoringPhase(refactoring, { provider, editor, originalPoint }) {
+function inlinePickedRefactor(state, action) {
+  const { provider, editor, originalPoint, refactoring } = action.payload;
+
+  if (!(state.type === 'closed')) {
+    throw new Error('Invariant violation: "state.type === \'closed\'"');
+  }
+
+  if (!(refactoring.kind === 'freeform')) {
+    throw new Error('Invariant violation: "refactoring.kind === \'freeform\'"');
+  }
+
+  return {
+    type: 'open',
+    ui: 'generic',
+    phase: getRefactoringPhase(refactoring, provider, editor, originalPoint)
+  };
+}
+
+function getRefactoringPhase(refactoring, provider, editor, originalPoint) {
   switch (refactoring.kind) {
     case 'rename':
       return {

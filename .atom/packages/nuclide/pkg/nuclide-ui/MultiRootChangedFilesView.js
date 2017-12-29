@@ -35,7 +35,7 @@ function _load_nuclideUri() {
   return _nuclideUri = _interopRequireDefault(require('nuclide-commons/nuclideUri'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _UniversalDisposable;
 
@@ -52,8 +52,10 @@ function _load_ChangedFilesList() {
 var _Tree;
 
 function _load_Tree() {
-  return _Tree = require('./Tree');
+  return _Tree = require('nuclide-commons-ui/Tree');
 }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -70,7 +72,7 @@ const ANALYTICS_PREFIX = 'changed-files-view'; /**
 
 const DEFAULT_ANALYTICS_SOURCE_KEY = 'command';
 
-class MultiRootChangedFilesView extends _react.default.PureComponent {
+class MultiRootChangedFilesView extends _react.PureComponent {
   constructor(...args) {
     var _temp;
 
@@ -252,13 +254,15 @@ class MultiRootChangedFilesView extends _react.default.PureComponent {
       hideEmptyFolders,
       onFileChecked,
       onFileChosen,
+      onMarkFileResolved,
+      openInDiffViewOption,
       selectedFile
     } = this.props;
     if (fileStatusesByRoot.size === 0) {
-      return _react.default.createElement(
+      return _react.createElement(
         (_Tree || _load_Tree()).TreeList,
         { showArrows: true },
-        _react.default.createElement(
+        _react.createElement(
           (_Tree || _load_Tree()).TreeItem,
           null,
           'No changes'
@@ -268,32 +272,37 @@ class MultiRootChangedFilesView extends _react.default.PureComponent {
       // real changes do (which themselves have showArrows=true).
     }
     const shouldShowFolderName = fileStatusesByRoot.size > 1;
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'nuclide-ui-multi-root-file-tree-container' },
       Array.from(fileStatusesByRoot.entries()).map(([root, fileStatuses]) => {
         const fileChanges = fileChangesByRoot == null ? null : fileChangesByRoot.get(root);
         const checkedFiles = checkedFilesByRoot == null ? null : checkedFilesByRoot.get(root);
-        return _react.default.createElement((_ChangedFilesList || _load_ChangedFilesList()).default, {
-          checkedFiles: checkedFiles,
-          commandPrefix: commandPrefix,
-          enableFileExpansion: enableFileExpansion === true,
-          enableInlineActions: enableInlineActions === true,
-          fileChanges: fileChanges,
-          fileStatuses: fileStatuses,
-          hideEmptyFolders: hideEmptyFolders,
-          key: root,
-          onAddFile: this._handleAddFile,
-          onDeleteFile: this._handleDeleteFile,
-          onFileChecked: onFileChecked,
-          onFileChosen: onFileChosen,
-          onForgetFile: this._handleForgetFile,
-          onOpenFileInDiffView: this._handleOpenFileInDiffView,
-          onRevertFile: this._handleRevertFile,
-          rootPath: root,
-          selectedFile: selectedFile,
-          shouldShowFolderName: shouldShowFolderName
-        });
+        return (
+          // $FlowFixMe(>=0.53.0) Flow suppress
+          _react.createElement((_ChangedFilesList || _load_ChangedFilesList()).default, {
+            checkedFiles: checkedFiles,
+            commandPrefix: commandPrefix,
+            enableFileExpansion: enableFileExpansion === true,
+            enableInlineActions: enableInlineActions === true,
+            fileChanges: fileChanges,
+            fileStatuses: fileStatuses,
+            hideEmptyFolders: hideEmptyFolders,
+            key: root,
+            onAddFile: this._handleAddFile,
+            onDeleteFile: this._handleDeleteFile,
+            onFileChecked: onFileChecked,
+            onFileChosen: onFileChosen,
+            onForgetFile: this._handleForgetFile,
+            onMarkFileResolved: onMarkFileResolved,
+            onOpenFileInDiffView: this._handleOpenFileInDiffView,
+            openInDiffViewOption: openInDiffViewOption || false,
+            onRevertFile: this._handleRevertFile,
+            rootPath: root,
+            selectedFile: selectedFile,
+            shouldShowFolderName: shouldShowFolderName
+          })
+        );
       })
     );
   }

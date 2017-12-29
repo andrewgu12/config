@@ -8,6 +8,18 @@ exports.observeTizenDevices = observeTizenDevices;
 exports.observeAndroidDevicesX = observeAndroidDevicesX;
 exports.observeTizenDevicesX = observeTizenDevicesX;
 
+var _collection;
+
+function _load_collection() {
+  return _collection = require('nuclide-commons/collection');
+}
+
+var _shallowequal;
+
+function _load_shallowequal() {
+  return _shallowequal = _interopRequireDefault(require('shallowequal'));
+}
+
 var _nuclideRemoteConnection;
 
 function _load_nuclideRemoteConnection() {
@@ -51,18 +63,40 @@ class DevicePoller {
   }
 
   _getPlatform() {
-    return this._type === 'adb' ? 'android' : 'tizen';
+    return this._type === 'adb' ? 'Android' : 'Tizen';
   }
 
   observe(_host) {
     const host = (_nuclideUri || _load_nuclideUri()).default.isRemote(_host) ? _host : '';
-    return this._observables.getOrCreate(host, () => _rxjsBundlesRxMinJs.Observable.interval(2000).startWith(0).switchMap(() => this.fetch(host).map(devices => (_expected || _load_expected()).Expect.value(devices)).catch(() => _rxjsBundlesRxMinJs.Observable.of((_expected || _load_expected()).Expect.error(new Error(`Can't fetch ${this._getPlatform()} devices. Make sure that ${this._type} is in your $PATH and that it works properly.`))))).publishReplay(1).refCount());
+    let fetching = false;
+    return this._observables.getOrCreate(host, () => _rxjsBundlesRxMinJs.Observable.interval(1000).startWith(0).filter(() => !fetching).switchMap(() => {
+      fetching = true;
+      return this.fetch(host).map(devices => (_expected || _load_expected()).Expect.value(devices)).catch(() => _rxjsBundlesRxMinJs.Observable.of((_expected || _load_expected()).Expect.error(new Error(`Can't fetch ${this._getPlatform()} devices. Make sure that ${this._type} is in your $PATH and that it works properly.`)))).do(() => {
+        fetching = false;
+      });
+    }).distinctUntilChanged((a, b) => {
+      if (a.isError && b.isError) {
+        return a.error.message === b.error.message;
+      } else if (a.isPending && b.isPending) {
+        return true;
+      } else if (!a.isError && !b.isError && !a.isPending && !b.isPending) {
+        return (0, (_collection || _load_collection()).arrayEqual)(a.value, b.value, (_shallowequal || _load_shallowequal()).default);
+      } else {
+        return false;
+      }
+    }).publishReplay(1).refCount());
   }
 
   fetch(host) {
-    const rpc = this._type === 'adb' ? (0, (_nuclideRemoteConnection || _load_nuclideRemoteConnection()).getAdbServiceByNuclideUri)(host) : (0, (_nuclideRemoteConnection || _load_nuclideRemoteConnection()).getSdbServiceByNuclideUri)(host);
+    try {
+      const rpc = this._type === 'adb' ? (0, (_nuclideRemoteConnection || _load_nuclideRemoteConnection()).getAdbServiceByNuclideUri)(host) : (0, (_nuclideRemoteConnection || _load_nuclideRemoteConnection()).getSdbServiceByNuclideUri)(host);
 
-    return rpc.getDeviceList().refCount().map(devices => devices.map(device => this.parseRawDevice(device)));
+      return rpc.getDeviceList().refCount().map(devices => devices.map(device => this.parseRawDevice(device)));
+    } catch (e) {
+      // The remote host connection can go away while we are fetching if the user
+      // removes it from the file tree or the network connection is lost.
+      return _rxjsBundlesRxMinJs.Observable.of([]);
+    }
   }
 
   parseRawDevice(device) {
@@ -83,6 +117,7 @@ class DevicePoller {
 
     return {
       name: device.name,
+      port: device.port,
       displayName,
       architecture: deviceArchitecture,
       rawArchitecture: device.architecture

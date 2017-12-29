@@ -11,9 +11,7 @@ function _load_classnames() {
   return _classnames = _interopRequireDefault(require('classnames'));
 }
 
-var _react = _interopRequireDefault(require('react'));
-
-var _reactDom = _interopRequireDefault(require('react-dom'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _atom = require('atom');
 
@@ -29,29 +27,35 @@ function _load_UniversalDisposable() {
   return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
 }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const doNothing = () => {}; /**
-                             * Copyright (c) 2017-present, Facebook, Inc.
-                             * All rights reserved.
-                             *
-                             * This source code is licensed under the BSD-style license found in the
-                             * LICENSE file in the root directory of this source tree. An additional grant
-                             * of patent rights can be found in the PATENTS file in the same directory.
-                             *
-                             * 
-                             * @format
-                             */
+/**
+ * Copyright (c) 2017-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * 
+ * @format
+ */
+
+const doNothing = () => {};
 
 function setupTextEditor(props) {
   const textBuffer = props.textBuffer || new _atom.TextBuffer();
+  // flowlint-next-line sketchy-null-string:off
   if (props.path) {
+    // $FlowIgnore
     textBuffer.setPath(props.path);
   }
 
   const disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default();
   if (props.onDidTextBufferChange != null) {
-    disposables.add(textBuffer.onDidChange(props.onDidTextBufferChange));
+    disposables.add(textBuffer.onDidChangeText(props.onDidTextBufferChange));
   }
 
   const textEditorParams = {
@@ -61,32 +65,31 @@ function setupTextEditor(props) {
   };
   const textEditor = atom.workspace.buildTextEditor(textEditorParams);
   disposables.add(() => textEditor.destroy());
-
   if (props.grammar != null) {
     textEditor.setGrammar(props.grammar);
   }
   disposables.add((0, (_textEditor || _load_textEditor()).enforceSoftWrap)(textEditor, props.softWrapped));
 
+  // flowlint-next-line sketchy-null-string:off
   if (props.placeholderText) {
     textEditor.setPlaceholderText(props.placeholderText);
   }
 
   if (props.readOnly) {
-    (0, (_textEditor || _load_textEditor()).enforceReadOnly)(textEditor);
+    (0, (_textEditor || _load_textEditor()).enforceReadOnlyEditor)(textEditor);
 
     // Remove the cursor line decorations because that's distracting in read-only mode.
     textEditor.getDecorations({ class: 'cursor-line' }).forEach(decoration => {
       decoration.destroy();
     });
   }
-
   return {
     disposables,
     textEditor
   };
 }
 
-class AtomTextEditor extends _react.default.Component {
+class AtomTextEditor extends _react.Component {
 
   componentDidMount() {
     this._editorDisposables = new (_UniversalDisposable || _load_UniversalDisposable()).default();
@@ -98,12 +101,16 @@ class AtomTextEditor extends _react.default.Component {
   }
 
   _updateTextEditor(setup) {
+    const container = this._rootElement;
+    if (container == null) {
+      return;
+    }
+
     this._editorDisposables.dispose();
     const { textEditor, disposables } = setup;
 
     this._editorDisposables = new (_UniversalDisposable || _load_UniversalDisposable()).default(disposables);
 
-    const container = _reactDom.default.findDOMNode(this);
     const textEditorElement = this._textEditorElement = document.createElement('atom-text-editor');
     textEditorElement.setModel(textEditor);
     textEditorElement.setAttribute('tabindex', this.props.tabIndex);
@@ -117,26 +124,33 @@ class AtomTextEditor extends _react.default.Component {
 
     if (this.props.correctContainerWidth) {
       this._editorDisposables.add(textEditorElement.onDidAttach(() => {
-        const correctlySizedElement = textEditorElement.querySelector('* /deep/ .lines > :first-child');
+        const correctlySizedElement = textEditorElement.querySelector('.lines > :first-child');
         if (correctlySizedElement == null) {
           return;
         }
-        let { width } = correctlySizedElement.style;
-        // For compatibility with Atom < 1.19.
-        // TODO(#19829039): Remove this after upgrading.
-        if (!width && correctlySizedElement.children.length > 0) {
-          width = correctlySizedElement.children[0].style.width;
-        }
-        // $FlowFixMe
-        container.style.width = width;
+        container.style.width = correctlySizedElement.style.width;
       }));
     }
 
     // Attach to DOM.
-    // $FlowFixMe
     container.innerHTML = '';
-    // $FlowFixMe
     container.appendChild(textEditorElement);
+
+    if (this.props.onConfirm != null) {
+      this._editorDisposables.add(atom.commands.add(textEditorElement, {
+        'core:confirm': () => {
+          if (!(this.props.onConfirm != null)) {
+            throw new Error('Invariant violation: "this.props.onConfirm != null"');
+          }
+
+          this.props.onConfirm();
+        }
+      }));
+    }
+
+    if (this.props.onInitialized != null) {
+      this._editorDisposables.add(this.props.onInitialized(textEditor));
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -154,6 +168,7 @@ class AtomTextEditor extends _react.default.Component {
       }
     }
     if (nextProps.path !== this.props.path) {
+      // $FlowIgnore
       this.getTextBuffer().setPath(nextProps.path || '');
     }
     if (nextProps.gutterHidden !== this.props.gutterHidden) {
@@ -221,7 +236,10 @@ class AtomTextEditor extends _react.default.Component {
     const className = (0, (_classnames || _load_classnames()).default)(this.props.className, 'nuclide-text-editor-container', {
       'no-auto-grow': !this.props.autoGrow
     });
-    return _react.default.createElement('div', { className: className });
+    return _react.createElement('div', {
+      className: className,
+      ref: rootElement => this._rootElement = rootElement
+    });
   }
 
   // This component wraps the imperative API of `<atom-text-editor>`, and so React's rendering

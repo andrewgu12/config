@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ConfirmRefactorComponent = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _projects;
 
@@ -28,7 +28,7 @@ function _load_Button() {
 var _Tree;
 
 function _load_Tree() {
-  return _Tree = require('../../../nuclide-ui/Tree');
+  return _Tree = require('nuclide-commons-ui/Tree');
 }
 
 var _PathWithFileIcon;
@@ -43,9 +43,9 @@ function _load_refactorActions() {
   return _refactorActions = _interopRequireWildcard(require('../refactorActions'));
 }
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
@@ -58,7 +58,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @format
  */
 
-class ConfirmRefactorComponent extends _react.default.PureComponent {
+class ConfirmRefactorComponent extends _react.PureComponent {
   constructor(...args) {
     var _temp;
 
@@ -74,28 +74,28 @@ class ConfirmRefactorComponent extends _react.default.PureComponent {
       editCount.set(path, (editCount.get(path) || 0) + edits.length);
     }
     // TODO: display actual diff output here.
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       null,
       'This refactoring will affect ',
       editCount.size,
       ' files. Confirm?',
-      _react.default.createElement(
+      _react.createElement(
         'div',
         {
           // Make the text copyable + selectable.
           className: 'nuclide-refactorizer-confirm-list native-key-bindings',
           tabIndex: -1 },
-        _react.default.createElement(
+        _react.createElement(
           (_Tree || _load_Tree()).TreeList,
           null,
-          Array.from(editCount).map(([path, count]) => _react.default.createElement(
+          Array.from(editCount).map(([path, count]) => _react.createElement(
             (_Tree || _load_Tree()).TreeItem,
             { key: path },
-            _react.default.createElement(
+            _react.createElement(
               (_PathWithFileIcon || _load_PathWithFileIcon()).default,
               { path: path },
-              _react.default.createElement(
+              _react.createElement(
                 'span',
                 { className: 'nuclide-refactorizer-confirm-list-path' },
                 (0, (_projects || _load_projects()).getAtomProjectRelativePath)(path)
@@ -110,10 +110,10 @@ class ConfirmRefactorComponent extends _react.default.PureComponent {
           ))
         )
       ),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { style: { display: 'flex', justifyContent: 'flex-end' } },
-        _react.default.createElement(
+        _react.createElement(
           (_Button || _load_Button()).Button,
           {
             buttonType: (_Button || _load_Button()).ButtonTypes.PRIMARY,

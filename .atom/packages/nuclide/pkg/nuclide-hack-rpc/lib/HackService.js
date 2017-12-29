@@ -21,13 +21,18 @@ var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
 let initializeLsp = exports.initializeLsp = (() => {
   var _ref = (0, _asyncToGenerator.default)(function* (command, args, projectFileNames, fileExtensions, logLevel, fileNotifier, host) {
     const cmd = command === '' ? yield (0, (_hackConfig || _load_hackConfig()).getHackCommand)() : command;
+    if (cmd === '') {
+      return null;
+    }
+
     return (0, (_nuclideVscodeLanguageServiceRpc || _load_nuclideVscodeLanguageServiceRpc()).createMultiLspLanguageService)('hack', cmd, args, {
       logCategory: (_hackConfig || _load_hackConfig()).HACK_LOGGER_CATEGORY,
       logLevel,
       fileNotifier,
       host,
       projectFileNames,
-      fileExtensions
+      fileExtensions,
+      additionalLogFilesRetentionPeriod: 5 * 60 * 1000 // 5 minutes
     });
   });
 
@@ -67,6 +72,12 @@ var _nuclideVscodeLanguageServiceRpc;
 
 function _load_nuclideVscodeLanguageServiceRpc() {
   return _nuclideVscodeLanguageServiceRpc = require('../../nuclide-vscode-language-service-rpc');
+}
+
+var _constants;
+
+function _load_constants() {
+  return _constants = require('../../nuclide-hack-common/lib/constants');
 }
 
 var _HackHelpers;
@@ -158,7 +169,7 @@ class HackLanguageServiceImpl extends (_nuclideLanguageServiceRpc || _load_nucli
 
     super(fileNotifier, new HackSingleFileLanguageService(fileNotifier));
     this._resources = new (_UniversalDisposable || _load_UniversalDisposable()).default();
-    const configObserver = new (_nuclideOpenFilesRpc || _load_nuclideOpenFilesRpc()).ConfigObserver(fileNotifier, (_hackConfig || _load_hackConfig()).HACK_FILE_EXTENSIONS, (_hackConfig || _load_hackConfig()).findHackConfigDir);
+    const configObserver = new (_nuclideOpenFilesRpc || _load_nuclideOpenFilesRpc()).ConfigObserver(fileNotifier, (_constants || _load_constants()).HACK_FILE_EXTENSIONS, (_hackConfig || _load_hackConfig()).findHackConfigDir);
     this._resources.add(configObserver, configObserver.observeConfigs().subscribe(configs => {
       (0, (_HackProcess || _load_HackProcess()).ensureProcesses)(fileNotifier, configs);
     }));
@@ -167,13 +178,13 @@ class HackLanguageServiceImpl extends (_nuclideLanguageServiceRpc || _load_nucli
     });
   }
 
-  getAutocompleteSuggestions(fileVersion, position, activatedManually, prefix) {
+  getAutocompleteSuggestions(fileVersion, position, request) {
     var _this = this;
 
     return (0, _asyncToGenerator.default)(function* () {
       try {
         const process = yield (0, (_HackProcess || _load_HackProcess()).getHackProcess)(_this._fileCache, fileVersion.filePath);
-        return process.getAutocompleteSuggestions(fileVersion, position, activatedManually);
+        return process.getAutocompleteSuggestions(fileVersion, position, request.activatedManually);
       } catch (e) {
         return null;
       }
@@ -230,6 +241,12 @@ class HackSingleFileLanguageService {
     })();
   }
 
+  getCodeActions(filePath, range, diagnostics) {
+    return (0, _asyncToGenerator.default)(function* () {
+      throw new Error('Not implemented');
+    })();
+  }
+
   observeDiagnostics() {
     (_hackConfig || _load_hackConfig()).logger.debug('observeDiagnostics');
     return (0, (_HackProcess || _load_HackProcess()).observeConnections)(this._fileCache).mergeMap(connection => {
@@ -245,10 +262,7 @@ class HackSingleFileLanguageService {
         return hackDiagnostics.filename !== '';
       }).map(hackDiagnostics => {
         (_hackConfig || _load_hackConfig()).logger.debug(`Got hack error in ${hackDiagnostics.filename}`);
-        return [{
-          filePath: hackDiagnostics.filename,
-          messages: hackDiagnostics.errors.map(diagnostic => (0, (_Diagnostics || _load_Diagnostics()).hackMessageToDiagnosticMessage)(diagnostic.message))
-        }];
+        return new Map([[hackDiagnostics.filename, hackDiagnostics.errors.map(diagnostic => (0, (_Diagnostics || _load_Diagnostics()).hackMessageToDiagnosticMessage)(diagnostic.message))]]);
       }));
     }).catch(error => {
       (_hackConfig || _load_hackConfig()).logger.error(`Error: observeDiagnostics ${error}`);
@@ -377,7 +391,7 @@ class HackSingleFileLanguageService {
     })();
   }
 
-  formatSource(filePath, buffer, range) {
+  formatSource(filePath, buffer, range, options) {
     return (0, _asyncToGenerator.default)(function* () {
       const contents = buffer.getText();
       const startOffset = buffer.characterIndexForPosition(range.start) + 1;
@@ -403,11 +417,11 @@ class HackSingleFileLanguageService {
     })();
   }
 
-  formatEntireFile(filePath, buffer, range) {
+  formatEntireFile(filePath, buffer, range, options) {
     throw new Error('Not implemented');
   }
 
-  formatAtPosition(filePath, buffer, position, triggerCharacter) {
+  formatAtPosition(filePath, buffer, position, triggerCharacter, options) {
     throw new Error('Not implemented');
   }
 
@@ -432,8 +446,19 @@ class HackSingleFileLanguageService {
     })();
   }
 
+  getExpandedSelectionRange(filePath, buffer, currentSelection) {
+    throw new Error('Not implemented');
+  }
+
+  getCollapsedSelectionRange(filePath, buffer, currentSelection, originalCursorPosition) {
+    throw new Error('Not implemented');
+  }
+
   dispose() {}
 }
+
+// Assert that HackSingleFileLanguageService satisifes the SingleFileLanguageService interface:
+null;
 
 function formatAtomLineColumn(position) {
   return formatLineColumn(position.row + 1, position.column + 1);

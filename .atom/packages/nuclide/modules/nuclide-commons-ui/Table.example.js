@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.TableExamples = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _Block;
 
@@ -19,9 +19,9 @@ function _load_Table() {
   return _Table = require('./Table');
 }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-const Highlight42Component = props => _react.default.createElement(
+const Highlight42Component = props => _react.createElement(
   'div',
   { style: props.data === 42 ? { fontWeight: 'bold' } : {} },
   props.data
@@ -76,20 +76,19 @@ const TableExample = () => {
     data: {
       first: 7,
       second: 42,
-      // third is empty
+      third: undefined,
       fourth: 66,
       fifth: 123
     }
   }];
-  return _react.default.createElement(
+  return _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_Table || _load_Table()).Table, { columns: columns, rows: rows, selectable: true })
+    _react.createElement((_Table || _load_Table()).Table, { columns: columns, rows: rows, selectable: true })
   );
 };
 
-class SortableTableExample extends _react.default.Component {
-
+class SortableTableExample extends _react.Component {
   constructor(props) {
     super(props);
     const rows = [{
@@ -143,11 +142,11 @@ class SortableTableExample extends _react.default.Component {
       title: 'third',
       key: 'third'
     }];
-    return _react.default.createElement(
+    return _react.createElement(
       (_Block || _load_Block()).Block,
       null,
-      _react.default.createElement((_Table || _load_Table()).Table, {
-        emptyComponent: () => _react.default.createElement(
+      _react.createElement((_Table || _load_Table()).Table, {
+        emptyComponent: () => _react.createElement(
           'div',
           null,
           'An optional, custom "empty message" component.'
@@ -175,10 +174,10 @@ const EmptyTableExample = () => {
     key: 'third'
   }];
   const rows = [];
-  return _react.default.createElement(
+  return _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_Table || _load_Table()).Table, { columns: columns, rows: rows })
+    _react.createElement((_Table || _load_Table()).Table, { columns: columns, rows: rows })
   );
 };
 

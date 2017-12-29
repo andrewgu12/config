@@ -69,7 +69,7 @@ class AttachProcessInfo extends (_nuclideDebuggerBase || _load_nuclideDebuggerBa
     return Object.assign({}, super.getDebuggerCapabilities(), {
       conditionalBreakpoints: true,
       continueToLocation: true,
-      singleThreadStepping: true,
+      setVariable: true,
       threads: true
     });
   }
@@ -86,12 +86,10 @@ class AttachProcessInfo extends (_nuclideDebuggerBase || _load_nuclideDebuggerBa
     try {
       // TODO(t18124539) @nmote This should require FlowFB but when used flow
       // complains that it is an unused supression.
-      // eslint-disable-next-line nuclide-internal/flow-fb-oss
+      // eslint-disable-next-line rulesdir/flow-fb-oss
       const services = require('./fb/services');
-      return services.startSlog();
-    } catch (_) {
-      return Promise.resolve();
-    }
+      services.startSlog();
+    } catch (_) {}
   }
 
   debug() {
@@ -99,7 +97,7 @@ class AttachProcessInfo extends (_nuclideDebuggerBase || _load_nuclideDebuggerBa
 
     return (0, _asyncToGenerator.default)(function* () {
       (_utils || _load_utils()).default.info('Connecting to: ' + _this.getTargetUri());
-      yield _this.preAttachActions();
+      _this.preAttachActions();
 
       const rpcService = _this._getRpcService();
       const sessionConfig = (0, (_utils2 || _load_utils2()).getSessionConfig)((_nuclideUri || _load_nuclideUri()).default.getPath(_this.getTargetUri()), false);

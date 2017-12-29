@@ -19,7 +19,7 @@ function _load_Block() {
   return _Block = require('nuclide-commons-ui/Block');
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _goToLocation;
 
@@ -53,6 +53,8 @@ function _load_featureConfig() {
 
 var _atom = require('atom');
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const MINIMUM_EDITOR_HEIGHT = 10; /**
@@ -68,7 +70,7 @@ const MINIMUM_EDITOR_HEIGHT = 10; /**
 
 const EDITOR_HEIGHT_DELTA = 10;
 
-class DefinitionPreviewView extends _react.default.Component {
+class DefinitionPreviewView extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -77,7 +79,11 @@ class DefinitionPreviewView extends _react.default.Component {
       (_analytics || _load_analytics()).default.track('nuclide-definition-preview:openInMainEditor');
       const def = this.props.definition;
       if (def != null) {
-        (0, (_goToLocation || _load_goToLocation()).goToLocation)(def.path, def.position.row, def.position.column, true);
+        (0, (_goToLocation || _load_goToLocation()).goToLocation)(def.path, {
+          line: def.position.row,
+          column: def.position.column,
+          center: true
+        });
       }
     };
 
@@ -170,15 +176,15 @@ class DefinitionPreviewView extends _react.default.Component {
     const { ContextViewMessage, definition } = this.props;
     const atMinHeight = this.state.editorHeight - EDITOR_HEIGHT_DELTA < MINIMUM_EDITOR_HEIGHT;
     // Show either a "No definition" message or the definition in an editors
-    return definition == null ? _react.default.createElement(ContextViewMessage, { message: ContextViewMessage.NO_DEFINITION }) : _react.default.createElement(
+    return definition == null ? _react.createElement(ContextViewMessage, { message: ContextViewMessage.NO_DEFINITION }) : _react.createElement(
       'div',
       { className: 'pane-item nuclide-definition-preview' },
-      _react.default.createElement(
+      _react.createElement(
         'div',
         {
           className: 'nuclide-definition-preview-editor',
           style: { height: `${this.state.editorHeight}em` } },
-        _react.default.createElement((_AtomTextEditor || _load_AtomTextEditor()).AtomTextEditor, {
+        _react.createElement((_AtomTextEditor || _load_AtomTextEditor()).AtomTextEditor, {
           ref: 'editor',
           gutterHidden: true,
           lineNumberGutterVisible: false,
@@ -189,7 +195,7 @@ class DefinitionPreviewView extends _react.default.Component {
           textBuffer: this.state.buffer,
           syncTextContents: false
         }),
-        _react.default.createElement(ButtonContainer, {
+        _react.createElement(ButtonContainer, {
           _openCurrentDefinitionInMainEditor: this._openCurrentDefinitionInMainEditor,
           _increaseEditorHeight: this._increaseEditorHeight,
           _decreaseEditorHeight: this._decreaseEditorHeight,
@@ -220,21 +226,21 @@ exports.DefinitionPreviewView = DefinitionPreviewView;
 
 
 const ButtonContainer = props => {
-  return _react.default.createElement(
+  return _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement(
+    _react.createElement(
       'div',
       { className: 'nuclide-definition-preview-buttons' },
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'nuclide-definition-preview-buttons-left' },
-        _react.default.createElement(
+        _react.createElement(
           'span',
           { style: { paddingRight: '1em' } },
           'Height:'
         ),
-        _react.default.createElement(
+        _react.createElement(
           (_Button || _load_Button()).Button,
           {
             onClick: props._decreaseEditorHeight,
@@ -242,7 +248,7 @@ const ButtonContainer = props => {
             disabled: props.atMinHeight },
           '-'
         ),
-        _react.default.createElement(
+        _react.createElement(
           (_Button || _load_Button()).Button,
           {
             onClick: props._increaseEditorHeight,
@@ -250,10 +256,10 @@ const ButtonContainer = props => {
           '+'
         )
       ),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'nuclide-definition-preview-buttons-right' },
-        _react.default.createElement(
+        _react.createElement(
           (_Button || _load_Button()).Button,
           {
             onClick: props._openCurrentDefinitionInMainEditor,

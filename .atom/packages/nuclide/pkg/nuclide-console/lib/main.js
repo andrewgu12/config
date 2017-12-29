@@ -1,5 +1,7 @@
 'use strict';
 
+var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
+
 var _createPackage;
 
 function _load_createPackage() {
@@ -21,7 +23,7 @@ function _load_viewableFromReactElement() {
 var _reduxObservable;
 
 function _load_reduxObservable() {
-  return _reduxObservable = require('../../commons-node/redux-observable');
+  return _reduxObservable = require('nuclide-commons/redux-observable');
 }
 
 var _featureConfig;
@@ -60,12 +62,18 @@ function _load_ConsoleContainer() {
   return _ConsoleContainer = require('./ui/ConsoleContainer');
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _redux;
 
 function _load_redux() {
   return _redux = require('redux');
+}
+
+var _ToolbarUtils;
+
+function _load_ToolbarUtils() {
+  return _ToolbarUtils = require('../../nuclide-ui/ToolbarUtils');
 }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -82,6 +90,8 @@ const MAXIMUM_SERIALIZED_MESSAGES_CONFIG = 'nuclide-console.maximumSerializedMes
                                                                                          * 
                                                                                          * @format
                                                                                          */
+
+const MAXIMUM_SERIALIZED_HISTORY_CONFIG = 'nuclide-console.maximumSerializedHistory';
 
 class Activation {
 
@@ -100,7 +110,7 @@ class Activation {
       atom.clipboard.write(el.innerText);
     }), atom.commands.add('atom-workspace', 'nuclide-console:clear', () => this._getStore().dispatch((_Actions || _load_Actions()).clearRecords())), (_featureConfig || _load_featureConfig()).default.observe('nuclide-console.maximumMessageCount', maxMessageCount => {
       this._getStore().dispatch((_Actions || _load_Actions()).setMaxMessageCount(maxMessageCount));
-    }));
+    }), this._registerCommandAndOpener());
   }
 
   _getStore() {
@@ -119,38 +129,73 @@ class Activation {
 
   consumeToolBar(getToolBar) {
     const toolBar = getToolBar('nuclide-console');
-    toolBar.addButton({
+    toolBar.addButton((0, (_ToolbarUtils || _load_ToolbarUtils()).makeToolbarButtonSpec)({
       icon: 'terminal',
       callback: 'nuclide-console:toggle',
       tooltip: 'Toggle Console',
       priority: 700
-    });
+    }));
     this._disposables.add(() => {
       toolBar.removeItems();
     });
   }
 
   consumePasteProvider(provider) {
-    this._createPasteFunction = provider.createPaste;
+    const createPaste = provider.createPaste;
+    this._getStore().dispatch((_Actions || _load_Actions()).setCreatePasteFunction(createPaste));
+    return new (_UniversalDisposable || _load_UniversalDisposable()).default(() => {
+      if (this._getStore().getState().createPasteFunction === createPaste) {
+        this._getStore().dispatch((_Actions || _load_Actions()).setCreatePasteFunction(null));
+      }
+    });
   }
 
-  consumeWorkspaceViewsService(api) {
-    this._disposables.add(api.addOpener(uri => {
-      if (uri === (_ConsoleContainer || _load_ConsoleContainer()).WORKSPACE_VIEW_URI) {
-        return (0, (_viewableFromReactElement || _load_viewableFromReactElement()).viewableFromReactElement)(_react.default.createElement((_ConsoleContainer || _load_ConsoleContainer()).ConsoleContainer, {
-          store: this._getStore(),
-          createPasteFunction: this._createPasteFunction
-        }));
+  consumeWatchEditor(watchEditor) {
+    this._getStore().dispatch((_Actions || _load_Actions()).setWatchEditor(watchEditor));
+    return new (_UniversalDisposable || _load_UniversalDisposable()).default(() => {
+      if (this._getStore().getState().watchEditor === watchEditor) {
+        this._getStore().dispatch((_Actions || _load_Actions()).setWatchEditor(null));
       }
-    }), () => (0, (_destroyItemWhere || _load_destroyItemWhere()).destroyItemWhere)(item => item instanceof (_ConsoleContainer || _load_ConsoleContainer()).ConsoleContainer), atom.commands.add('atom-workspace', 'nuclide-console:toggle', event => {
-      api.toggle((_ConsoleContainer || _load_ConsoleContainer()).WORKSPACE_VIEW_URI, event.detail);
+    });
+  }
+
+  provideAutocomplete() {
+    const activation = this;
+    return {
+      labels: ['nuclide-console'],
+      selector: '*',
+      // Copies Chrome devtools and puts history suggestions at the bottom.
+      suggestionPriority: -1,
+      getSuggestions(request) {
+        return (0, _asyncToGenerator.default)(function* () {
+          // History provides suggestion only on exact match to current input.
+          const prefix = request.editor.getText();
+          const history = activation._getStore().getState().history;
+          // Use a set to remove duplicates.
+          const seen = new Set(history);
+          return Array.from(seen).filter(function (text) {
+            return text.startsWith(prefix);
+          }).map(function (text) {
+            return { text, replacementPrefix: prefix };
+          });
+        })();
+      }
+    };
+  }
+
+  _registerCommandAndOpener() {
+    return new (_UniversalDisposable || _load_UniversalDisposable()).default(atom.workspace.addOpener(uri => {
+      if (uri === (_ConsoleContainer || _load_ConsoleContainer()).WORKSPACE_VIEW_URI) {
+        return (0, (_viewableFromReactElement || _load_viewableFromReactElement()).viewableFromReactElement)(_react.createElement((_ConsoleContainer || _load_ConsoleContainer()).ConsoleContainer, { store: this._getStore() }));
+      }
+    }), () => (0, (_destroyItemWhere || _load_destroyItemWhere()).destroyItemWhere)(item => item instanceof (_ConsoleContainer || _load_ConsoleContainer()).ConsoleContainer), atom.commands.add('atom-workspace', 'nuclide-console:toggle', () => {
+      atom.workspace.toggle((_ConsoleContainer || _load_ConsoleContainer()).WORKSPACE_VIEW_URI);
     }));
   }
 
   deserializeConsoleContainer(state) {
-    return (0, (_viewableFromReactElement || _load_viewableFromReactElement()).viewableFromReactElement)(_react.default.createElement((_ConsoleContainer || _load_ConsoleContainer()).ConsoleContainer, {
+    return (0, (_viewableFromReactElement || _load_viewableFromReactElement()).viewableFromReactElement)(_react.createElement((_ConsoleContainer || _load_ConsoleContainer()).ConsoleContainer, {
       store: this._getStore(),
-      createPasteFunction: this._createPasteFunction,
       initialFilterText: state.filterText,
       initialEnableRegExpFilter: state.enableRegExpFilter,
       initialUnselectedSourceIds: state.unselectedSourceIds
@@ -210,7 +255,9 @@ class Activation {
             scopeName: message.scopeName,
             sourceId: sourceInfo.id,
             kind: message.kind || 'message',
-            timestamp: new Date() }));
+            timestamp: new Date(), // TODO: Allow this to come with the message?
+            repeatCount: 1
+          }));
         },
         setStatus(status) {
           if (!(activation != null && !disposed)) {
@@ -285,8 +332,10 @@ class Activation {
       return {};
     }
     const maximumSerializedMessages = (_featureConfig || _load_featureConfig()).default.get(MAXIMUM_SERIALIZED_MESSAGES_CONFIG);
+    const maximumSerializedHistory = (_featureConfig || _load_featureConfig()).default.get(MAXIMUM_SERIALIZED_HISTORY_CONFIG);
     return {
-      records: this._store.getState().records.slice(-maximumSerializedMessages)
+      records: this._store.getState().records.slice(-maximumSerializedMessages),
+      history: this._store.getState().history.slice(-maximumSerializedHistory)
     };
   }
 }
@@ -294,9 +343,10 @@ class Activation {
 function deserializeAppState(rawState) {
   return {
     executors: new Map(),
+    createPasteFunction: null,
     currentExecutorId: null,
     records: rawState && rawState.records ? rawState.records.map(deserializeRecord) : [],
-    history: [],
+    history: rawState && rawState.history ? rawState.history : [],
     providers: new Map(),
     providerStatuses: new Map(),
 

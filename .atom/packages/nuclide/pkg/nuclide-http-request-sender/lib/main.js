@@ -8,7 +8,13 @@ function _load_createPackage() {
   return _createPackage = _interopRequireDefault(require('nuclide-commons-atom/createPackage'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _UniversalDisposable;
+
+function _load_UniversalDisposable() {
+  return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
+}
+
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactDom = _interopRequireDefault(require('react-dom'));
 
@@ -45,7 +51,7 @@ function _load_Reducers() {
 var _reduxObservable;
 
 function _load_reduxObservable() {
-  return _reduxObservable = require('../../commons-node/redux-observable');
+  return _reduxObservable = require('nuclide-commons/redux-observable');
 }
 
 var _rxjsBundlesRxMinJs = require('rxjs/bundles/Rx.min.js');
@@ -66,17 +72,6 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the license found in the LICENSE file in
- * the root directory of this source tree.
- *
- * 
- * @format
- */
-
 class Activation {
 
   constructor() {
@@ -86,14 +81,15 @@ class Activation {
       headers: {
         cookie: ''
       },
-      body: null
+      body: null,
+      parameters: [{ key: '', value: '' }]
     };
     const epics = Object.keys(_Epics || _load_Epics()).map(k => (_Epics || _load_Epics())[k]).filter(epic => typeof epic === 'function');
     const rootEpic = (0, (_reduxObservable || _load_reduxObservable()).combineEpics)(...epics);
     this._store = (0, (_redux || _load_redux()).createStore)((_Reducers || _load_Reducers()).app, initialState, (0, (_redux || _load_redux()).applyMiddleware)((0, (_reduxObservable || _load_reduxObservable()).createEpicMiddleware)(rootEpic)));
     this._actionCreators = (0, (_redux || _load_redux()).bindActionCreators)(_Actions || _load_Actions(), this._store.dispatch);
     this._requestEditDialog = null;
-    this._disposables = new _atom.CompositeDisposable(atom.commands.add('atom-workspace', {
+    this._disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default(atom.commands.add('atom-workspace', {
       'nuclide-http-request-sender:toggle-http-request-edit-dialog': () => {
         (0, (_nuclideAnalytics || _load_nuclideAnalytics()).track)('nuclide-http-request-sender:toggle-http-request-edit-dialog');
         this._toggleRequestEditDialog();
@@ -126,7 +122,7 @@ class Activation {
       item: container,
       visible: false
     });
-    _reactDom.default.render(_react.default.createElement(BoundEditDialog, { actionCreators: this._actionCreators }), container);
+    _reactDom.default.render(_react.createElement(BoundEditDialog, { actionCreators: this._actionCreators }), container);
     this._disposables.add(new _atom.Disposable(() => {
       requestEditDialog.destroy();
       this._requestEditDialog = null;
@@ -145,6 +141,15 @@ class Activation {
   dispose() {
     this._disposables.dispose();
   }
-}
+} /**
+   * Copyright (c) 2015-present, Facebook, Inc.
+   * All rights reserved.
+   *
+   * This source code is licensed under the license found in the LICENSE file in
+   * the root directory of this source tree.
+   *
+   * 
+   * @format
+   */
 
 (0, (_createPackage || _load_createPackage()).default)(module.exports, Activation);

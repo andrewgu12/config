@@ -70,7 +70,7 @@ function checkedSmartPromiseAll(arr) {
 }
 
 function canBeUndefined(type) {
-  return type.kind === 'nullable' || type.kind === 'mixed' || type.kind === 'any';
+  return type.kind === 'nullable' || type.kind === 'mixed' || type.kind === 'any' || type.kind === 'void';
 }
 
 function statsToObject(stats) {
@@ -150,7 +150,7 @@ class TypeRegistry {
         throw new Error('Invariant violation: "type.kind === \'nullable\'"');
       }
 
-      if (value === null || value === undefined) {
+      if (value == null) {
         return value;
       }
       return this._marshal(context, value, type.type);
@@ -159,7 +159,7 @@ class TypeRegistry {
         throw new Error('Invariant violation: "type.kind === \'nullable\'"');
       }
 
-      if (value === null || value === undefined) {
+      if (value == null) {
         return value;
       }
       return this._unmarshal(context, value, type.type);
@@ -187,7 +187,7 @@ class TypeRegistry {
       return namedMarshaller.unmarshaller(value, context);
     });
 
-    this._registerKind('void', (value, type, context) => Promise.resolve(null), (value, type, context) => Promise.resolve(null));
+    this._registerKind('void', (value, type, context) => Promise.resolve(undefined), (value, type, context) => Promise.resolve(undefined));
 
     predefinedTypes.forEach(type => {
       this.registerPredefinedType(type.typeName, type.marshaller, type.unmarshaller);
@@ -272,10 +272,11 @@ class TypeRegistry {
       }));
       const result = {};
       marshalledargs.forEach(function (arg, i) {
-        if (!(typeof argTypes[i].name === 'string')) {
-          throw new Error('Invariant violation: "typeof argTypes[i].name === \'string\'"');
+        if (typeof argTypes[i].name !== 'string') {
+          const type = argTypes[i].type;
+          const nameOrKind = type.kind === 'named' ? type.name : type.kind;
+          throw new Error(`Unnamed function parameter for ${nameOrKind}. (Are you destructuring in a function argument list?)`);
         }
-
         result[argTypes[i].name] = arg;
       });
       return result;

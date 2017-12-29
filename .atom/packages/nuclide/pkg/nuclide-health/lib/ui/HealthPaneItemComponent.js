@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _BasicStatsSectionComponent;
 
@@ -32,6 +32,8 @@ function _load_CommandsSectionComponent() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -43,33 +45,32 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @format
  */
 
-class HealthPaneItemComponent extends _react.default.Component {
-
+class HealthPaneItemComponent extends _react.Component {
   render() {
     const sections = {
-      Stats: _react.default.createElement((_BasicStatsSectionComponent || _load_BasicStatsSectionComponent()).default, this.props),
-      Subprocesses: _react.default.createElement((_ChildProcessTreeComponent || _load_ChildProcessTreeComponent()).default, {
+      Stats: _react.createElement((_BasicStatsSectionComponent || _load_BasicStatsSectionComponent()).default, this.props),
+      Subprocesses: _react.createElement((_ChildProcessTreeComponent || _load_ChildProcessTreeComponent()).default, {
         childProcessesTree: this.props.childProcessesTree
       }),
-      Handles: _react.default.createElement((_ActiveHandlesSectionComponent || _load_ActiveHandlesSectionComponent()).default, {
+      Handles: _react.createElement((_ActiveHandlesSectionComponent || _load_ActiveHandlesSectionComponent()).default, {
         activeHandlesByType: this.props.activeHandlesByType
       }),
-      Commands: _react.default.createElement((_CommandsSectionComponent || _load_CommandsSectionComponent()).default, null)
+      Commands: _react.createElement((_CommandsSectionComponent || _load_CommandsSectionComponent()).default, null)
     };
 
     // For each section, we use settings-view to get a familiar look for table cells.
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       null,
-      Object.keys(sections).map((title, s) => _react.default.createElement(
+      Object.keys(sections).map((title, s) => _react.createElement(
         'div',
         { className: 'nuclide-health-pane-item-section', key: s },
-        _react.default.createElement(
+        _react.createElement(
           'h2',
           null,
           title
         ),
-        _react.default.createElement(
+        _react.createElement(
           'div',
           { className: 'settings-view' },
           sections[title]

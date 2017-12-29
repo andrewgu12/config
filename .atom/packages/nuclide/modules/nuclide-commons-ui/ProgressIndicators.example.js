@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ProgressIndicatorExamples = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _Block;
 
@@ -25,7 +25,7 @@ function _load_LoadingSpinner() {
   return _LoadingSpinner = require('./LoadingSpinner');
 }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 /**
  * Copyright (c) 2017-present, Facebook, Inc.
@@ -39,53 +39,53 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @format
  */
 
-const ProgressBarExample = () => _react.default.createElement(
+const ProgressBarExample = () => _react.createElement(
   'div',
   null,
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_ProgressBar || _load_ProgressBar()).ProgressBar, null)
+    _react.createElement((_ProgressBar || _load_ProgressBar()).ProgressBar, null)
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_ProgressBar || _load_ProgressBar()).ProgressBar, { max: 100, value: 0 })
+    _react.createElement((_ProgressBar || _load_ProgressBar()).ProgressBar, { max: 100, value: 0 })
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_ProgressBar || _load_ProgressBar()).ProgressBar, { max: 100, value: 50 })
+    _react.createElement((_ProgressBar || _load_ProgressBar()).ProgressBar, { max: 100, value: 50 })
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_ProgressBar || _load_ProgressBar()).ProgressBar, { max: 100, value: 100 })
+    _react.createElement((_ProgressBar || _load_ProgressBar()).ProgressBar, { max: 100, value: 100 })
   )
 );
 
-const LoadingSpinnerExample = () => _react.default.createElement(
+const LoadingSpinnerExample = () => _react.createElement(
   'div',
   null,
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinner, { size: 'EXTRA_SMALL' })
+    _react.createElement((_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinner, { size: 'EXTRA_SMALL' })
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinner, { size: 'SMALL' })
+    _react.createElement((_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinner, { size: 'SMALL' })
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinner, { size: 'MEDIUM' })
+    _react.createElement((_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinner, { size: 'MEDIUM' })
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinner, { size: 'LARGE' })
+    _react.createElement((_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinner, { size: 'LARGE' })
   )
 );
 

@@ -16,7 +16,9 @@ function _load_debounce() {
   return _debounce = _interopRequireDefault(require('nuclide-commons/debounce'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
+
+var _rxjsBundlesRxMinJs = require('rxjs/bundles/Rx.min.js');
 
 var _FilteredMessagesReminder;
 
@@ -66,8 +68,11 @@ function _load_recordsChanged() {
   return _recordsChanged = _interopRequireDefault(require('../recordsChanged'));
 }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+// Maximum time (ms) for the console to try scrolling to the bottom.
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -79,7 +84,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @format
  */
 
-class Console extends _react.default.Component {
+const MAXIMUM_SCROLLING_TIME = 3000;
+
+class Console extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -90,6 +97,12 @@ class Console extends _react.default.Component {
 
     this._getProvider = id => {
       return this.props.getProvider(id);
+    };
+
+    this._executePrompt = code => {
+      this.props.execute(code);
+      // Makes the console to scroll to the bottom.
+      this._isScrolledNearBottom = true;
     };
 
     this._handleScroll = (offsetHeight, scrollHeight, scrollTop) => {
@@ -104,8 +117,31 @@ class Console extends _react.default.Component {
       if (!this._outputTable) {
         return;
       }
+
       this._outputTable.scrollToBottom();
+
       this.setState({ unseenMessages: false });
+    };
+
+    this._startScrollToBottom = () => {
+      if (!this._isScrollingToBottom) {
+        this._isScrollingToBottom = true;
+
+        this._scrollingThrottle = _rxjsBundlesRxMinJs.Observable.timer(MAXIMUM_SCROLLING_TIME).subscribe(() => {
+          this._isScrollingToBottom = false;
+        });
+      }
+
+      this._scrollToBottom();
+    };
+
+    this._stopScrollToBottom = () => {
+      this._isScrollingToBottom = false;
+      this._scrollingThrottle.unsubscribe();
+    };
+
+    this._shouldScrollToBottom = () => {
+      return this._isScrolledNearBottom || this._isScrollingToBottom;
     };
 
     this.state = {
@@ -113,15 +149,21 @@ class Console extends _react.default.Component {
     };
     this._disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default();
     this._isScrolledNearBottom = true;
+    this._isScrollingToBottom = false;
     this._handleScrollEnd = (0, (_debounce || _load_debounce()).default)(this._handleScrollEnd, 100);
   }
+
+  // Used when _scrollToBottom is called. The console optimizes message loading
+  // so scrolling to the bottom once doesn't always scroll to the bottom since
+  // more messages can be loaded after.
+
 
   componentDidMount() {
     // Wait for `<OutputTable />` to render itself via react-virtualized before scrolling and
     // re-measuring; Otherwise, the scrolled location will be inaccurate, preventing the Console
     // from auto-scrolling.
     const immediate = setImmediate(() => {
-      this._scrollToBottom();
+      this._startScrollToBottom();
     });
     this._disposables.add(() => {
       clearImmediate(immediate);
@@ -136,7 +178,7 @@ class Console extends _react.default.Component {
     // If records are added while we're scrolled to the bottom (or very very close, at least),
     // automatically scroll.
     if (this._isScrolledNearBottom && (0, (_recordsChanged || _load_recordsChanged()).default)(prevProps.displayableRecords, this.props.displayableRecords)) {
-      this._scrollToBottom();
+      this._startScrollToBottom();
     }
   }
 
@@ -150,7 +192,7 @@ class Console extends _react.default.Component {
       id: executor.id,
       label: executor.name
     }));
-    return _react.default.createElement((_PromptButton || _load_PromptButton()).default, {
+    return _react.createElement((_PromptButton || _load_PromptButton()).default, {
       value: currentExecutor.id,
       onChange: this.props.selectExecutor,
       options: options,
@@ -165,6 +207,7 @@ class Console extends _react.default.Component {
   componentWillReceiveProps(nextProps) {
     // If the messages were cleared, hide the notification.
     if (nextProps.displayableRecords.length === 0) {
+      this._isScrolledNearBottom = true;
       this.setState({ unseenMessages: false });
     } else if (
     // If we receive new messages after we've scrolled away from the bottom, show the "new
@@ -179,10 +222,10 @@ class Console extends _react.default.Component {
   }
 
   render() {
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'nuclide-console' },
-      _react.default.createElement((_ConsoleHeader || _load_ConsoleHeader()).default, {
+      _react.createElement((_ConsoleHeader || _load_ConsoleHeader()).default, {
         clear: this.props.clearRecords,
         createPaste: this.props.createPaste,
         invalidFilterInput: this.props.invalidFilterInput,
@@ -190,32 +233,33 @@ class Console extends _react.default.Component {
         filterText: this.props.filterText,
         selectedSourceIds: this.props.selectedSourceIds,
         sources: this.props.sources,
-        toggleRegExpFilter: this.props.toggleRegExpFilter,
-        onFilterTextChange: this.props.updateFilterText,
+        onFilterChange: this.props.updateFilter,
         onSelectedSourcesChange: this.props.selectSources
       }),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'nuclide-console-body' },
-        _react.default.createElement(
+        _react.createElement(
           'div',
           { className: 'nuclide-console-scroll-pane-wrapper' },
-          _react.default.createElement((_FilteredMessagesReminder || _load_FilteredMessagesReminder()).default, {
+          _react.createElement((_FilteredMessagesReminder || _load_FilteredMessagesReminder()).default, {
             filteredRecordCount: this.props.filteredRecordCount,
             onReset: this.props.resetAllFilters
           }),
-          _react.default.createElement((_OutputTable || _load_OutputTable()).default, {
-            ref: this._handleOutputTable,
+          _react.createElement((_OutputTable || _load_OutputTable()).default
+          // $FlowFixMe(>=0.53.0) Flow suppress
+          , { ref: this._handleOutputTable,
             displayableRecords: this.props.displayableRecords,
             showSourceLabels: this.props.selectedSourceIds.length > 1,
             getExecutor: this._getExecutor,
             getProvider: this._getProvider,
             onScroll: this._handleScroll,
-            onDisplayableRecordHeightChange: this.props.onDisplayableRecordHeightChange
+            onDisplayableRecordHeightChange: this.props.onDisplayableRecordHeightChange,
+            shouldScrollToBottom: this._shouldScrollToBottom
           }),
-          _react.default.createElement((_NewMessagesNotification || _load_NewMessagesNotification()).default, {
+          _react.createElement((_NewMessagesNotification || _load_NewMessagesNotification()).default, {
             visible: this.state.unseenMessages,
-            onClick: this._scrollToBottom
+            onClick: this._startScrollToBottom
           })
         ),
         this._renderPrompt()
@@ -228,23 +272,31 @@ class Console extends _react.default.Component {
     if (currentExecutor == null) {
       return;
     }
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'nuclide-console-prompt' },
       this._renderPromptButton(),
-      _react.default.createElement((_InputArea || _load_InputArea()).default, {
+      _react.createElement((_InputArea || _load_InputArea()).default, {
         scopeName: currentExecutor.scopeName,
-        onSubmit: this.props.execute,
-        history: this.props.history
+        onSubmit: this._executePrompt,
+        history: this.props.history,
+        watchEditor: this.props.watchEditor
       })
     );
   }
 
   _handleScrollEnd(offsetHeight, scrollHeight, scrollTop) {
-    this._isScrolledNearBottom = this._isScrolledToBottom(offsetHeight, scrollHeight, scrollTop);
-    this.setState({
-      unseenMessages: this.state.unseenMessages && !this._isScrolledNearBottom
-    });
+    const isScrolledToBottom = this._isScrolledToBottom(offsetHeight, scrollHeight, scrollTop);
+
+    if (this._isScrollingToBottom && !isScrolledToBottom) {
+      this._scrollToBottom();
+    } else {
+      this._isScrolledNearBottom = isScrolledToBottom;
+      this._stopScrollToBottom();
+      this.setState({
+        unseenMessages: this.state.unseenMessages && !this._isScrolledNearBottom
+      });
+    }
   }
 
 }

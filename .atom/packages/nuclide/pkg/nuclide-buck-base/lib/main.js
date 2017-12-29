@@ -13,6 +13,7 @@ var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
 let getBuckProjectRoot = exports.getBuckProjectRoot = (() => {
   var _ref = (0, _asyncToGenerator.default)(function* (filePath) {
     let directory = buckProjectDirectoryByPath.get(filePath);
+    // flowlint-next-line sketchy-null-string:off
     if (!directory) {
       const service = getBuckService(filePath);
       if (service == null) {

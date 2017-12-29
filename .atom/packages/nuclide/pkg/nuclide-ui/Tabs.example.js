@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.TabExamples = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _Block;
 
@@ -21,37 +21,39 @@ function _load_Tabs() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 const tabs = [{
   name: 'one',
-  tabContent: _react.default.createElement(
+  tabContent: _react.createElement(
     'div',
     null,
     'One'
   )
 }, {
   name: 'two',
-  tabContent: _react.default.createElement(
+  tabContent: _react.createElement(
     'div',
     null,
     'Two'
   )
 }, {
   name: 'three',
-  tabContent: _react.default.createElement(
+  tabContent: _react.createElement(
     'div',
     null,
     'Three'
   )
 }, {
   name: 'four',
-  tabContent: _react.default.createElement(
+  tabContent: _react.createElement(
     'div',
     null,
     'Four'
   )
 }, {
   name: 'five',
-  tabContent: _react.default.createElement(
+  tabContent: _react.createElement(
     'div',
     null,
     'Five'
@@ -67,8 +69,7 @@ const tabs = [{
      * @format
      */
 
-class TabExample extends _react.default.Component {
-
+class TabExample extends _react.Component {
   constructor(props) {
     super(props);
 
@@ -85,16 +86,16 @@ class TabExample extends _react.default.Component {
 
   render() {
     const { activeTabName } = this.state;
-    return _react.default.createElement(
+    return _react.createElement(
       (_Block || _load_Block()).Block,
       null,
-      _react.default.createElement((_Tabs || _load_Tabs()).default, {
+      _react.createElement((_Tabs || _load_Tabs()).default, {
         tabs: tabs,
         activeTabName: activeTabName,
         triggeringEvent: 'onClick',
         onActiveTabChange: this.handleTabChange
       }),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { style: { padding: '2em 0 2em 0' } },
         'Showing content for tab "',

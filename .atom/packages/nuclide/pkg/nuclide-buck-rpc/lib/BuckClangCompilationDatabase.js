@@ -8,12 +8,6 @@ var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
 
 exports.getCompilationDatabaseHandler = getCompilationDatabaseHandler;
 
-var _nuclideArcanistRpc;
-
-function _load_nuclideArcanistRpc() {
-  return _nuclideArcanistRpc = require('../../nuclide-arcanist-rpc');
-}
-
 var _nuclideClangRpc;
 
 function _load_nuclideClangRpc() {
@@ -24,12 +18,6 @@ var _BuckServiceImpl;
 
 function _load_BuckServiceImpl() {
   return _BuckServiceImpl = _interopRequireWildcard(require('./BuckServiceImpl'));
-}
-
-var _fsPromise;
-
-function _load_fsPromise() {
-  return _fsPromise = _interopRequireDefault(require('nuclide-commons/fsPromise'));
 }
 
 var _log4js;
@@ -60,17 +48,18 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const logger = (0, (_log4js || _load_log4js()).getLogger)('nuclide-buck'); /**
-                                                                            * Copyright (c) 2015-present, Facebook, Inc.
-                                                                            * All rights reserved.
-                                                                            *
-                                                                            * This source code is licensed under the license found in the LICENSE file in
-                                                                            * the root directory of this source tree.
-                                                                            *
-                                                                            * 
-                                                                            * @format
-                                                                            */
+/**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the license found in the LICENSE file in
+ * the root directory of this source tree.
+ *
+ * 
+ * @format
+ */
 
+const logger = (0, (_log4js || _load_log4js()).getLogger)('nuclide-buck');
 const BUCK_TIMEOUT = 10 * 60 * 1000;
 const TARGET_KIND_REGEX = ['apple_binary', 'apple_library', 'apple_test', 'cxx_binary', 'cxx_library', 'cxx_test'].join('|');
 
@@ -157,33 +146,15 @@ class BuckClangCompilationDatabaseHandler {
     })();
   }
 
-  _addMode(root, mode, args) {
+  _getExtraArguments(buckRoot, target) {
     return (0, _asyncToGenerator.default)(function* () {
-      if (yield (_fsPromise || _load_fsPromise()).default.exists((_nuclideUri || _load_nuclideUri()).default.join(root, mode))) {
-        return args.concat(['@' + mode]);
-      }
-      return args;
-    })();
-  }
-
-  // Many Android/iOS targets require custom flags to build with Buck.
-  // TODO: Share this code with the client-side Buck modifiers!
-  _getFallbackArgs(root) {
-    return (0, _asyncToGenerator.default)(function* () {
-      const projectId = yield (0, (_nuclideArcanistRpc || _load_nuclideArcanistRpc()).findArcProjectIdOfPath)(root);
-      let customMode = null;
-      if (projectId === 'fbobjc' && process.platform === 'linux') {
-        customMode = 'mode/iphonesimulator';
-      } else if (projectId === 'facebook-fbandroid' && process.platform === 'linux') {
-        customMode = 'mode/server';
-      }
-      if (customMode == null) {
+      try {
+        // $FlowFB
+        const { getExtraArguments } = require('./fb/getExtraArguments');
+        return yield getExtraArguments(buckRoot, target);
+      } catch (e) {
         return [];
       }
-      if (yield (_fsPromise || _load_fsPromise()).default.exists((_nuclideUri || _load_nuclideUri()).default.join(root, customMode))) {
-        return ['@' + customMode];
-      }
-      return [];
     })();
   }
 
@@ -194,7 +165,7 @@ class BuckClangCompilationDatabaseHandler {
       // TODO(t12973165): Allow configuring a custom flavor.
       // For now, this seems to use cxx.default_platform, which tends to be correct.
       const allFlavors = ['compilation-database', ..._this3._params.flavorsForTarget];
-      const allArgs = _this3._params.args.length === 0 ? yield _this3._getFallbackArgs(buckProjectRoot) : _this3._params.args;
+      const allArgs = _this3._params.args.length === 0 ? yield _this3._getExtraArguments(buckProjectRoot, target) : _this3._params.args;
       const buildTarget = target + '#' + allFlavors.join(',');
       const buildReport = yield (_BuckServiceImpl || _load_BuckServiceImpl()).build(buckProjectRoot, [
       // Small builds, like those used for a compilation database, can degrade overall
@@ -217,16 +188,16 @@ class BuckClangCompilationDatabaseHandler {
         flagsFile: buildFile,
         libclangPath: null
       };
-      return _this3._processCompilationDb(compilationDB, buckProjectRoot);
+      return _this3._processCompilationDb(compilationDB, buckProjectRoot, allArgs);
     })();
   }
 
-  _processCompilationDb(db, buckRoot) {
+  _processCompilationDb(db, buckRoot, args) {
     return (0, _asyncToGenerator.default)(function* () {
       try {
         // $FlowFB
         const { createOmCompilationDb } = require('./fb/omCompilationDb');
-        return yield createOmCompilationDb(db, buckRoot);
+        return yield createOmCompilationDb(db, buckRoot, args);
       } catch (e) {}
       return db;
     })();

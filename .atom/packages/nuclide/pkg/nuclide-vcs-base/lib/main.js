@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.confirmAndDeletePath = exports.DIFF_EDITOR_MARKER_CLASS = exports.RevertibleStatusCodes = exports.FileChangeStatusToLabel = exports.FileChangeStatusToTextColor = exports.FileChangeStatusToIcon = exports.FileChangeStatusToPrefix = exports.HgStatusToFileChangeStatus = exports.FileChangeStatus = exports.findVcs = undefined;
+exports.confirmAndDeletePath = exports.DIFF_EDITOR_MARKER_CLASS = exports.RevertibleStatusCodes = exports.FileChangeStatusToLabel = exports.FileChangeStatusToTextColor = exports.FileChangeStatusToIcon = exports.FileChangeStatusToPrefix = exports.MergeConflictStatusToNumber = exports.HgStatusToFileChangeStatus = exports.FileChangeStatus = exports.findVcs = undefined;
 
 var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
 
@@ -206,7 +206,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @format
  */
 
-const { StatusCodeNumber: HgStatusCodeNumber } = (_nuclideHgRpc || _load_nuclideHgRpc()).hgConstants;
+const { StatusCodeNumber: HgStatusCodeNumber, MergeConflictStatus } = (_nuclideHgRpc || _load_nuclideHgRpc()).hgConstants;
 const vcsInfoCache = {};
 
 const FileChangeStatus = exports.FileChangeStatus = Object.freeze({
@@ -214,7 +214,9 @@ const FileChangeStatus = exports.FileChangeStatus = Object.freeze({
   MODIFIED: 2,
   MISSING: 3,
   REMOVED: 4,
-  UNTRACKED: 5
+  UNTRACKED: 5,
+  BOTH_CHANGED: 6,
+  CHANGE_DELETE: 7
 });
 
 FileChangeStatus;
@@ -226,6 +228,12 @@ const HgStatusToFileChangeStatus = exports.HgStatusToFileChangeStatus = Object.f
   [HgStatusCodeNumber.REMOVED]: FileChangeStatus.REMOVED,
   [HgStatusCodeNumber.UNTRACKED]: FileChangeStatus.UNTRACKED
 });
+
+const MergeConflictStatusToNumber = exports.MergeConflictStatusToNumber = {
+  [MergeConflictStatus.BOTH_CHANGED]: FileChangeStatus.BOTH_CHANGED,
+  [MergeConflictStatus.DELETED_IN_THEIRS]: FileChangeStatus.CHANGE_DELETE,
+  [MergeConflictStatus.DELETED_IN_OURS]: FileChangeStatus.CHANGE_DELETE
+};
 
 const FileChangeStatusToPrefix = exports.FileChangeStatusToPrefix = Object.freeze({
   [FileChangeStatus.ADDED]: '[A] ',
@@ -240,7 +248,9 @@ const FileChangeStatusToIcon = exports.FileChangeStatusToIcon = Object.freeze({
   [FileChangeStatus.MODIFIED]: 'diff-modified',
   [FileChangeStatus.MISSING]: 'stop',
   [FileChangeStatus.REMOVED]: 'diff-removed',
-  [FileChangeStatus.UNTRACKED]: 'question'
+  [FileChangeStatus.UNTRACKED]: 'question',
+  [FileChangeStatus.BOTH_CHANGED]: 'alignment-unalign ',
+  [FileChangeStatus.CHANGE_DELETE]: 'x '
 });
 
 const FileChangeStatusToTextColor = exports.FileChangeStatusToTextColor = Object.freeze({
@@ -248,7 +258,9 @@ const FileChangeStatusToTextColor = exports.FileChangeStatusToTextColor = Object
   [FileChangeStatus.MODIFIED]: 'text-warning',
   [FileChangeStatus.MISSING]: 'text-error',
   [FileChangeStatus.REMOVED]: 'text-error',
-  [FileChangeStatus.UNTRACKED]: 'text-error'
+  [FileChangeStatus.UNTRACKED]: 'text-error',
+  [FileChangeStatus.BOTH_CHANGED]: 'text-warning',
+  [FileChangeStatus.CHANGE_DELETE]: 'text-warning'
 });
 
 const FileChangeStatusToLabel = exports.FileChangeStatusToLabel = Object.freeze({
@@ -256,7 +268,9 @@ const FileChangeStatusToLabel = exports.FileChangeStatusToLabel = Object.freeze(
   [FileChangeStatus.MODIFIED]: 'Modified',
   [FileChangeStatus.MISSING]: 'Missing',
   [FileChangeStatus.REMOVED]: 'Removed',
-  [FileChangeStatus.UNTRACKED]: 'Untracked'
+  [FileChangeStatus.UNTRACKED]: 'Untracked',
+  [FileChangeStatus.BOTH_CHANGED]: 'Both Changed',
+  [FileChangeStatus.CHANGE_DELETE]: 'Deleted'
 });
 
 const RevertibleStatusCodes = exports.RevertibleStatusCodes = [FileChangeStatus.ADDED, FileChangeStatus.MODIFIED, FileChangeStatus.REMOVED];
@@ -282,6 +296,7 @@ function observeStatusChanges(repository) {
 function forgetPath(nodePath) {
   return hgActionToPath(nodePath, 'forget', 'Forgot', (() => {
     var _ref3 = (0, _asyncToGenerator.default)(function* (hgRepository) {
+      // flowlint-next-line sketchy-null-string:off
       if (!nodePath) {
         throw new Error('Invariant violation: "nodePath"');
       }
@@ -299,6 +314,7 @@ function forgetPath(nodePath) {
 function addPath(nodePath) {
   return hgActionToPath(nodePath, 'add', 'Added', (() => {
     var _ref4 = (0, _asyncToGenerator.default)(function* (hgRepository) {
+      // flowlint-next-line sketchy-null-string:off
       if (!nodePath) {
         throw new Error('Invariant violation: "nodePath"');
       }
@@ -316,6 +332,7 @@ function addPath(nodePath) {
 function revertPath(nodePath, toRevision) {
   return hgActionToPath(nodePath, 'revert', 'Reverted', (() => {
     var _ref5 = (0, _asyncToGenerator.default)(function* (hgRepository) {
+      // flowlint-next-line sketchy-null-string:off
       if (!nodePath) {
         throw new Error('Invariant violation: "nodePath"');
       }
@@ -356,7 +373,7 @@ function getHgRepositoriesStream() {
 }
 
 function getHgRepositoryStream() {
-  return (0, (_observable || _load_observable()).diffSets)(getHgRepositoriesStream()).flatMap(repoDiff => _rxjsBundlesRxMinJs.Observable.from(repoDiff.added));
+  return getHgRepositoriesStream().let((0, (_observable || _load_observable()).diffSets)()).flatMap(repoDiff => _rxjsBundlesRxMinJs.Observable.from(repoDiff.added));
 }
 
 /**

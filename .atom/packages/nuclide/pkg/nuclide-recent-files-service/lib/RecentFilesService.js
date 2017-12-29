@@ -4,7 +4,13 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _atom = require('atom');
+var _UniversalDisposable;
+
+function _load_UniversalDisposable() {
+  return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
+}
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
@@ -27,9 +33,10 @@ class RecentFilesService {
         this._fileList.set(fileItem.path, fileItem.timestamp);
       }, null);
     }
-    this._subscriptions = new _atom.CompositeDisposable();
-    this._subscriptions.add(atom.workspace.onDidStopChangingActivePaneItem(item => {
+    this._subscriptions = new (_UniversalDisposable || _load_UniversalDisposable()).default();
+    this._subscriptions.add(atom.workspace.onDidChangeActivePaneItem(item => {
       // Not all `item`s are instances of TextEditor (e.g. the diff view).
+      // flowlint-next-line sketchy-null-mixed:off
       if (!item || typeof item.getPath !== 'function') {
         return;
       }
@@ -51,6 +58,7 @@ class RecentFilesService {
    */
   getRecentFiles() {
     return Array.from(this._fileList).reverse().map(pair => ({
+      resultType: 'FILE',
       path: pair[0],
       timestamp: pair[1]
     }));

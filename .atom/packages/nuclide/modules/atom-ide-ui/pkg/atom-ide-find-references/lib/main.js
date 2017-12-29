@@ -2,40 +2,17 @@
 
 var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
 
-let tryCreateView = (() => {
-  var _ref = (0, _asyncToGenerator.default)(function* (data) {
-    try {
-      if (data == null) {
-        showWarning('Symbol references are not available for this project.');
-      } else if (data.type === 'error') {
-        (_analytics || _load_analytics()).default.track('find-references:error', { message: data.message });
-        showWarning(data.message);
-      } else if (!data.references.length) {
-        (_analytics || _load_analytics()).default.track('find-references:success', { resultCount: '0' });
-        showWarning('No references found.');
-      } else {
-        const { baseUri, referencedSymbolName, references } = data;
-        (_analytics || _load_analytics()).default.track('find-references:success', {
-          baseUri,
-          referencedSymbolName,
-          resultCount: references.length.toString()
-        });
-        const model = new (_FindReferencesModel || _load_FindReferencesModel()).default(baseUri, referencedSymbolName, references);
-        return new (_FindReferencesViewModel || _load_FindReferencesViewModel()).FindReferencesViewModel(model);
-      }
-    } catch (e) {
-      // TODO(peterhal): Remove this when unhandled rejections have a default handler.
-      (0, (_log4js || _load_log4js()).getLogger)('find-references').error('Erorr finding references', e);
-      atom.notifications.addError(`Find References: ${e}`, {
-        dismissable: true
-      });
-    }
-  });
+var _nuclideUri;
 
-  return function tryCreateView(_x) {
-    return _ref.apply(this, arguments);
-  };
-})();
+function _load_nuclideUri() {
+  return _nuclideUri = _interopRequireDefault(require('nuclide-commons/nuclideUri'));
+}
+
+var _promise;
+
+function _load_promise() {
+  return _promise = require('nuclide-commons/promise');
+}
 
 var _createPackage;
 
@@ -93,24 +70,43 @@ function _load_FindReferencesModel() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/**
- * Copyright (c) 2017-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * 
- * @format
- */
-
-/* global getSelection */
-
 function showWarning(message) {
   atom.notifications.addWarning('Find References: ' + message, {
     dismissable: true
   });
+} /**
+   * Copyright (c) 2017-present, Facebook, Inc.
+   * All rights reserved.
+   *
+   * This source code is licensed under the BSD-style license found in the
+   * LICENSE file in the root directory of this source tree. An additional grant
+   * of patent rights can be found in the PATENTS file in the same directory.
+   *
+   * 
+   * @format
+   */
+
+/* global getSelection */
+
+function tryCreateView(data) {
+  if (data == null) {
+    showWarning('Symbol references are not available for this project.');
+  } else if (data.type === 'error') {
+    (_analytics || _load_analytics()).default.track('find-references:error', { message: data.message });
+    showWarning(data.message);
+  } else if (!data.references.length) {
+    (_analytics || _load_analytics()).default.track('find-references:success', { resultCount: '0' });
+    showWarning('No references found.');
+  } else {
+    const { baseUri, referencedSymbolName, references } = data;
+    (_analytics || _load_analytics()).default.track('find-references:success', {
+      baseUri,
+      referencedSymbolName,
+      resultCount: references.length.toString()
+    });
+    const model = new (_FindReferencesModel || _load_FindReferencesModel()).default(baseUri, referencedSymbolName, references);
+    return new (_FindReferencesViewModel || _load_FindReferencesViewModel()).FindReferencesViewModel(model);
+  }
 }
 
 function enableForEditor(editor) {
@@ -130,7 +126,7 @@ class Activation {
     this._supportedProviders = new Map();
 
     this._subscriptions = new (_UniversalDisposable || _load_UniversalDisposable()).default();
-    // Add this seperately as registerOpenerAndCommand requires
+    // Add this separately as registerOpenerAndCommand requires
     // this._subscriptions to be initialized for observeTextEditors function.
     this._subscriptions.add(this.registerOpenerAndCommand());
   }
@@ -139,13 +135,20 @@ class Activation {
     this._subscriptions.dispose();
   }
 
+  consumeBusySignal(busySignalService) {
+    this._busySignalService = busySignalService;
+    return new (_UniversalDisposable || _load_UniversalDisposable()).default(() => {
+      this._busySignalService = null;
+    });
+  }
+
   consumeProvider(provider) {
     var _this = this;
 
     this._providers.push(provider);
     // Editors are often open before providers load, so update existing ones too.
     atom.workspace.getTextEditors().forEach((() => {
-      var _ref2 = (0, _asyncToGenerator.default)(function* (editor) {
+      var _ref = (0, _asyncToGenerator.default)(function* (editor) {
         if (yield provider.isEditorSupported(editor)) {
           if (_this._addSupportedProvider(editor, provider)) {
             enableForEditor(editor);
@@ -153,8 +156,8 @@ class Activation {
         }
       });
 
-      return function (_x2) {
-        return _ref2.apply(this, arguments);
+      return function (_x) {
+        return _ref.apply(this, arguments);
       };
     })());
 
@@ -178,8 +181,8 @@ class Activation {
 
     let lastMouseEvent;
     return new (_UniversalDisposable || _load_UniversalDisposable()).default(atom.commands.add('atom-text-editor', 'find-references:activate', (() => {
-      var _ref3 = (0, _asyncToGenerator.default)(function* (event) {
-        const view = yield tryCreateView((yield _this2._getProviderData((_ContextMenu || _load_ContextMenu()).default.isEventFromContextMenu(event) ? lastMouseEvent : null)));
+      var _ref2 = (0, _asyncToGenerator.default)(function* (event) {
+        const view = tryCreateView((yield _this2._getProviderData((_ContextMenu || _load_ContextMenu()).default.isEventFromContextMenu(event) ? lastMouseEvent : null)));
         if (view != null) {
           const disposable = atom.workspace.addOpener(function (newUri) {
             if (view.getURI() === newUri) {
@@ -187,28 +190,29 @@ class Activation {
             }
           });
           // not a file URI
-          // eslint-disable-next-line nuclide-internal/atom-apis
+          // eslint-disable-next-line rulesdir/atom-apis
           atom.workspace.open(view.getURI());
           // The new tab opens instantly, so this is no longer needed.
           disposable.dispose();
         }
       });
 
-      return function (_x3) {
-        return _ref3.apply(this, arguments);
+      return function (_x2) {
+        return _ref2.apply(this, arguments);
       };
     })()),
     // Mark text editors with a working provider with a special CSS class.
     // This ensures the context menu option only appears in supported projects.
     (0, (_textEditor || _load_textEditor()).observeTextEditors)((() => {
-      var _ref4 = (0, _asyncToGenerator.default)(function* (editor) {
+      var _ref3 = (0, _asyncToGenerator.default)(function* (editor) {
         const path = editor.getPath();
+        // flowlint-next-line sketchy-null-string:off
         if (!path || _this2._supportedProviders.get(editor)) {
           return;
         }
         _this2._supportedProviders.set(editor, []);
         yield Promise.all(_this2._providers.map((() => {
-          var _ref5 = (0, _asyncToGenerator.default)(function* (provider) {
+          var _ref4 = (0, _asyncToGenerator.default)(function* (provider) {
             if (yield provider.isEditorSupported(editor)) {
               if (_this2._addSupportedProvider(editor, provider)) {
                 enableForEditor(editor);
@@ -216,8 +220,8 @@ class Activation {
             }
           });
 
-          return function (_x5) {
-            return _ref5.apply(this, arguments);
+          return function (_x4) {
+            return _ref4.apply(this, arguments);
           };
         })()));
         if (editor.isDestroyed()) {
@@ -232,8 +236,8 @@ class Activation {
         _this2._subscriptions.add(disposable);
       });
 
-      return function (_x4) {
-        return _ref4.apply(this, arguments);
+      return function (_x3) {
+        return _ref3.apply(this, arguments);
       };
     })()),
     // Enable text copy from the symbol reference
@@ -265,6 +269,7 @@ class Activation {
         return null;
       }
       const path = editor.getPath();
+      // flowlint-next-line sketchy-null-string:off
       if (!path) {
         return null;
       }
@@ -278,12 +283,22 @@ class Activation {
       if (!supported) {
         return null;
       }
-      const providerData = yield Promise.all(supported.map(function (provider) {
-        return provider.findReferences(editor, point);
-      }));
-      return providerData.filter(function (x) {
-        return Boolean(x);
-      })[0];
+      const resultPromise = (0, (_promise || _load_promise()).asyncFind)(supported.map(function (provider) {
+        return provider.findReferences(editor, point).catch(function (err) {
+          (0, (_log4js || _load_log4js()).getLogger)('find-references').error('Error finding references', err);
+          return null;
+        });
+      }), function (x) {
+        return x;
+      });
+      const busySignalService = _this3._busySignalService;
+      if (busySignalService != null) {
+        const displayPath = (_nuclideUri || _load_nuclideUri()).default.basename(path);
+        return busySignalService.reportBusyWhile(`Finding references for ${displayPath}:${point.row}:${point.column}`, function () {
+          return resultPromise;
+        });
+      }
+      return resultPromise;
     })();
   }
 

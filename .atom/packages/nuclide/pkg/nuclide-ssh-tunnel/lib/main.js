@@ -1,5 +1,7 @@
 'use strict';
 
+var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
+
 var _createPackage;
 
 function _load_createPackage() {
@@ -16,6 +18,12 @@ var _UniversalDisposable;
 
 function _load_UniversalDisposable() {
   return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
+}
+
+var _nuclideRemoteConnection;
+
+function _load_nuclideRemoteConnection() {
+  return _nuclideRemoteConnection = require('../../nuclide-remote-connection');
 }
 
 var _TunnelsPanel;
@@ -51,7 +59,7 @@ function _load_redux() {
 var _reduxObservable;
 
 function _load_reduxObservable() {
-  return _reduxObservable = require('../../commons-node/redux-observable');
+  return _reduxObservable = require('nuclide-commons/redux-observable');
 }
 
 var _atom = require('atom');
@@ -60,37 +68,26 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the license found in the LICENSE file in
- * the root directory of this source tree.
- *
- * 
- * @format
- */
-
 class Activation {
 
   constructor(rawState) {
     const epics = Object.keys(_Epics || _load_Epics()).map(k => (_Epics || _load_Epics())[k]).filter(epic => typeof epic === 'function');
     this._store = (0, (_redux || _load_redux()).createStore)((0, (_redux || _load_redux()).combineReducers)(_Reducers || _load_Reducers()), (0, (_redux || _load_redux()).applyMiddleware)((0, (_reduxObservable || _load_reduxObservable()).createEpicMiddleware)((0, (_reduxObservable || _load_reduxObservable()).combineEpics)(...epics))));
 
-    this._disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default(this._closeAllTunnels.bind(this));
+    this._disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default(this._closeAllTunnels.bind(this), this._registerCommandAndOpener());
   }
 
   dispose() {
     this._disposables.dispose();
   }
 
-  consumeWorkspaceViewsService(api) {
-    this._disposables.add(api.addOpener(uri => {
+  _registerCommandAndOpener() {
+    return new (_UniversalDisposable || _load_UniversalDisposable()).default(atom.workspace.addOpener(uri => {
       if (uri === (_TunnelsPanel || _load_TunnelsPanel()).WORKSPACE_VIEW_URI) {
         return new (_TunnelsPanel || _load_TunnelsPanel()).TunnelsPanel(this._store);
       }
-    }), () => (0, (_destroyItemWhere || _load_destroyItemWhere()).destroyItemWhere)(item => item instanceof (_TunnelsPanel || _load_TunnelsPanel()).TunnelsPanel), atom.commands.add('atom-workspace', 'nuclide-ssh-tunnels-panel:toggle', event => {
-      api.toggle((_TunnelsPanel || _load_TunnelsPanel()).WORKSPACE_VIEW_URI, event.detail);
+    }), () => (0, (_destroyItemWhere || _load_destroyItemWhere()).destroyItemWhere)(item => item instanceof (_TunnelsPanel || _load_TunnelsPanel()).TunnelsPanel), atom.commands.add('atom-workspace', 'nuclide-ssh-tunnels-panel:toggle', () => {
+      atom.workspace.toggle((_TunnelsPanel || _load_TunnelsPanel()).WORKSPACE_VIEW_URI);
     }));
   }
 
@@ -99,7 +96,19 @@ class Activation {
       openTunnel: (tunnel, onOpen, onClose) => {
         this._store.dispatch((_Actions || _load_Actions()).openTunnel(tunnel, onOpen, onClose));
         return new _atom.Disposable(() => this._store.dispatch((_Actions || _load_Actions()).closeTunnel(tunnel)));
-      }
+      },
+      getOpenTunnels: () => {
+        return new Set(this._store.getState().openTunnels.keys());
+      },
+      getAvailableServerPort: (() => {
+        var _ref = (0, _asyncToGenerator.default)(function* (nuclideUri) {
+          return (0, (_nuclideRemoteConnection || _load_nuclideRemoteConnection()).getSocketServiceByNuclideUri)(nuclideUri).getAvailableServerPort();
+        });
+
+        return function getAvailableServerPort(_x) {
+          return _ref.apply(this, arguments);
+        };
+      })()
     };
   }
 
@@ -111,6 +120,21 @@ class Activation {
     const tunnels = this._store.getState().openTunnels;
     tunnels.forEach((_, tunnel) => this._store.dispatch((_Actions || _load_Actions()).closeTunnel(tunnel)));
   }
-}
+
+  consumeCurrentWorkingDirectory(api) {
+    this._disposables.add(api.observeCwd(directory => {
+      this._store.dispatch((_Actions || _load_Actions()).setCurrentWorkingDirectory(directory));
+    }));
+  }
+} /**
+   * Copyright (c) 2015-present, Facebook, Inc.
+   * All rights reserved.
+   *
+   * This source code is licensed under the license found in the LICENSE file in
+   * the root directory of this source tree.
+   *
+   * 
+   * @format
+   */
 
 (0, (_createPackage || _load_createPackage()).default)(module.exports, Activation);

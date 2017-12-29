@@ -10,11 +10,15 @@
  */
 'use strict';
 
-/* eslint comma-dangle: [1, always-multiline], prefer-object-spread/prefer-object-spread: 0 */
+/* eslint
+  comma-dangle: [1, always-multiline],
+  prefer-object-spread/prefer-object-spread: 0,
+  rulesdir/no-commonjs: 0,
+  */
 
 const fs = require('fs');
 const path = require('path');
 if (fs.existsSync(path.join(__dirname, 'DEVELOPMENT'))) {
-  // eslint-disable-next-line nuclide-internal/modules-dependencies
-  require('../../pkg/nuclide-node-transpiler');
+  // eslint-disable-next-line rulesdir/modules-dependencies
+  require('../nuclide-node-transpiler');
 }

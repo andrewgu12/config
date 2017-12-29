@@ -30,6 +30,7 @@ function _load_featureConfig() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+// eslint-disable-next-line rulesdir/no-commonjs
 module.exports = {
   name: 'nuclide-ocaml',
   grammarScopes: Array.from((_constants || _load_constants()).GRAMMARS),

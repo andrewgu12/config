@@ -5,6 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.setProjectRoot = setProjectRoot;
 exports.setBuckRoot = setBuckRoot;
+exports.setBuckversionFileContents = setBuckversionFileContents;
 exports.setBuildTarget = setBuildTarget;
 exports.setDeploymentTarget = setDeploymentTarget;
 exports.setTaskSettings = setTaskSettings;
@@ -23,6 +24,7 @@ const SET_BUILD_TARGET = exports.SET_BUILD_TARGET = 'SET_BUILD_TARGET';
 const SET_DEPLOYMENT_TARGET = exports.SET_DEPLOYMENT_TARGET = 'SET_DEPLOYMENT_TARGET';
 const SET_TASK_SETTINGS = exports.SET_TASK_SETTINGS = 'SET_TASK_SETTINGS';
 const SET_BUCK_ROOT = exports.SET_BUCK_ROOT = 'SET_BUCK_ROOT';
+const SET_BUCKVERSION_FILE_CONTENTS = exports.SET_BUCKVERSION_FILE_CONTENTS = 'SET_BUCKVERSION_FILE_CONTENTS';
 const SET_PLATFORM_GROUPS = exports.SET_PLATFORM_GROUPS = 'SET_PLATFORM_GROUPS';
 const SET_RULE_TYPE = exports.SET_RULE_TYPE = 'SET_RULE_TYPE';
 
@@ -32,6 +34,10 @@ function setProjectRoot(projectRoot) {
 
 function setBuckRoot(buckRoot) {
   return { type: SET_BUCK_ROOT, buckRoot };
+}
+
+function setBuckversionFileContents(contents) {
+  return { type: SET_BUCKVERSION_FILE_CONTENTS, contents };
 }
 
 function setBuildTarget(buildTarget) {

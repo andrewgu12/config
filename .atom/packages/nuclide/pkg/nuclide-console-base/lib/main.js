@@ -3,23 +3,37 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.dispatchConsoleToggle = dispatchConsoleToggle;
+exports.changeConsoleVisibility = changeConsoleVisibility;
 exports.pipeProcessMessagesToConsole = pipeProcessMessagesToConsole;
 
 var _rxjsBundlesRxMinJs = require('rxjs/bundles/Rx.min.js');
 
-function dispatchConsoleToggle(visible) {
-  atom.commands.dispatch(atom.views.getView(atom.workspace), 'nuclide-console:toggle', { visible });
-} /**
-   * Copyright (c) 2015-present, Facebook, Inc.
-   * All rights reserved.
-   *
-   * This source code is licensed under the license found in the LICENSE file in
-   * the root directory of this source tree.
-   *
-   * 
-   * @format
-   */
+// This must match URI defined in ../../nuclide-console/lib/ui/ConsoleContainer
+const CONSOLE_VIEW_URI = 'atom://nuclide/console'; /**
+                                                    * Copyright (c) 2015-present, Facebook, Inc.
+                                                    * All rights reserved.
+                                                    *
+                                                    * This source code is licensed under the license found in the LICENSE file in
+                                                    * the root directory of this source tree.
+                                                    *
+                                                    * 
+                                                    * @format
+                                                    */
+
+function changeConsoleVisibility(visible) {
+  switch (visible) {
+    case true:
+      // eslint-disable-next-line rulesdir/atom-apis
+      atom.workspace.open(CONSOLE_VIEW_URI, { searchAllPanes: true });
+      return;
+    case false:
+      atom.workspace.hide(CONSOLE_VIEW_URI);
+      return;
+    default:
+      atom.workspace.toggle(CONSOLE_VIEW_URI);
+      return;
+  }
+}
 
 function pipeProcessMessagesToConsole(processName, progressUpdates, showNotificationOnCompletion, processMessage /* TODO(T17463635) */
 ) {
@@ -61,7 +75,7 @@ function pipeProcessMessagesToConsole(processName, progressUpdates, showNotifica
             detail: 'Check console for output'
           });
         }
-        dispatchConsoleToggle(true /* console visibility */);
+        changeConsoleVisibility(true /* console visibility */);
       }
       break;
   }

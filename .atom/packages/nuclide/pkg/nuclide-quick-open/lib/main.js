@@ -10,7 +10,7 @@ exports.consumeCWD = consumeCWD;
 exports.consumeDeepLinkService = consumeDeepLinkService;
 exports.getHomeFragments = getHomeFragments;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactDom = _interopRequireDefault(require('react-dom'));
 
@@ -82,6 +82,8 @@ function _load_QuickSelectionDispatcher2() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 // Don't pre-fill search input if selection is longer than this:
 const MAX_SELECTION_LENGTH = 1000; /**
                                     * Copyright (c) 2015-present, Facebook, Inc.
@@ -134,20 +136,28 @@ class Activation {
   _handleSelection(selections, providerName, query) {
     for (let i = 0; i < selections.length; i++) {
       const selection = selections[i];
-      if (selection.callback != null) {
+      // TODO: Having a callback to call shouldn't necessarily preclude
+      // jumping to a location, but things like the grep provider currently depend on this
+      // since they provide bogus values for row/column, breaking goToLocation below
+      // Can possibly be resolved with a first-class "LINK" or similar resultType
+      if (typeof selection.callback === 'function') {
         selection.callback();
-      } else {
-        (0, (_goToLocation || _load_goToLocation()).goToLocation)(selection.path, selection.line, selection.column);
+      } else if (selection.resultType === 'FILE' || selection.resultType === 'SYMBOL') {
+        (0, (_goToLocation || _load_goToLocation()).goToLocation)(selection.path, {
+          line: selection.line,
+          column: selection.column
+        });
+        (0, (_nuclideAnalytics || _load_nuclideAnalytics()).track)('quickopen-select-file', {
+          'quickopen-filepath': selection.path,
+          'quickopen-query': query,
+          // The currently open "tab".
+          'quickopen-provider': providerName,
+          'quickopen-session': this._analyticsSessionId || '',
+          // Because the `provider` is usually OmniSearch, also track the original provider.
+          // flowlint-next-line sketchy-null-mixed:off
+          'quickopen-provider-source': selection.sourceProvider || ''
+        });
       }
-      (0, (_nuclideAnalytics || _load_nuclideAnalytics()).track)('quickopen-select-file', {
-        'quickopen-filepath': selection.path,
-        'quickopen-query': query,
-        // The currently open "tab".
-        'quickopen-provider': providerName,
-        'quickopen-session': this._analyticsSessionId || '',
-        // Because the `provider` is usually OmniSearch, also track the original provider.
-        'quickopen-provider-source': selection.sourceProvider || ''
-      });
     }
     this._closeSearchPanel();
   }
@@ -170,7 +180,9 @@ class Activation {
      * quick-open UI becomes visible until it gets closed, either via file
      * selection or cancellation.
      */
-    this._analyticsSessionId = this._analyticsSessionId || Date.now().toString();
+    this._analyticsSessionId =
+    // flowlint-next-line sketchy-null-string:off
+    this._analyticsSessionId || Date.now().toString();
     (0, (_nuclideAnalytics || _load_nuclideAnalytics()).track)('quickopen-change-tab', {
       'quickopen-provider': newProviderName,
       'quickopen-session': this._analyticsSessionId
@@ -203,7 +215,7 @@ class Activation {
       throw new Error('Invariant violation: "searchPanel != null"');
     }
 
-    const searchComponent = _reactDom.default.render(_react.default.createElement((_QuickSelectionComponent || _load_QuickSelectionComponent()).default, {
+    const searchComponent = _reactDom.default.render(_react.createElement((_QuickSelectionComponent || _load_QuickSelectionComponent()).default, {
       quickSelectionActions: this._quickSelectionActions,
       searchResultManager: this._searchResultManager,
       onSelection: this._handleSelection,

@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.DebuggerThreadsComponent = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactDom = _interopRequireDefault(require('react-dom'));
 
@@ -39,24 +39,35 @@ function _load_debounce() {
   return _debounce = _interopRequireDefault(require('nuclide-commons/debounce'));
 }
 
+var _scrollIntoView;
+
+function _load_scrollIntoView() {
+  return _scrollIntoView = require('nuclide-commons-ui/scrollIntoView');
+}
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const activeThreadIndicatorComponent = props => _react.default.createElement(
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+// & 'isSelected';
+/**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the license found in the LICENSE file in
+ * the root directory of this source tree.
+ *
+ * 
+ * @format
+ */
+
+const activeThreadIndicatorComponent = props => _react.createElement(
   'div',
   { className: 'nuclide-debugger-thread-list-item-current-indicator' },
-  props.cellData ? _react.default.createElement((_Icon || _load_Icon()).Icon, { icon: 'arrow-right', title: 'Selected Thread' }) : null
-); /**
-    * Copyright (c) 2015-present, Facebook, Inc.
-    * All rights reserved.
-    *
-    * This source code is licensed under the license found in the LICENSE file in
-    * the root directory of this source tree.
-    *
-    * 
-    * @format
-    */
+  props.cellData ? _react.createElement((_Icon || _load_Icon()).Icon, { icon: 'arrow-right', title: 'Selected Thread' }) : null
+);
 
-class DebuggerThreadsComponent extends _react.default.Component {
+class DebuggerThreadsComponent extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -123,8 +134,7 @@ class DebuggerThreadsComponent extends _react.default.Component {
       listNode.getElementsByClassName('nuclide-debugger-thread-list-item-selected');
 
       if (selectedRows && selectedRows.length > 0) {
-        // $FlowFixMe
-        selectedRows[0].scrollIntoViewIfNeeded(false);
+        (0, (_scrollIntoView || _load_scrollIntoView()).scrollIntoViewIfNeeded)(selectedRows[0], false);
       }
     }
   }
@@ -163,7 +173,7 @@ class DebuggerThreadsComponent extends _react.default.Component {
     // Individual debuggers can override the displayed columns.
     const columns = this.props.customThreadColumns.length === 0 ? defaultColumns : [activeThreadCol, ...this.props.customThreadColumns];
     const threadName = this.props.threadName.toLowerCase();
-    const emptyComponent = () => _react.default.createElement(
+    const emptyComponent = () => _react.createElement(
       'div',
       { className: 'nuclide-debugger-thread-list-empty' },
       threadList == null ? `(${threadName} unavailable)` : `no ${threadName} to display`
@@ -182,16 +192,16 @@ class DebuggerThreadsComponent extends _react.default.Component {
     });
 
     if (this.state.threadsLoading) {
-      return _react.default.createElement(
+      return _react.createElement(
         'div',
         {
           className: 'nuclide-debugger-thread-loading',
           title: 'Loading threads...' },
-        _react.default.createElement((_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinner, { size: (_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinnerSizes.MEDIUM })
+        _react.createElement((_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinner, { size: (_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinnerSizes.MEDIUM })
       );
     }
 
-    return _react.default.createElement((_Table || _load_Table()).Table, {
+    return _react.createElement((_Table || _load_Table()).Table, {
       columns: columns,
       emptyComponent: emptyComponent,
       rows: this._sortRows(rows, this.state.sortedColumn, this.state.sortDescending),

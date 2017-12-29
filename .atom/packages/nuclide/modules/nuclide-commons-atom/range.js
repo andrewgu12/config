@@ -15,6 +15,12 @@ function _load_range() {
 }
 
 /**
+ * Finds the word at the position. You can either provide a word regex yourself,
+ * or have Atom use the word regex in force at the scopes at that position,
+ * in which case it uses the optional includeNonWordCharacters, default true.
+ * (I know that's a weird default but it follows Atom's convention...)
+ */
+/**
  * Copyright (c) 2017-present, Facebook, Inc.
  * All rights reserved.
  *
@@ -26,13 +32,29 @@ function _load_range() {
  * @format
  */
 
-function wordAtPosition(editor, position, wordRegex_) {
-  let wordRegex = wordRegex_;
-  if (!wordRegex) {
-    wordRegex = editor.getLastCursor().wordRegExp();
+function wordAtPosition(editor, position, wordRegex) {
+  let wordRegex_;
+  if (wordRegex instanceof RegExp) {
+    wordRegex_ = wordRegex;
+  } else {
+    // What is the word regex associated with the position? We'd like to use
+    // atom$Cursor.wordRegExp, except that function gets the regex associated
+    // with the editor's current cursor while we want the regex associated with
+    // the specific position. So we re-implement it ourselves...
+    const scopeDescriptor = editor.scopeDescriptorForBufferPosition(position);
+    const nonWordChars = editor.getNonWordCharacters(scopeDescriptor);
+    const escaped = nonWordChars.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+    // We copied this escaping regex from atom$Cursor.wordRegexp, rather than
+    // using the library function 'escapeStringRegExp'. That's because the
+    // library function doesn't escape the hyphen character and so is
+    // unsuitable for use inside a range.
+    let r = `^[\t ]*$|[^\\s${escaped}]+`;
+    if (wordRegex == null || wordRegex.includeNonWordCharacters) {
+      r += `|[${escaped}]+`;
+    }
+    wordRegex_ = new RegExp(r, 'g');
   }
-  const buffer = editor.getBuffer();
-  return (0, (_range || _load_range()).wordAtPositionFromBuffer)(buffer, position, wordRegex);
+  return (0, (_range || _load_range()).wordAtPositionFromBuffer)(editor.getBuffer(), position, wordRegex_);
 }
 
 /**

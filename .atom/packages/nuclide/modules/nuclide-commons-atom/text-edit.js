@@ -3,20 +3,74 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.applyTextEdits = applyTextEdits;
-exports.applyTextEditsToBuffer = applyTextEditsToBuffer;
+exports.applyTextEditsForMultipleFiles = undefined;
 
-var _textEditor;
+var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
 
-function _load_textEditor() {
-  return _textEditor = require('./text-editor');
-}
+/**
+ * Attempts to apply the given patches for multiple files. Accepts a Map as input
+ * with file paths as keys and a corresponding array of TextEdits as values.
+ *
+ * It is an error to send overlapping text-edits. All text-edits describe changes
+ * made to the initial document version. The order of the edits does not matter
+ * as they will be sorted before they are applied.
+ *
+ * All changes will be applied to the buffers but not saved. If a file is not
+ * currently open, it will be opened.
+ *
+ * If a change is undone (Cmd+Z), only the changes of the current
+ * file will be undone. All of the changes for that file will be undone at once.
+ *
+ * Returns true if the application was successful, otherwise false. If any of
+ * the changes fail, for ANY file, then none of the changes are applied.
+ */
+let applyTextEditsForMultipleFiles = exports.applyTextEditsForMultipleFiles = (() => {
+  var _ref = (0, _asyncToGenerator.default)(function* (changes) {
+    const paths = Array.from(changes.keys());
+
+    // NOTE: There is a race here. If the file contents change while the
+    // editors are being opened, then the ranges of the TextEdits will be off.
+    // However, currently this is only used to applyEdits to open files.
+    const editors = yield Promise.all(paths.map((() => {
+      var _ref2 = (0, _asyncToGenerator.default)(function* (path) {
+        return (0, (_goToLocation || _load_goToLocation()).goToLocation)(path);
+      });
+
+      return function (_x2) {
+        return _ref2.apply(this, arguments);
+      };
+    })()));
+    const checkpoints = editors.map(function (editor) {
+      if (!(editor != null)) {
+        throw new Error('Invariant violation: "editor != null"');
+      }
+
+      const buffer = editor.getBuffer();
+      return [buffer, buffer.createCheckpoint()];
+    });
+    const allOkay = paths.reduce(function (successSoFar, path) {
+      const edits = changes.get(path);
+      return successSoFar && edits != null && applyTextEdits(path, ...edits);
+    }, true);
+    if (!allOkay) {
+      checkpoints.forEach(function ([buffer, checkPoint]) {
+        buffer.revertToCheckpoint(checkPoint);
+        return false;
+      });
+    }
+    return allOkay;
+  });
+
+  return function applyTextEditsForMultipleFiles(_x) {
+    return _ref.apply(this, arguments);
+  };
+})();
 
 /**
  * Attempts to apply the given patches to the given file.
  *
- * For best results, the edits should be non-overlapping and in order. That is, for every edit
- * provided, the start of its range should be after the end of the previous edit's range.
+ * It is an error to send overlapping edits. The order of the edits does not
+ * matter (they will be sorted before they are applied).
  *
  * The file must be currently open in Atom, and the changes will be applied to the buffer but not
  * saved.
@@ -24,7 +78,49 @@ function _load_textEditor() {
  * Returns true if the application was successful, otherwise false (e.g. if the oldText did not
  * match).
  */
+/**
+ * Copyright (c) 2017-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * 
+ * @format
+ */
+
+exports.applyTextEdits = applyTextEdits;
+exports.applyTextEditsToBuffer = applyTextEditsToBuffer;
+
+var _log4js;
+
+function _load_log4js() {
+  return _log4js = require('log4js');
+}
+
+var _textEditor;
+
+function _load_textEditor() {
+  return _textEditor = require('./text-editor');
+}
+
+var _goToLocation;
+
+function _load_goToLocation() {
+  return _goToLocation = require('./go-to-location');
+}
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function applyTextEdits(path, ...edits) {
+  // Sort the edits to be in order (For every edit, the start of its range will
+  // be after the end of the previous edit's range.)
+  edits.sort((e1, e2) => e1.oldRange.compare(e2.oldRange));
+  if (editsOverlap(edits)) {
+    (0, (_log4js || _load_log4js()).getLogger)('text-edit').warn('applyTextEdits was called with overlapping edits.');
+    return false;
+  }
   const editor = (0, (_textEditor || _load_textEditor()).existingEditorForUri)(path);
 
   if (!(editor != null)) {
@@ -32,17 +128,7 @@ function applyTextEdits(path, ...edits) {
   }
 
   return applyTextEditsToBuffer(editor.getBuffer(), edits);
-} /**
-   * Copyright (c) 2017-present, Facebook, Inc.
-   * All rights reserved.
-   *
-   * This source code is licensed under the BSD-style license found in the
-   * LICENSE file in the root directory of this source tree. An additional grant
-   * of patent rights can be found in the PATENTS file in the same directory.
-   *
-   * 
-   * @format
-   */
+}
 
 function applyTextEditsToBuffer(buffer, edits) {
   // Special-case whole-buffer changes to minimize disruption.
@@ -89,4 +175,14 @@ function applyToBuffer(buffer, edit) {
   }
   buffer.setTextInRange(edit.oldRange, edit.newText);
   return true;
+}
+
+// Returns whether an array of sorted TextEdits contain an overlapping range.
+function editsOverlap(sortedEdits) {
+  for (let i = 0; i < sortedEdits.length - 1; i++) {
+    if (sortedEdits[i].oldRange.intersectsWith(sortedEdits[i + 1].oldRange)) {
+      return true;
+    }
+  }
+  return false;
 }

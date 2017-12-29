@@ -6,9 +6,23 @@ Object.defineProperty(exports, "__esModule", {
 
 var _atom = require('atom');
 
-var _react = _interopRequireDefault(require('react'));
+var _UniversalDisposable;
+
+function _load_UniversalDisposable() {
+  return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
+}
+
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactDom = _interopRequireDefault(require('react-dom'));
+
+var _scrollIntoView;
+
+function _load_scrollIntoView() {
+  return _scrollIntoView = require('nuclide-commons-ui/scrollIntoView');
+}
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -38,7 +52,7 @@ class SuggestionListElement extends HTMLElement {
   }
 
   attachedCallback() {
-    _reactDom.default.render(_react.default.createElement(SuggestionList, { suggestionList: this._model }), this);
+    _reactDom.default.render(_react.createElement(SuggestionList, { suggestionList: this._model }), this);
   }
 
   detachedCallback() {
@@ -52,14 +66,14 @@ class SuggestionListElement extends HTMLElement {
   }
 }
 
-class SuggestionList extends _react.default.Component {
+class SuggestionList extends _react.Component {
 
   constructor(props) {
     super(props);
     this.state = {
       selectedIndex: 0
     };
-    this._subscriptions = new _atom.CompositeDisposable();
+    this._subscriptions = new (_UniversalDisposable || _load_UniversalDisposable()).default();
     this._boundConfirm = this._confirm.bind(this);
   }
 
@@ -95,16 +109,14 @@ class SuggestionList extends _react.default.Component {
       'editor:newline': this._boundConfirm
     }));
 
-    this._subscriptions.add(textEditor.onDidChange(boundClose));
+    this._subscriptions.add(textEditor.getBuffer().onDidChangeText(boundClose));
     this._subscriptions.add(textEditor.onDidChangeCursorPosition(boundClose));
 
     // Prevent scrolling the editor when scrolling the suggestion list.
     const stopPropagation = event => event.stopPropagation();
-    // $FlowFixMe
-    _reactDom.default.findDOMNode(this.refs.scroller).addEventListener('mousewheel', stopPropagation);
+    this.refs.scroller.addEventListener('mousewheel', stopPropagation);
     this._subscriptions.add(new _atom.Disposable(() => {
-      // $FlowFixMe
-      _reactDom.default.findDOMNode(this.refs.scroller).removeEventListener('mousewheel', stopPropagation);
+      this.refs.scroller.removeEventListener('mousewheel', stopPropagation);
     }));
 
     const keydown = event => {
@@ -126,7 +138,7 @@ class SuggestionList extends _react.default.Component {
       if (index === this.state.selectedIndex) {
         className += ' selected';
       }
-      return _react.default.createElement(
+      return _react.createElement(
         'li',
         {
           className: className,
@@ -134,7 +146,7 @@ class SuggestionList extends _react.default.Component {
           onMouseDown: this._boundConfirm,
           onMouseEnter: this._setSelectedIndex.bind(this, index) },
         item.title,
-        _react.default.createElement(
+        _react.createElement(
           'span',
           { className: 'right-label' },
           item.rightLabel
@@ -142,12 +154,12 @@ class SuggestionList extends _react.default.Component {
       );
     });
 
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       {
         className: 'popover-list select-list hyperclick-suggestion-list-scroller',
         ref: 'scroller' },
-      _react.default.createElement(
+      _react.createElement(
         'ol',
         { className: 'list-group', ref: 'selectionList' },
         itemComponents
@@ -217,11 +229,9 @@ class SuggestionList extends _react.default.Component {
   }
 
   _updateScrollPosition() {
-    const listNode = _reactDom.default.findDOMNode(this.refs.selectionList);
-    // $FlowFixMe
+    const listNode = this.refs.selectionList;
     const selectedNode = listNode.getElementsByClassName('selected')[0];
-    // $FlowFixMe
-    selectedNode.scrollIntoViewIfNeeded(false);
+    (0, (_scrollIntoView || _load_scrollIntoView()).scrollIntoViewIfNeeded)(selectedNode, false);
   }
 }
 

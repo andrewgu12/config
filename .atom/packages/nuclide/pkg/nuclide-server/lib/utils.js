@@ -3,6 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.protocolLogger = undefined;
 exports.asyncRequest = asyncRequest;
 exports.sendTextResponse = sendTextResponse;
 exports.sendJsonResponse = sendJsonResponse;
@@ -19,20 +20,26 @@ function _load_request() {
   return _request = _interopRequireDefault(require('request'));
 }
 
+var _memoryLogger;
+
+function _load_memoryLogger() {
+  return _memoryLogger = require('../../commons-node/memoryLogger');
+}
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the license found in the LICENSE file in
- * the root directory of this source tree.
- *
- * 
- * @format
- */
+const MAX_REQUEST_LENGTH = 1e6; /**
+                                 * Copyright (c) 2015-present, Facebook, Inc.
+                                 * All rights reserved.
+                                 *
+                                 * This source code is licensed under the license found in the LICENSE file in
+                                 * the root directory of this source tree.
+                                 *
+                                 * 
+                                 * @format
+                                 */
 
-const MAX_REQUEST_LENGTH = 1e6;
+const protocolLogger = exports.protocolLogger = new (_memoryLogger || _load_memoryLogger()).MemoryLogger(null);
 
 /**
  * Promisified version of the request function:

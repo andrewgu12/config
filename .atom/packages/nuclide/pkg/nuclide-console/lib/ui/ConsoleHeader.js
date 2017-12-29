@@ -4,36 +4,24 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _classnames;
-
-function _load_classnames() {
-  return _classnames = _interopRequireDefault(require('classnames'));
-}
-
-var _react = _interopRequireDefault(require('react'));
-
-var _AtomInput;
-
-function _load_AtomInput() {
-  return _AtomInput = require('nuclide-commons-ui/AtomInput');
-}
-
-var _ButtonGroup;
-
-function _load_ButtonGroup() {
-  return _ButtonGroup = require('nuclide-commons-ui/ButtonGroup');
-}
-
-var _FunnelIcon;
-
-function _load_FunnelIcon() {
-  return _FunnelIcon = require('./FunnelIcon');
-}
+var _react = _interopRequireWildcard(require('react'));
 
 var _ModalMultiSelect;
 
 function _load_ModalMultiSelect() {
   return _ModalMultiSelect = require('../../../nuclide-ui/ModalMultiSelect');
+}
+
+var _Icon;
+
+function _load_Icon() {
+  return _Icon = require('nuclide-commons-ui/Icon');
+}
+
+var _RegExpFilter;
+
+function _load_RegExpFilter() {
+  return _RegExpFilter = _interopRequireDefault(require('nuclide-commons-ui/RegExpFilter'));
 }
 
 var _Toolbar;
@@ -68,18 +56,9 @@ function _load_Button() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the license found in the LICENSE file in
- * the root directory of this source tree.
- *
- * 
- * @format
- */
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-class ConsoleHeader extends _react.default.Component {
+class ConsoleHeader extends _react.Component {
   constructor(...args) {
     var _temp;
 
@@ -89,8 +68,8 @@ class ConsoleHeader extends _react.default.Component {
       if (this.props.createPaste != null) {
         this.props.createPaste();
       }
-    }, this._handleReToggleButtonClick = () => {
-      this.props.toggleRegExpFilter();
+    }, this._handleFilterChange = value => {
+      this.props.onFilterChange(value);
     }, this._renderOption = optionProps => {
       const { option } = optionProps;
       const source = this.props.sources.find(s => s.id === option.value);
@@ -99,7 +78,7 @@ class ConsoleHeader extends _react.default.Component {
         throw new Error('Invariant violation: "source != null"');
       }
 
-      return _react.default.createElement(
+      return _react.createElement(
         'span',
         null,
         option.label,
@@ -141,9 +120,12 @@ class ConsoleHeader extends _react.default.Component {
 
       action();
     };
-    return _react.default.createElement(
+    return _react.createElement(
       (_Button || _load_Button()).Button,
-      { className: 'pull-right', icon: icon, onClick: clickHandler },
+      {
+        className: 'pull-right nuclide-console-process-control-button',
+        icon: icon,
+        onClick: clickHandler },
       label
     );
   }
@@ -154,12 +136,8 @@ class ConsoleHeader extends _react.default.Component {
       value: source.name
     }));
 
-    const filterInputClassName = (0, (_classnames || _load_classnames()).default)('nuclide-console-filter-field', {
-      invalid: this.props.invalidFilterInput
-    });
-
     const MultiSelectOption = this._renderOption;
-    const pasteButton = this.props.createPaste == null ? null : _react.default.createElement(
+    const pasteButton = this.props.createPaste == null ? null : _react.createElement(
       (_Button || _load_Button()).Button,
       {
         className: 'inline-block',
@@ -171,18 +149,18 @@ class ConsoleHeader extends _react.default.Component {
       'Create Paste'
     );
 
-    return _react.default.createElement(
+    return _react.createElement(
       (_Toolbar || _load_Toolbar()).Toolbar,
       { location: 'top' },
-      _react.default.createElement(
+      _react.createElement(
         (_ToolbarLeft || _load_ToolbarLeft()).ToolbarLeft,
         null,
-        _react.default.createElement(
+        _react.createElement(
           'span',
           { className: 'nuclide-console-header-filter-icon inline-block' },
-          _react.default.createElement((_FunnelIcon || _load_FunnelIcon()).FunnelIcon, null)
+          _react.createElement((_Icon || _load_Icon()).Icon, { icon: 'nuclicon-funnel' })
         ),
-        _react.default.createElement((_ModalMultiSelect || _load_ModalMultiSelect()).ModalMultiSelect, {
+        _react.createElement((_ModalMultiSelect || _load_ModalMultiSelect()).ModalMultiSelect, {
           labelComponent: MultiSelectLabel,
           optionComponent: MultiSelectOption,
           size: (_Button || _load_Button()).ButtonSizes.SMALL,
@@ -191,34 +169,20 @@ class ConsoleHeader extends _react.default.Component {
           onChange: this.props.onSelectedSourcesChange,
           className: 'inline-block'
         }),
-        _react.default.createElement(
-          (_ButtonGroup || _load_ButtonGroup()).ButtonGroup,
-          { className: 'inline-block' },
-          _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
-            className: filterInputClassName,
-            size: 'sm',
-            width: 200,
-            placeholderText: 'Filter',
-            onDidChange: this.props.onFilterTextChange,
-            value: this.props.filterText
-          }),
-          _react.default.createElement(
-            (_Button || _load_Button()).Button,
-            {
-              className: 'nuclide-console-filter-regexp-button',
-              size: (_Button || _load_Button()).ButtonSizes.SMALL,
-              selected: this.props.enableRegExpFilter,
-              onClick: this._handleReToggleButtonClick,
-              tooltip: { title: 'Use Regex' } },
-            '.*'
-          )
-        )
+        _react.createElement((_RegExpFilter || _load_RegExpFilter()).default, {
+          value: {
+            text: this.props.filterText,
+            isRegExp: this.props.enableRegExpFilter,
+            invalid: this.props.invalidFilterInput
+          },
+          onChange: this._handleFilterChange
+        })
       ),
-      _react.default.createElement(
+      _react.createElement(
         (_ToolbarRight || _load_ToolbarRight()).ToolbarRight,
         null,
         pasteButton,
-        _react.default.createElement(
+        _react.createElement(
           (_Button || _load_Button()).Button,
           {
             size: (_Button || _load_Button()).ButtonSizes.SMALL,
@@ -230,7 +194,17 @@ class ConsoleHeader extends _react.default.Component {
   }
 }
 
-exports.default = ConsoleHeader;
+exports.default = ConsoleHeader; /**
+                                  * Copyright (c) 2015-present, Facebook, Inc.
+                                  * All rights reserved.
+                                  *
+                                  * This source code is licensed under the license found in the LICENSE file in
+                                  * the root directory of this source tree.
+                                  *
+                                  * 
+                                  * @format
+                                  */
+
 function sortAlpha(a, b) {
   const aLower = a.toLowerCase();
   const bLower = b.toLowerCase();
@@ -245,7 +219,7 @@ function sortAlpha(a, b) {
 function MultiSelectLabel(props) {
   const { selectedOptions } = props;
   const label = selectedOptions.length === 1 ? selectedOptions[0].label : `${selectedOptions.length} Sources`;
-  return _react.default.createElement(
+  return _react.createElement(
     'span',
     null,
     'Showing: ',

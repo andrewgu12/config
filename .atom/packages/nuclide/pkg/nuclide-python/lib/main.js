@@ -122,25 +122,20 @@ const atomConfig = {
     version: '0.1.0',
     priority: 20,
     definitionEventName: 'python.get-definition'
+  },
+  evaluationExpression: {
+    version: '0.0.0',
+    analyticsEventName: 'python.evaluationExpression',
+    matcher: { kind: 'default' }
   }
 };
 
 class Activation {
 
   constructor(rawState) {
-    this._busySignalService = null;
-
     this._pythonLanguageService = new (_nuclideLanguageService || _load_nuclideLanguageService()).AtomLanguageService(connectionToPythonService, atomConfig);
     this._pythonLanguageService.activate();
     this._subscriptions = new (_UniversalDisposable || _load_UniversalDisposable()).default(this._pythonLanguageService);
-  }
-
-  consumeBusySignal(service) {
-    this._subscriptions.add(service);
-    this._busySignalService = service;
-    return new (_UniversalDisposable || _load_UniversalDisposable()).default(() => {
-      this._busySignalService = null;
-    });
   }
 
   provideLint() {
@@ -148,13 +143,8 @@ class Activation {
       grammarScopes: Array.from((_constants || _load_constants()).GRAMMAR_SET),
       scope: 'file',
       lintOnFly: (0, (_config || _load_config()).getLintOnFly)(),
-      name: 'nuclide-python',
-      lint(editor) {
-        if (this._busySignalService == null) {
-          return (_LintHelpers || _load_LintHelpers()).default.lint(editor);
-        }
-        return this._busySignalService.reportBusyWhile(`Python: Waiting for flake8 lint results for \`${editor.getTitle()}\``, () => (_LintHelpers || _load_LintHelpers()).default.lint(editor));
-      }
+      name: 'flake8',
+      lint: editor => (_LintHelpers || _load_LintHelpers()).default.lint(editor)
     };
   }
 

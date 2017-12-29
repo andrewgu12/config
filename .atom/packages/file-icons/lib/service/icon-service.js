@@ -13,9 +13,7 @@ class IconService{
 	
 	init(paths){
 		this.disposables = new CompositeDisposable();
-		this.disposables.add(
-			FileSystem.observe(this.handleResource.bind(this))
-		);
+		this.disposables.add(FileSystem.observe(this.handleResource.bind(this)));
 		StrategyManager.init();
 		this.isReady = true;
 	}
@@ -38,6 +36,8 @@ class IconService{
 	 * @private
 	 */
 	handleResource(resource){
+		if(resource.icon) return;
+		
 		const icon = new IconDelegate(resource);
 		resource.icon = icon;
 		this.disposables.add(
@@ -77,7 +77,9 @@ class IconService{
 		if(isSymlink)
 			type |= EntityType.SYMLINK;
 		
-		return IconNode.forElement(element, path, type, isTabIcon);
+		const disposable = IconNode.forElement(element, path, type, isTabIcon);
+		module.exports.disposables.add(disposable);
+		return disposable;
 	}
 	
 	

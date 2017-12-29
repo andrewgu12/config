@@ -268,12 +268,15 @@ Object.defineProperty(module.exports, "defs", {
         }, {
           name: "params",
           type: {
-            kind: "array",
+            kind: "nullable",
             type: {
-              kind: "string"
+              kind: "array",
+              type: {
+                kind: "string"
+              }
             }
           },
-          optional: true
+          optional: false
         }]
       }
     },

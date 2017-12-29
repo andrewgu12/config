@@ -19,7 +19,7 @@ let hgAsyncExecute = exports.hgAsyncExecute = (() => {
     try {
       return yield (0, (_process || _load_process()).runCommandDetailed)(command, args, options).toPromise();
     } catch (err) {
-      logAndThrowHgError(args, options, err.stdout, err.stderr);
+      logAndThrowHgError(args, options, err);
     }
   });
 
@@ -35,7 +35,7 @@ let hgAsyncExecute = exports.hgAsyncExecute = (() => {
 
 let getHgExecParams = (() => {
   var _ref2 = (0, _asyncToGenerator.default)(function* (args_, options_) {
-    let args = args_;
+    let args = [...args_, '--noninteractive'];
     let sshCommand;
     // expandHomeDir is not supported on windows
     if (process.platform !== 'win32') {
@@ -43,15 +43,19 @@ let getHgExecParams = (() => {
       const doesSSHConfigExist = yield (_fsPromise || _load_fsPromise()).default.exists(pathToSSHConfig);
       if (doesSSHConfigExist) {
         sshCommand = pathToSSHConfig;
+      } else {
+        // Disabling ssh keyboard input so all commands that prompt for interaction
+        // fail instantly rather than just wait for an input that will never arrive
+        sshCommand = 'ssh -oBatchMode=yes -oControlMaster=no';
       }
+      args.push('--config', `ui.ssh=${sshCommand}`,
+      // enable the progressfile extension
+      '--config', 'extensions.progressfile=',
+      // have the progressfile extension write to 'progress' in the repo's .hg directory
+      '--config', `progress.statefile=${options_.cwd}/.hg/progress`,
+      // Without assuming hg is being run in a tty, the progress extension won't get used
+      '--config', 'progress.assume-tty=1');
     }
-
-    if (sshCommand == null) {
-      // Disabling ssh keyboard input so all commands that prompt for interaction
-      // fail instantly rather than just wait for an input that will never arrive
-      sshCommand = 'ssh -oBatchMode=yes -oControlMaster=no';
-    }
-    args.push('--config', `ui.ssh=${sshCommand}`, '--noninteractive');
     const [hgCommandName] = args;
     if (EXCLUDE_FROM_HG_BLACKBOX_COMMANDS.has(hgCommandName)) {
       args.push('--config', 'extensions.blackbox=!');
@@ -72,6 +76,11 @@ let getHgExecParams = (() => {
     let command;
     if (options.TTY_OUTPUT) {
       [command, args, options] = (0, (_process || _load_process()).scriptifyCommand)('hg', args, options);
+      // HG commit/amend have unconventional ways of escaping slashes from messages.
+      // We have to 'unescape' to make it work correctly.
+      args = args.map(function (arg) {
+        return arg.replace(/\\\\/g, '\\');
+      });
     } else {
       command = 'hg';
     }
@@ -169,11 +178,14 @@ const EXCLUDE_FROM_HG_BLACKBOX_COMMANDS = new Set([
 'cat', 'config', // Nuclide only ever *reads* the config.
 'diff', 'log', 'show', 'status']);function hgObserveExecution(args_, options_) {
   // TODO(T17463635)
-  return _rxjsBundlesRxMinJs.Observable.fromPromise(getHgExecParams(args_, options_)).switchMap(({ command, args, options }) => {
-    return (0, (_process || _load_process()).observeProcess)(...(0, (_process || _load_process()).scriptifyCommand)(command, args, Object.assign({}, options, {
+  return _rxjsBundlesRxMinJs.Observable.fromPromise(getHgExecParams(args_, Object.assign({}, options_, {
+    // Ensure that the hg command gets scriptified.
+    TTY_OUTPUT: process.platform !== 'win32'
+  }))).switchMap(({ command, args, options }) => {
+    return (0, (_process || _load_process()).observeProcess)(command, args, Object.assign({}, options, {
       killTreeWhenDone: true,
       /* TODO(T17353599) */isExitError: () => false
-    }))).catch(error => _rxjsBundlesRxMinJs.Observable.of({ kind: 'error', error })); // TODO(T17463635)
+    })).catch(error => _rxjsBundlesRxMinJs.Observable.of({ kind: 'error', error })); // TODO(T17463635)
   });
 }
 
@@ -185,13 +197,24 @@ function hgRunCommand(args_, options_) {
   return _rxjsBundlesRxMinJs.Observable.fromPromise(getHgExecParams(args_, options_)).switchMap(({ command, args, options }) => (0, (_process || _load_process()).runCommand)(command, args, Object.assign({}, options, { killTreeWhenDone: true })));
 }
 
-function logAndThrowHgError(args, options, stdout, stderr) {
-  (0, (_log4js || _load_log4js()).getLogger)('nuclide-hg-rpc').error(`Error executing hg command: ${JSON.stringify(args)}\n` + `stderr: ${stderr}\nstdout: ${stdout}\n` + `options: ${JSON.stringify(options)}`);
-  if (stderr.length > 0 && stdout.length > 0) {
-    throw new Error(`hg error\nstderr: ${stderr}\nstdout: ${stdout}`);
+function logAndThrowHgError(args, options, err) {
+  if (err instanceof (_process || _load_process()).ProcessExitError) {
+    (0, (_log4js || _load_log4js()).getLogger)('nuclide-hg-rpc').error(`Error executing hg command: ${JSON.stringify(args)}\n` + `stderr: ${err.stderr}\nstdout: ${String(err.stdout)}\n` + `options: ${JSON.stringify(options)}`);
+    const { stdout, stderr, exitCode } = err;
+    let message = 'hg error';
+    if (exitCode != null) {
+      message += ` (exit code ${exitCode})`;
+    }
+    if (stderr.length > 0) {
+      message += `\nstderr: ${stderr}`;
+    }
+    if (stdout != null && stdout.length > 0) {
+      message += `\nstdout: ${stdout}`;
+    }
+    throw new Error(message);
   } else {
-    // One of `stderr` or `stdout` is empty - not both.
-    throw new Error(stderr || stdout);
+    (0, (_log4js || _load_log4js()).getLogger)('nuclide-hg-rpc').error(`Error executing hg command: ${JSON.stringify(args)}\n` + `options: ${JSON.stringify(options)}`);
+    throw err;
   }
 }
 

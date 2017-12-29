@@ -17,27 +17,31 @@ function _load_Portal() {
   return _Portal = require('./Portal');
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _rxjsBundlesRxMinJs = require('rxjs/bundles/Rx.min.js');
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; } /**
+                                                                                                                                                                                                                              * Copyright (c) 2015-present, Facebook, Inc.
+                                                                                                                                                                                                                              * All rights reserved.
+                                                                                                                                                                                                                              *
+                                                                                                                                                                                                                              * This source code is licensed under the license found in the LICENSE file in
+                                                                                                                                                                                                                              * the root directory of this source tree.
+                                                                                                                                                                                                                              *
+                                                                                                                                                                                                                              * 
+                                                                                                                                                                                                                              * @format
+                                                                                                                                                                                                                              */
+
+// DEPRECATED, AVOID USING THIS. Use 'showModal' in nuclide-commons-ui instead
 
 /**
  * Shows a modal dialog when rendered, using Atom's APIs (atom.workspace.addModalPanel).
  */
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the license found in the LICENSE file in
- * the root directory of this source tree.
- *
- * 
- * @format
- */
-
-class Modal extends _react.default.Component {
+class Modal extends _react.Component {
   constructor(...args) {
     var _temp;
 
@@ -68,23 +72,39 @@ class Modal extends _react.default.Component {
 
   componentWillMount() {
     this._container = document.createElement('div');
-    this._panel = atom.workspace.addModalPanel({ item: this._container });
+    this._panel = atom.workspace.addModalPanel({
+      item: this._container,
+      className: this.props.modalClassName
+    });
   }
 
   componentWillUnmount() {
     this._panel.destroy();
   }
 
+  componentDidUpdate(prevProps) {
+    const { modalClassName } = this.props;
+    const { modalClassName: prevModalClassName } = prevProps;
+    const panelElement = this._panel.getElement();
+    if (prevModalClassName != null) {
+      panelElement.classList.remove(...prevModalClassName.split(/\s+/).filter(token => token.length > 0));
+    }
+    if (modalClassName != null) {
+      panelElement.classList.add(...modalClassName.split(/\s+/).filter(token => token.length > 0));
+    }
+  }
+
   // Since we're rendering null, we can't use `findDOMNode(this)`.
 
 
   render() {
-    const props = Object.assign({}, this.props);
-    delete props.onDismiss;
-    return _react.default.createElement(
+    const _props = this.props,
+          { modalClassName, children, onDismiss } = _props,
+          props = _objectWithoutProperties(_props, ['modalClassName', 'children', 'onDismiss']);
+    return _react.createElement(
       (_Portal || _load_Portal()).Portal,
       { container: this._container },
-      _react.default.createElement(
+      _react.createElement(
         'div',
         Object.assign({ tabIndex: '0' }, props, { ref: this._handleContainerInnerElement }),
         this.props.children

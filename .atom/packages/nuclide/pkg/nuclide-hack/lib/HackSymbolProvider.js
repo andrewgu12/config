@@ -40,6 +40,12 @@ let getHackDirectoriesByService = (() => {
        * @format
        */
 
+var _humanizePath;
+
+function _load_humanizePath() {
+  return _humanizePath = _interopRequireDefault(require('nuclide-commons-atom/humanizePath'));
+}
+
 var _HackLanguage;
 
 function _load_HackLanguage() {
@@ -52,13 +58,9 @@ function _load_collection() {
   return _collection = require('nuclide-commons/collection');
 }
 
-var _nuclideUri;
+var _react = _interopRequireWildcard(require('react'));
 
-function _load_nuclideUri() {
-  return _nuclideUri = _interopRequireDefault(require('nuclide-commons/nuclideUri'));
-}
-
-var _react = _interopRequireDefault(require('react'));
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -93,41 +95,31 @@ const HackSymbolProvider = exports.HackSymbolProvider = {
       const results = yield Promise.all(serviceDirectories.map(function ([service, dirs]) {
         return service.symbolSearch(query, dirs);
       }));
-      const flattenedResults = (0, (_collection || _load_collection()).arrayFlatten)((0, (_collection || _load_collection()).arrayCompact)(results));
-
-      return flattenedResults;
-      // Why the weird cast? Because services are expected to return their own
-      // custom type with symbol-provider-specific additional detail. We upcast it
-      // now to FileResult which only has the things that Quick-Open cares about
-      // like line, column, ... Later on, Quick-Open invokes getComponentForItem
-      // (below) to render each result: it does a downcast so it can render
-      // whatever additional details.
+      return (0, (_collection || _load_collection()).arrayFlatten)((0, (_collection || _load_collection()).arrayCompact)(results));
     })();
   },
 
-  getComponentForItem(uncastedItem) {
-    const item = uncastedItem;
-    const filePath = item.path;
-    const filename = (_nuclideUri || _load_nuclideUri()).default.basename(filePath);
+  getComponentForItem(item) {
     const name = item.name || '';
 
+    // flowlint-next-line sketchy-null-string:off
     const symbolClasses = item.icon ? `file icon icon-${item.icon}` : 'file icon no-icon';
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { title: item.hoverText || '' },
-      _react.default.createElement(
+      _react.createElement(
         'span',
         { className: symbolClasses },
-        _react.default.createElement(
+        _react.createElement(
           'code',
           null,
           name
         )
       ),
-      _react.default.createElement(
+      _react.createElement(
         'span',
         { className: 'omnisearch-symbol-result-filename' },
-        filename
+        (0, (_humanizePath || _load_humanizePath()).default)(item.path)
       )
     );
   }

@@ -38,7 +38,7 @@ class ConsoleClient {
   ) {
     (0, (_main || _load_main()).pipeProcessMessagesToConsole)(this._processName, this._progressUpdates, this._showNotificationOnCompletion, processMessage);
     if (!this._consoleShown && SHOW_CONSOLE_ON_PROCESS_EVENTS.includes(processMessage.kind)) {
-      (0, (_main || _load_main()).dispatchConsoleToggle)(true);
+      (0, (_main || _load_main()).changeConsoleVisibility)(true);
       this._consoleShown = true;
     }
   }

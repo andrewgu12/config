@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.HighlightExamples = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _Block;
 
@@ -19,51 +19,51 @@ function _load_Highlight() {
   return _Highlight = require('./Highlight');
 }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-const HighlightExample = () => _react.default.createElement(
+const HighlightExample = () => _react.createElement(
   'div',
   null,
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement(
+    _react.createElement(
       (_Highlight || _load_Highlight()).Highlight,
       null,
       'Default'
     )
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement(
+    _react.createElement(
       (_Highlight || _load_Highlight()).Highlight,
       { color: (_Highlight || _load_Highlight()).HighlightColors.info },
       'Info'
     )
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement(
+    _react.createElement(
       (_Highlight || _load_Highlight()).Highlight,
       { color: (_Highlight || _load_Highlight()).HighlightColors.success },
       'Success'
     )
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement(
+    _react.createElement(
       (_Highlight || _load_Highlight()).Highlight,
       { color: (_Highlight || _load_Highlight()).HighlightColors.warning },
       'Warning'
     )
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement(
+    _react.createElement(
       (_Highlight || _load_Highlight()).Highlight,
       { color: (_Highlight || _load_Highlight()).HighlightColors.error },
       'Error'

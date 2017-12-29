@@ -76,7 +76,7 @@ class Activation {
     this._disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default(this.registerOpenerAndCommand());
 
     this._editorService = new (_ActiveEditorRegistry || _load_ActiveEditorRegistry()).default((provider, editor) => {
-      (_analytics || _load_analytics()).default.track('nuclide-outline-view-getoutline');
+      (_analytics || _load_analytics()).default.track('outline-view-getoutline');
       return provider.getOutline(editor);
     }, {}, getActiveEditorRegistryEventSources());
   }
@@ -89,25 +89,8 @@ class Activation {
     return this._editorService.consumeProvider(provider);
   }
 
-  consumeToolBar(getToolBar) {
-    const toolBar = getToolBar('nuclide-outline-view');
-    const { element } = toolBar.addButton({
-      icon: 'list-unordered',
-      callback: 'outline-view:toggle',
-      tooltip: 'Toggle Outline View',
-      priority: 200
-    });
-    // Class added is not defined elsewhere, and is just used to mark the toolbar button
-    element.classList.add('nuclide-outline-view-toolbar-button');
-    const disposable = new (_UniversalDisposable || _load_UniversalDisposable()).default(() => {
-      toolBar.removeItems();
-    });
-    this._disposables.add(disposable);
-    return disposable;
-  }
-
   _createOutlineViewPanelState() {
-    (_analytics || _load_analytics()).default.track('nuclide-outline-view-show');
+    (_analytics || _load_analytics()).default.track('outline-view-show');
     return new (_OutlineViewPanel || _load_OutlineViewPanel()).OutlineViewPanelState((0, (_createOutlines || _load_createOutlines()).createOutlines)(this._editorService));
   }
 

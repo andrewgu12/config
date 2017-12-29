@@ -1,5 +1,17 @@
 'use strict';
 
+var _babelTypes;
+
+function _load_babelTypes() {
+  return _babelTypes = _interopRequireWildcard(require('babel-types'));
+}
+
+var _babelGenerator;
+
+function _load_babelGenerator() {
+  return _babelGenerator = _interopRequireDefault(require('babel-generator'));
+}
+
 var _serviceParser;
 
 function _load_serviceParser() {
@@ -9,7 +21,7 @@ function _load_serviceParser() {
 var _proxyGenerator;
 
 function _load_proxyGenerator() {
-  return _proxyGenerator = require('./proxy-generator');
+  return _proxyGenerator = _interopRequireDefault(require('./proxy-generator'));
 }
 
 var _location;
@@ -28,19 +40,23 @@ function _load_nuclideUri() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const dir = (_nuclideUri || _load_nuclideUri()).default.join(__dirname, '../spec/fixtures'); /**
-                                                                                              * Copyright (c) 2015-present, Facebook, Inc.
-                                                                                              * All rights reserved.
-                                                                                              *
-                                                                                              * This source code is licensed under the license found in the LICENSE file in
-                                                                                              * the root directory of this source tree.
-                                                                                              *
-                                                                                              * 
-                                                                                              * @format
-                                                                                              */
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+// eslint-disable-next-line rulesdir/no-unresolved
+const { generateProxy } = (0, (_proxyGenerator || _load_proxyGenerator()).default)(_babelTypes || _load_babelTypes(), (_babelGenerator || _load_babelGenerator()).default); /**
+                                                                                                                                                                             * Copyright (c) 2015-present, Facebook, Inc.
+                                                                                                                                                                             * All rights reserved.
+                                                                                                                                                                             *
+                                                                                                                                                                             * This source code is licensed under the license found in the LICENSE file in
+                                                                                                                                                                             * the root directory of this source tree.
+                                                                                                                                                                             *
+                                                                                                                                                                             * 
+                                                                                                                                                                             * @format
+                                                                                                                                                                             */
 
 // Regenerates the .proxy baseline files in the spec/fixtures directory.
 
+const dir = (_nuclideUri || _load_nuclideUri()).default.join(__dirname, '../spec/fixtures');
 for (const file of _fs.default.readdirSync(dir)) {
   if (file.endsWith('.def')) {
     const serviceName = (_nuclideUri || _load_nuclideUri()).default.basename(file, '.def');
@@ -54,7 +70,7 @@ for (const file of _fs.default.readdirSync(dir)) {
 
     _fs.default.writeFileSync(definitionPath.replace('.def', '.def.json'), JSON.stringify(definitions, null, 4), 'utf8');
 
-    const code = (0, (_proxyGenerator || _load_proxyGenerator()).generateProxy)(serviceName, preserveFunctionNames, definitions);
+    const code = generateProxy(serviceName, preserveFunctionNames, definitions);
     _fs.default.writeFileSync(definitionPath.replace('.def', '.proxy'), code, 'utf8');
   }
 }

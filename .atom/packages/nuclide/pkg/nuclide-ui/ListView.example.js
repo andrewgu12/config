@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ListviewExamples = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _Block;
 
@@ -31,7 +31,7 @@ function _load_MultiSelectList() {
   return _MultiSelectList = require('./MultiSelectList');
 }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 const NOOP = () => {}; /**
                         * Copyright (c) 2015-present, Facebook, Inc.
@@ -44,89 +44,89 @@ const NOOP = () => {}; /**
                         * @format
                         */
 
-const ListviewExample1 = () => _react.default.createElement(
+const ListviewExample1 = () => _react.createElement(
   (_Block || _load_Block()).Block,
   null,
-  _react.default.createElement(
+  _react.createElement(
     (_ListView || _load_ListView()).ListView,
     { alternateBackground: true },
-    _react.default.createElement(
+    _react.createElement(
       (_ListView || _load_ListView()).ListViewItem,
       { value: { id: 1 } },
       'test1'
     ),
-    _react.default.createElement(
+    _react.createElement(
       (_ListView || _load_ListView()).ListViewItem,
       { value: { id: 2 } },
       'test2'
     ),
-    _react.default.createElement(
+    _react.createElement(
       (_ListView || _load_ListView()).ListViewItem,
       { value: { id: 3 } },
       'test3'
     ),
-    _react.default.createElement(
+    _react.createElement(
       (_ListView || _load_ListView()).ListViewItem,
       { value: { id: 4 } },
       'test4'
     ),
-    _react.default.createElement(
+    _react.createElement(
       (_ListView || _load_ListView()).ListViewItem,
       { value: { id: 5 } },
       'test5'
     )
   )
 );
-const ListviewExample2 = () => _react.default.createElement(
+const ListviewExample2 = () => _react.createElement(
   (_Block || _load_Block()).Block,
   null,
-  _react.default.createElement(
+  _react.createElement(
     (_ListView || _load_ListView()).ListView,
     { alternateBackground: true },
-    _react.default.createElement(
+    _react.createElement(
       (_ListView || _load_ListView()).ListViewItem,
       null,
-      _react.default.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
+      _react.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
         checked: true,
         onClick: NOOP,
         onChange: NOOP,
         label: 'A Checkbox.'
       })
     ),
-    _react.default.createElement(
+    _react.createElement(
       (_ListView || _load_ListView()).ListViewItem,
       null,
-      _react.default.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
+      _react.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
         checked: true,
         onClick: NOOP,
         onChange: NOOP,
         label: 'A Checkbox.'
       })
     ),
-    _react.default.createElement(
+    _react.createElement(
       (_ListView || _load_ListView()).ListViewItem,
       null,
-      _react.default.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
+      _react.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
         checked: true,
         onClick: NOOP,
         onChange: NOOP,
         label: 'A Checkbox.'
       })
     ),
-    _react.default.createElement(
+    _react.createElement(
       (_ListView || _load_ListView()).ListViewItem,
       null,
-      _react.default.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
+      _react.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
         checked: false,
         onClick: NOOP,
         onChange: NOOP,
         label: 'A Checkbox.'
       })
     ),
-    _react.default.createElement(
+    _react.createElement(
       (_ListView || _load_ListView()).ListViewItem,
       null,
-      _react.default.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
+      _react.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
         checked: false,
         onClick: NOOP,
         onChange: NOOP,
@@ -136,21 +136,25 @@ const ListviewExample2 = () => _react.default.createElement(
   )
 );
 
-class MultiSelectListExample extends _react.default.Component {
+class MultiSelectListExample extends _react.Component {
   constructor(props) {
     super(props);
     this.state = { value: [2] };
   }
+
   render() {
     const options = [{ value: 1, label: 'One' }, { value: 2, label: 'Two' }, { value: 3, label: 'Three' }, { value: 4, label: 'Four' }];
 
-    return _react.default.createElement((_MultiSelectList || _load_MultiSelectList()).MultiSelectList, {
-      options: options,
-      value: this.state.value,
-      onChange: value => {
-        this.setState({ value });
-      }
-    });
+    return (
+      // $FlowFixMe(>=0.53.0) Flow suppress
+      _react.createElement((_MultiSelectList || _load_MultiSelectList()).MultiSelectList, {
+        options: options,
+        value: this.state.value,
+        onChange: value => {
+          this.setState({ value });
+        }
+      })
+    );
   }
 }
 

@@ -3,15 +3,18 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.saveBuffer = exports.loadBufferForUri = undefined;
+exports.loadBufferForUri = undefined;
 
 var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
 
 let loadBufferForUri = exports.loadBufferForUri = (() => {
   var _ref = (0, _asyncToGenerator.default)(function* (uri) {
-    let buffer = existingBufferForUri(uri);
+    const buffer = existingBufferForUri(uri);
     if (buffer == null) {
-      buffer = createBufferForUri(uri);
+      return loadBufferForUriStatic(uri).then(function (loadedBuffer) {
+        atom.project.addBuffer(loadedBuffer);
+        return loadedBuffer;
+      });
     }
     if (buffer.loaded) {
       return buffer;
@@ -30,41 +33,6 @@ let loadBufferForUri = exports.loadBufferForUri = (() => {
   };
 })();
 
-/**
- * Returns an existing buffer for that uri, or create one if not existing.
- */
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the license found in the LICENSE file in
- * the root directory of this source tree.
- *
- * 
- * @format
- */
-
-/**
- * Provides an asynchronous interface for saving a buffer, regardless of whether it's an Atom
- * TextBuffer or NuclideTextBuffer.
- */
-let saveBuffer = exports.saveBuffer = (() => {
-  var _ref2 = (0, _asyncToGenerator.default)(function* (buffer) {
-    const expectedPath = buffer.getPath();
-    const promise = (0, (_event || _load_event()).observableFromSubscribeFunction)(buffer.onDidSave.bind(buffer)).filter(function ({ path }) {
-      return path === expectedPath;
-    }).take(1).ignoreElements().toPromise();
-    // `buffer.save` returns a promise in the case of a NuclideTextBuffer. We'll await it to make sure
-    // we catch any async errors too.
-    yield Promise.resolve(buffer.save());
-    return promise;
-  });
-
-  return function saveBuffer(_x2) {
-    return _ref2.apply(this, arguments);
-  };
-})();
-
 exports.bufferForUri = bufferForUri;
 exports.existingBufferForUri = existingBufferForUri;
 
@@ -76,16 +44,16 @@ function _load_nuclideUri() {
   return _nuclideUri = _interopRequireDefault(require('nuclide-commons/nuclideUri'));
 }
 
-var _event;
+var _nuclideFsAtom;
 
-function _load_event() {
-  return _event = require('nuclide-commons/event');
+function _load_nuclideFsAtom() {
+  return _nuclideFsAtom = require('../../nuclide-fs-atom');
 }
 
-var _NuclideTextBuffer;
+var _RemoteFile;
 
-function _load_NuclideTextBuffer() {
-  return _NuclideTextBuffer = _interopRequireDefault(require('./NuclideTextBuffer'));
+function _load_RemoteFile() {
+  return _RemoteFile = require('./RemoteFile');
 }
 
 var _ServerConnection;
@@ -96,6 +64,37 @@ function _load_ServerConnection() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+const TEXT_BUFFER_PARAMS = {
+  shouldDestroyOnFileDelete: () => atom.config.get('core.closeDeletedFileTabs')
+}; /**
+    * Copyright (c) 2015-present, Facebook, Inc.
+    * All rights reserved.
+    *
+    * This source code is licensed under the license found in the LICENSE file in
+    * the root directory of this source tree.
+    *
+    * 
+    * @format
+    */
+
+function loadBufferForUriStatic(uri) {
+  if ((_nuclideUri || _load_nuclideUri()).default.isLocal(uri)) {
+    if ((_nuclideUri || _load_nuclideUri()).default.isInArchive(uri)) {
+      return _atom.TextBuffer.load((_nuclideFsAtom || _load_nuclideFsAtom()).ROOT_ARCHIVE_FS.newArchiveFile(uri), TEXT_BUFFER_PARAMS);
+    } else {
+      return _atom.TextBuffer.load(uri, TEXT_BUFFER_PARAMS);
+    }
+  }
+  const connection = (_ServerConnection || _load_ServerConnection()).ServerConnection.getForUri(uri);
+  if (connection == null) {
+    throw new Error(`ServerConnection cannot be found for uri: ${uri}`);
+  }
+  return _atom.TextBuffer.load(new (_RemoteFile || _load_RemoteFile()).RemoteFile(connection, uri), TEXT_BUFFER_PARAMS);
+}
+
+/**
+ * Returns an existing buffer for that uri, or create one if not existing.
+ */
 function bufferForUri(uri) {
   const buffer = existingBufferForUri(uri);
   if (buffer != null) {
@@ -106,18 +105,21 @@ function bufferForUri(uri) {
 
 function createBufferForUri(uri) {
   let buffer;
-  const params = {
-    filePath: uri,
-    shouldDestroyOnFileDelete: () => atom.config.get('core.closeDeletedFileTabs')
-  };
+  const params = Object.assign({}, TEXT_BUFFER_PARAMS, {
+    filePath: uri
+  });
   if ((_nuclideUri || _load_nuclideUri()).default.isLocal(uri)) {
     buffer = new _atom.TextBuffer(params);
+    if ((_nuclideUri || _load_nuclideUri()).default.isInArchive(uri)) {
+      buffer.setFile((_nuclideFsAtom || _load_nuclideFsAtom()).ROOT_ARCHIVE_FS.newArchiveFile(uri));
+    }
   } else {
     const connection = (_ServerConnection || _load_ServerConnection()).ServerConnection.getForUri(uri);
     if (connection == null) {
       throw new Error(`ServerConnection cannot be found for uri: ${uri}`);
     }
-    buffer = new (_NuclideTextBuffer || _load_NuclideTextBuffer()).default(connection, params);
+    buffer = new _atom.TextBuffer(params);
+    buffer.setFile(new (_RemoteFile || _load_RemoteFile()).RemoteFile(connection, uri));
   }
   atom.project.addBuffer(buffer);
 

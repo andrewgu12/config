@@ -16,19 +16,15 @@ module.exports = _client => {
     }
 
     getTagsPath() {
-      return _client.marshalArguments(Array.from(arguments), []).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "CtagsService.js",
-            line: 32
-          },
-          name: "CtagsService"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "getTagsPath", "promise", args);
-        });
-      }).then(value => {
+      return Promise.all([_client.marshalArguments(Array.from(arguments), []), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "CtagsService.js",
+          line: 32
+        },
+        name: "CtagsService"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "getTagsPath", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "named",
           name: "NuclideUri"
@@ -37,7 +33,7 @@ module.exports = _client => {
     }
 
     findTags(arg0, arg1) {
-      return _client.marshalArguments(Array.from(arguments), [{
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "query",
         type: {
           kind: "string"
@@ -69,19 +65,15 @@ module.exports = _client => {
             }]
           }
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "CtagsService.js",
-            line: 32
-          },
-          name: "CtagsService"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "findTags", "promise", args);
-        });
-      }).then(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "CtagsService.js",
+          line: 32
+        },
+        name: "CtagsService"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "findTags", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "array",
           type: {
@@ -328,7 +320,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "CtagsService.js",
-            line: 97
+            line: 98
           },
           kind: "function",
           argumentTypes: [],
@@ -344,13 +336,13 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "CtagsService.js",
-        line: 102
+        line: 103
       },
       type: {
         location: {
           type: "source",
           fileName: "CtagsService.js",
-          line: 102
+          line: 103
         },
         kind: "function",
         argumentTypes: [{

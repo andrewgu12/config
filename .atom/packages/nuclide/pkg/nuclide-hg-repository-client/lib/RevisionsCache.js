@@ -10,6 +10,12 @@ function _load_collection() {
   return _collection = require('nuclide-commons/collection');
 }
 
+var _observable;
+
+function _load_observable() {
+  return _observable = require('nuclide-commons/observable');
+}
+
 var _rxjsBundlesRxMinJs = require('rxjs/bundles/Rx.min.js');
 
 var _log4js;
@@ -18,6 +24,8 @@ function _load_log4js() {
   return _log4js = require('log4js');
 }
 
+const FETCH_REVISIONS_DEBOUNCE_MS = 100;
+// The request timeout is 60 seconds anyways.
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -29,8 +37,6 @@ function _load_log4js() {
  * @format
  */
 
-const FETCH_REVISIONS_DEBOUNCE_MS = 100;
-// The request timeout is 60 seconds anyways.
 const FETCH_REVISIONS_TIMEOUT_MS = 50 * 1000;
 const FETCH_REVISIONS_RETRY_COUNT = 2;
 
@@ -56,9 +62,10 @@ class RevisionsCache {
     this._hgService = hgService;
     this._revisions = new _rxjsBundlesRxMinJs.BehaviorSubject([]);
     this._fetchRevisionsRequests = new _rxjsBundlesRxMinJs.Subject();
+    this._isFetchingRevisions = new _rxjsBundlesRxMinJs.Subject();
 
     this._lazyRevisionFetcher = this._fetchRevisionsRequests.startWith(null) // Initially, no refresh requests applied.
-    .debounceTime(FETCH_REVISIONS_DEBOUNCE_MS).switchMap(() =>
+    .let((0, (_observable || _load_observable()).fastDebounce)(FETCH_REVISIONS_DEBOUNCE_MS)).switchMap(() =>
     // Using `defer` will guarantee a fresh subscription / execution on retries,
     // even though `_fetchSmartlogRevisions` returns a `refCount`ed shared Observable.
     _rxjsBundlesRxMinJs.Observable.defer(() => this._fetchSmartlogRevisions()).retry(FETCH_REVISIONS_RETRY_COUNT).catch(error => {
@@ -68,11 +75,14 @@ class RevisionsCache {
   }
 
   _fetchSmartlogRevisions() {
+    this._isFetchingRevisions.next(true);
     return this._hgService.fetchSmartlogRevisions().refCount().timeout(FETCH_REVISIONS_TIMEOUT_MS).catch(err => {
       if (err instanceof _rxjsBundlesRxMinJs.TimeoutError) {
         throw new Error('Timed out fetching smartlog revisions');
       }
       throw err;
+    }).finally(() => {
+      this._isFetchingRevisions.next(false);
     });
   }
 
@@ -86,6 +96,10 @@ class RevisionsCache {
 
   observeRevisionChanges() {
     return this._lazyRevisionFetcher.startWith(this.getCachedRevisions());
+  }
+
+  observeIsFetchingRevisions() {
+    return this._isFetchingRevisions.asObservable();
   }
 }
 exports.default = RevisionsCache;

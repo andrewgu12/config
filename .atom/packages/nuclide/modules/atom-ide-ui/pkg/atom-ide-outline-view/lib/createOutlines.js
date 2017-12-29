@@ -77,7 +77,7 @@ function uiOutlinesForResult(result) {
 }
 
 function highlightedOutlines(outline, editor) {
-  const nameOnly = (_featureConfig || _load_featureConfig()).default.get('nuclide-outline-view.nameOnly');
+  const nameOnly = (_featureConfig || _load_featureConfig()).default.get('atom-ide-outline-view.nameOnly');
   const outlineForUi = {
     kind: 'outline',
     outlineTrees: outline.outlineTrees.map(outlineTree => treeToUiTree(outlineTree, Boolean(nameOnly))),
@@ -96,6 +96,7 @@ function treeToUiTree(outlineTree, nameOnly) {
     tokenizedText: shortName ? undefined : outlineTree.tokenizedText,
     startPosition: outlineTree.startPosition,
     endPosition: outlineTree.endPosition,
+    landingPosition: outlineTree.landingPosition,
     highlighted: false,
     children: outlineTree.children.map(tree => treeToUiTree(tree, nameOnly))
   };

@@ -2,39 +2,39 @@
   "_args": [
     [
       {
-        "raw": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-117729-89959-1rkybvt.mvkdfgvi/package.tgz",
+        "raw": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-1171117-26720-15mpxcz.86ackgldi/package.tgz",
         "scope": null,
         "escapedName": null,
         "name": null,
-        "rawSpec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-117729-89959-1rkybvt.mvkdfgvi/package.tgz",
-        "spec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-117729-89959-1rkybvt.mvkdfgvi/package.tgz",
+        "rawSpec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-1171117-26720-15mpxcz.86ackgldi/package.tgz",
+        "spec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-1171117-26720-15mpxcz.86ackgldi/package.tgz",
         "type": "local"
       },
-      "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/apm-install-dir-117729-89959-4styf8.m9cukdquxr"
+      "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/apm-install-dir-1171117-26720-18gl3vw.0hk82jfw29"
     ]
   ],
-  "_from": "../d-117729-89959-1rkybvt.mvkdfgvi/package.tgz",
+  "_from": "../d-1171117-26720-15mpxcz.86ackgldi/package.tgz",
   "_id": "language-x86-64-assembly@2.2.11",
   "_inCache": true,
   "_location": "/language-x86-64-assembly",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-117729-89959-1rkybvt.mvkdfgvi/package.tgz",
+    "raw": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-1171117-26720-15mpxcz.86ackgldi/package.tgz",
     "scope": null,
     "escapedName": null,
     "name": null,
-    "rawSpec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-117729-89959-1rkybvt.mvkdfgvi/package.tgz",
-    "spec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-117729-89959-1rkybvt.mvkdfgvi/package.tgz",
+    "rawSpec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-1171117-26720-15mpxcz.86ackgldi/package.tgz",
+    "spec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-1171117-26720-15mpxcz.86ackgldi/package.tgz",
     "type": "local"
   },
   "_requiredBy": [
     "#USER"
   ],
-  "_resolved": "file:../d-117729-89959-1rkybvt.mvkdfgvi/package.tgz",
+  "_resolved": "file:../d-1171117-26720-15mpxcz.86ackgldi/package.tgz",
   "_shasum": "c2559d98a0971a5ea15f6acc43a698c74b0179d0",
   "_shrinkwrap": null,
-  "_spec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-117729-89959-1rkybvt.mvkdfgvi/package.tgz",
-  "_where": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/apm-install-dir-117729-89959-4styf8.m9cukdquxr",
+  "_spec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-1171117-26720-15mpxcz.86ackgldi/package.tgz",
+  "_where": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/apm-install-dir-1171117-26720-18gl3vw.0hk82jfw29",
   "bugs": {
     "url": "https://github.com/13xforever/language-x86_64-assembly/issues"
   },
@@ -55,15 +55,5 @@
     "type": "git",
     "url": "git+https://github.com/13xforever/language-x86_64-assembly.git"
   },
-  "version": "2.2.11",
-  "_atomModuleCache": {
-    "version": 1,
-    "dependencies": [],
-    "extensions": {
-      ".json": [
-        "package.json"
-      ]
-    },
-    "folders": []
-  }
+  "version": "2.2.11"
 }

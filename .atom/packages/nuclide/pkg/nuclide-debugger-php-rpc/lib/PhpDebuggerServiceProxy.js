@@ -10,40 +10,32 @@ module.exports = _client => {
     }
 
     getNotificationObservable() {
-      return Observable.fromPromise(_client.marshalArguments(Array.from(arguments), []).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "PhpDebuggerService.js",
-            line: 72
-          },
-          name: "PhpDebuggerService"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "getNotificationObservable", "observable", args);
-        });
-      })).concatMap(id => id).concatMap(value => {
+      return Observable.fromPromise(Promise.all([_client.marshalArguments(Array.from(arguments), []), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "PhpDebuggerService.js",
+          line: 65
+        },
+        name: "PhpDebuggerService"
+      })])).switchMap(([args, id]) => _client.callRemoteMethod(id, "getNotificationObservable", "observable", args)).concatMap(value => {
         return _client.unmarshal(value, {
           kind: "named",
-          name: "NotificationMessage"
+          name: "AtomNotification"
         });
       }).publish();
     }
 
     getServerMessageObservable() {
-      return Observable.fromPromise(_client.marshalArguments(Array.from(arguments), []).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "PhpDebuggerService.js",
-            line: 72
-          },
-          name: "PhpDebuggerService"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "getServerMessageObservable", "observable", args);
-        });
-      })).concatMap(id => id).concatMap(value => {
+      return Observable.fromPromise(Promise.all([_client.marshalArguments(Array.from(arguments), []), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "PhpDebuggerService.js",
+          line: 65
+        },
+        name: "PhpDebuggerService"
+      })])).switchMap(([args, id]) => _client.callRemoteMethod(id, "getServerMessageObservable", "observable", args)).concatMap(value => {
         return _client.unmarshal(value, {
           kind: "string"
         });
@@ -51,19 +43,15 @@ module.exports = _client => {
     }
 
     getOutputWindowObservable() {
-      return Observable.fromPromise(_client.marshalArguments(Array.from(arguments), []).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "PhpDebuggerService.js",
-            line: 72
-          },
-          name: "PhpDebuggerService"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "getOutputWindowObservable", "observable", args);
-        });
-      })).concatMap(id => id).concatMap(value => {
+      return Observable.fromPromise(Promise.all([_client.marshalArguments(Array.from(arguments), []), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "PhpDebuggerService.js",
+          line: 65
+        },
+        name: "PhpDebuggerService"
+      })])).switchMap(([args, id]) => _client.callRemoteMethod(id, "getOutputWindowObservable", "observable", args)).concatMap(value => {
         return _client.unmarshal(value, {
           kind: "string"
         });
@@ -71,25 +59,21 @@ module.exports = _client => {
     }
 
     debug(arg0) {
-      return _client.marshalArguments(Array.from(arguments), [{
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "config",
         type: {
           kind: "named",
           name: "PhpDebuggerSessionConfig"
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "PhpDebuggerService.js",
-            line: 72
-          },
-          name: "PhpDebuggerService"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "debug", "promise", args);
-        });
-      }).then(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "PhpDebuggerService.js",
+          line: 65
+        },
+        name: "PhpDebuggerService"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "debug", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "string"
         });
@@ -97,24 +81,20 @@ module.exports = _client => {
     }
 
     sendCommand(arg0) {
-      return _client.marshalArguments(Array.from(arguments), [{
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "message",
         type: {
           kind: "string"
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "PhpDebuggerService.js",
-            line: 72
-          },
-          name: "PhpDebuggerService"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "sendCommand", "promise", args);
-        });
-      }).then(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "PhpDebuggerService.js",
+          line: 65
+        },
+        name: "PhpDebuggerService"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "sendCommand", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "void"
         });
@@ -197,7 +177,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "rpc-types.js",
-        line: 12
+        line: 14
       },
       name: "LogLevel",
       definition: {
@@ -234,7 +214,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "PhpDebuggerService.js",
-        line: 22
+        line: 27
       },
       name: "PhpDebuggerSessionConfig",
       definition: {
@@ -307,6 +287,15 @@ Object.defineProperty(module.exports, "defs", {
           },
           optional: false
         }, {
+          name: "scriptArguments",
+          type: {
+            kind: "array",
+            type: {
+              kind: "string"
+            }
+          },
+          optional: false
+        }, {
           name: "dummyRequestFilePath",
           type: {
             kind: "string"
@@ -324,36 +313,55 @@ Object.defineProperty(module.exports, "defs", {
             kind: "string"
           },
           optional: true
+        }, {
+          name: "deferLaunch",
+          type: {
+            kind: "boolean"
+          },
+          optional: false
         }]
       }
     },
-    NotificationMessage: {
+    AtomNotificationType: {
       kind: "alias",
       location: {
         type: "source",
-        fileName: "PhpDebuggerService.js",
-        line: 39
+        fileName: "types.js",
+        line: 14
       },
-      name: "NotificationMessage",
+      name: "AtomNotificationType",
+      definition: {
+        kind: "union",
+        types: [{
+          kind: "string-literal",
+          value: "info"
+        }, {
+          kind: "string-literal",
+          value: "warning"
+        }, {
+          kind: "string-literal",
+          value: "error"
+        }, {
+          kind: "string-literal",
+          value: "fatalError"
+        }]
+      }
+    },
+    AtomNotification: {
+      kind: "alias",
+      location: {
+        type: "source",
+        fileName: "types.js",
+        line: 15
+      },
+      name: "AtomNotification",
       definition: {
         kind: "object",
         fields: [{
           name: "type",
           type: {
-            kind: "union",
-            types: [{
-              kind: "string-literal",
-              value: "info"
-            }, {
-              kind: "string-literal",
-              value: "warning"
-            }, {
-              kind: "string-literal",
-              value: "error"
-            }, {
-              kind: "string-literal",
-              value: "fatalError"
-            }]
+            kind: "named",
+            name: "AtomNotificationType"
           },
           optional: false
         }, {
@@ -371,7 +379,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "PhpDebuggerService.js",
-        line: 72
+        line: 65
       },
       constructorArgs: [],
       staticMethods: {},
@@ -380,7 +388,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "PhpDebuggerService.js",
-            line: 90
+            line: 79
           },
           kind: "function",
           argumentTypes: [],
@@ -388,7 +396,7 @@ Object.defineProperty(module.exports, "defs", {
             kind: "observable",
             type: {
               kind: "named",
-              name: "NotificationMessage"
+              name: "AtomNotification"
             }
           }
         },
@@ -396,7 +404,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "PhpDebuggerService.js",
-            line: 94
+            line: 83
           },
           kind: "function",
           argumentTypes: [],
@@ -411,7 +419,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "PhpDebuggerService.js",
-            line: 98
+            line: 87
           },
           kind: "function",
           argumentTypes: [],
@@ -426,7 +434,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "PhpDebuggerService.js",
-            line: 102
+            line: 91
           },
           kind: "function",
           argumentTypes: [{
@@ -447,7 +455,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "PhpDebuggerService.js",
-            line: 127
+            line: 138
           },
           kind: "function",
           argumentTypes: [{
@@ -467,7 +475,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "PhpDebuggerService.js",
-            line: 160
+            line: 170
           },
           kind: "function",
           argumentTypes: [],

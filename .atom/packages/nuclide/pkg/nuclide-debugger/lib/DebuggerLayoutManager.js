@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.DebuggerLayoutManager = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _UniversalDisposable;
 
@@ -37,10 +37,10 @@ function _load_DebuggerStore() {
   return _DebuggerStore = require('./DebuggerStore');
 }
 
-var _env;
+var _runtimeInfo;
 
-function _load_env() {
-  return _env = require('../../nuclide-node-transpiler/lib/env');
+function _load_runtimeInfo() {
+  return _runtimeInfo = require('../../commons-node/runtime-info');
 }
 
 var _createPaneContainer;
@@ -91,7 +91,21 @@ function _load_WatchView() {
   return _WatchView = require('./WatchView');
 }
 
+var _DisassemblyView;
+
+function _load_DisassemblyView() {
+  return _DisassemblyView = require('./DisassemblyView');
+}
+
+var _RegisterView;
+
+function _load_RegisterView() {
+  return _RegisterView = require('./RegisterView');
+}
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 // Configuration that defines a debugger pane. This controls what gets added
 // to the workspace when starting debugging.
@@ -100,14 +114,17 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 // Debugger views
 class DebuggerLayoutManager {
 
-  constructor(model) {
+  constructor(model, state) {
     this._disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default();
     this._model = model;
     this._previousDebuggerMode = (_DebuggerStore || _load_DebuggerStore()).DebuggerMode.STOPPED;
     this._paneHiddenWarningShown = false;
     this._leftPaneContainerModel = null;
     this._rightPaneContainerModel = null;
+    this._debuggerVisible = false;
     this._initializeDebuggerPanes();
+    this._reshowDebuggerPanes(state);
+
     this._disposables.add(() => {
       if (this._leftPaneContainerModel != null) {
         this._leftPaneContainerModel.dispose();
@@ -122,12 +139,12 @@ class DebuggerLayoutManager {
     this._disposables.dispose();
   }
 
-  consumeWorkspaceViewsService(api) {
+  registerContextMenus() {
     // Add context menus to let the user restore hidden panes.
     this._debuggerPanes.forEach(pane => {
       const command = `nuclide-debugger:show-window-${pane.title().replace(/ /g, '-')}`;
       this._disposables.add(atom.commands.add('atom-workspace', {
-        [String(command)]: () => this.showHiddenDebuggerPane(api, pane.uri)
+        [String(command)]: () => this.showHiddenDebuggerPane(pane.uri)
       }));
 
       this._disposables.add(atom.contextMenu.add({
@@ -184,8 +201,9 @@ class DebuggerLayoutManager {
       uri: debuggerUriBase + 'controls',
       isLifetimeView: true,
       title: () => 'Debugger',
+      defaultLocation: 'right',
       isEnabled: () => true,
-      createView: () => _react.default.createElement((_DebuggerControlsView || _load_DebuggerControlsView()).DebuggerControlsView, { model: this._model }),
+      createView: () => _react.createElement((_DebuggerControlsView || _load_DebuggerControlsView()).DebuggerControlsView, { model: this._model }),
       onPaneResize: (dockPane, newFlexScale) => {
         // If the debugger is stopped, let the controls pane keep its default
         // layout to make room for the buttons and additional content. Otherwise,
@@ -194,7 +212,7 @@ class DebuggerLayoutManager {
         if (debuggerMode !== (_DebuggerStore || _load_DebuggerStore()).DebuggerMode.STOPPED) {
           // If __DEV__, leave some extra space for the chrome devtools gear
           // TODO: Remove this when chrome is gone
-          this._overridePaneInitialHeight(dockPane, newFlexScale, (_env || _load_env()).__DEV__ ? 155 : 130);
+          this._overridePaneInitialHeight(dockPane, newFlexScale, (_runtimeInfo || _load_runtimeInfo()).__DEV__ ? 155 : 130);
         }
 
         // If newFlexScale !== 1, that means the user must have resized this pane.
@@ -205,55 +223,119 @@ class DebuggerLayoutManager {
     }, {
       uri: debuggerUriBase + 'callstack',
       isLifetimeView: false,
+      defaultLocation: 'right',
       title: () => 'Call Stack',
       isEnabled: () => true,
-      createView: () => _react.default.createElement((_CallstackView || _load_CallstackView()).CallstackView, { model: this._model }),
+      createView: () => _react.createElement((_CallstackView || _load_CallstackView()).CallstackView, { model: this._model }),
       debuggerModeFilter: mode => mode !== (_DebuggerStore || _load_DebuggerStore()).DebuggerMode.STOPPED
     }, {
       uri: debuggerUriBase + 'breakpoints',
       isLifetimeView: false,
+      defaultLocation: 'right',
       title: () => 'Breakpoints',
       isEnabled: () => true,
-      createView: () => _react.default.createElement((_BreakpointsView || _load_BreakpointsView()).BreakpointsView, { model: this._model })
+      createView: () => _react.createElement((_BreakpointsView || _load_BreakpointsView()).BreakpointsView, { model: this._model })
     }, {
       uri: debuggerUriBase + 'scopes',
       isLifetimeView: false,
+      defaultLocation: 'right',
       title: () => 'Scopes',
       isEnabled: () => true,
-      createView: () => _react.default.createElement((_ScopesView || _load_ScopesView()).ScopesView, { model: this._model }),
+      createView: () => _react.createElement((_ScopesView || _load_ScopesView()).ScopesView, { model: this._model }),
       debuggerModeFilter: mode => mode !== (_DebuggerStore || _load_DebuggerStore()).DebuggerMode.STOPPED
     }, {
       uri: debuggerUriBase + 'watch-expressions',
       isLifetimeView: false,
+      defaultLocation: 'right',
       title: () => 'Watch Expressions',
       isEnabled: () => true,
-      createView: () => _react.default.createElement((_WatchView || _load_WatchView()).WatchView, {
-        model: this._model,
-        watchExpressionListStore: this._model.getWatchExpressionListStore()
-      })
+      createView: () => _react.createElement((_WatchView || _load_WatchView()).WatchView, { model: this._model })
     }, {
       uri: debuggerUriBase + 'threads',
       isLifetimeView: false,
+      defaultLocation: 'right',
       title: () => {
         return String(this._model.getStore().getSettings().get('threadsComponentTitle'));
       },
       isEnabled: () => {
         return Boolean(this._model.getStore().getSettings().get('SupportThreadsWindow'));
       },
-      createView: () => _react.default.createElement((_ThreadsView || _load_ThreadsView()).ThreadsView, { model: this._model }),
+      createView: () => _react.createElement((_ThreadsView || _load_ThreadsView()).ThreadsView, { model: this._model }),
       debuggerModeFilter: mode => mode !== (_DebuggerStore || _load_DebuggerStore()).DebuggerMode.STOPPED
+    }, {
+      uri: debuggerUriBase + 'disassembly',
+      isLifetimeView: false,
+      defaultLocation: 'bottom',
+      title: () => {
+        return 'Dissasembly View';
+      },
+      isEnabled: () => true,
+      createView: () => _react.createElement((_DisassemblyView || _load_DisassemblyView()).DisassemblyView, { model: this._model }),
+      debuggerModeFilter: mode => {
+        if (mode === (_DebuggerStore || _load_DebuggerStore()).DebuggerMode.STOPPED) {
+          return false;
+        }
+        const info = this._model.getStore().getDebugProcessInfo();
+        return info != null && info.getDebuggerCapabilities().disassembly;
+      }
+    }, {
+      uri: debuggerUriBase + 'registers',
+      isLifetimeView: false,
+      defaultLocation: 'bottom',
+      title: () => {
+        return 'Register View';
+      },
+      isEnabled: () => true,
+      createView: () => _react.createElement((_RegisterView || _load_RegisterView()).RegisterView, { model: this._model }),
+      debuggerModeFilter: mode => {
+        if (mode === (_DebuggerStore || _load_DebuggerStore()).DebuggerMode.STOPPED) {
+          return false;
+        }
+        const info = this._model.getStore().getDebugProcessInfo();
+        return info != null && info.getDebuggerCapabilities().registers;
+      }
     }];
 
     this._restoreDebuggerPaneLocations();
   }
 
-  showHiddenDebuggerPane(api, uri) {
+  _reshowDebuggerPanes(state) {
+    if (state && state.showDebugger) {
+      this.showDebuggerViews();
+      this._getWorkspaceDocks().forEach((dock, index) => {
+        if (dock.dock.isVisible != null && state.workspaceDocksVisibility != null && !state.workspaceDocksVisibility[index] && dock.dock.isVisible() && dock.dock.hide != null) {
+          dock.dock.hide();
+        }
+      });
+
+      // Hiding the docks might have changed the visibility of the debugger
+      // if the only docks containing debugger panes are now hidden.
+      this._updateDebuggerVisibility();
+    }
+  }
+
+  _updateDebuggerVisibility() {
+    this._debuggerVisible = false;
+
+    // See if any visible docks contain a pane that contains a debugger pane.
+    this._getWorkspaceDocks().forEach(dock => {
+      if (dock.dock.isVisible != null && dock.dock.isVisible()) {
+        dock.dock.getPanes().forEach(pane => {
+          if (pane.getItems().find(item => item instanceof (_DebuggerPaneViewModel || _load_DebuggerPaneViewModel()).DebuggerPaneViewModel || item instanceof (_DebuggerPaneContainerViewModel || _load_DebuggerPaneContainerViewModel()).DebuggerPaneContainerViewModel) != null) {
+            this._debuggerVisible = true;
+          }
+        });
+      }
+    });
+  }
+
+  showHiddenDebuggerPane(uri) {
     const pane = this._debuggerPanes.find(p => p.uri === uri);
     if (pane != null && pane.previousLocation != null) {
       pane.previousLocation.userHidden = false;
     }
 
-    this.showDebuggerViews(api);
+    this.showDebuggerViews();
   }
 
   getModelForDebuggerUri(uri) {
@@ -396,9 +478,9 @@ class DebuggerLayoutManager {
     }
   }
 
-  resetLayout(api) {
+  resetLayout() {
     // Remove all debugger panes from the UI.
-    this.hideDebuggerViews(api, false);
+    this.hideDebuggerViews(false);
 
     // Forget all their previous locations.
     for (const debuggerPane of this._debuggerPanes) {
@@ -418,7 +500,7 @@ class DebuggerLayoutManager {
     this._debuggerPanes = [];
     this._paneHiddenWarningShown = false;
     this._initializeDebuggerPanes();
-    this.showDebuggerViews(api);
+    this.showDebuggerViews();
   }
 
   _getPaneStorageKey(uri) {
@@ -478,7 +560,7 @@ class DebuggerLayoutManager {
       }
 
       const key = this._getPaneStorageKey('dock-size' + name);
-      if (dockContainsDebuggerItem) {
+      if (dockContainsDebuggerItem && dock.state != null) {
         // Save the size of a dock only if it contains a debugger item.
         const sizeInfo = JSON.stringify(dock.state.size);
         localStorage.setItem(key, sizeInfo);
@@ -506,7 +588,7 @@ class DebuggerLayoutManager {
     return false;
   }
 
-  debuggerModeChanged(api) {
+  debuggerModeChanged() {
     const mode = this._model.getStore().getDebuggerMode();
 
     // Most panes disappear when the debugger is stopped, only keep
@@ -560,10 +642,10 @@ class DebuggerLayoutManager {
     return null;
   }
 
-  showDebuggerViews(api) {
+  showDebuggerViews() {
     // Hide any debugger panes other than the controls so we have a known
     // starting point for preparing the layout.
-    this.hideDebuggerViews(api, true);
+    this.hideDebuggerViews(true);
 
     const addedItemsByDock = new Map();
     const defaultDock = this._getWorkspaceDocks().find(d => d.name === 'right');
@@ -611,12 +693,10 @@ class DebuggerLayoutManager {
       let targetDock = defaultDock;
 
       // If this pane had a previous location, restore to the previous dock.
-      const loc = debuggerPane.previousLocation;
-      if (loc != null) {
-        const previousDock = this._getWorkspaceDocks().find(d => d.name === loc.dock);
-        if (previousDock != null) {
-          targetDock = previousDock;
-        }
+      const loc = debuggerPane.previousLocation != null ? debuggerPane.previousLocation.dock : debuggerPane.defaultLocation;
+      const previousDock = this._getWorkspaceDocks().find(d => d.name === loc);
+      if (previousDock != null) {
+        targetDock = previousDock;
       }
 
       // Render to a nested pane container for the two vertical docks
@@ -637,6 +717,8 @@ class DebuggerLayoutManager {
         this._appendItemToDock(debuggerPane, targetContainer, new (_DebuggerPaneViewModel || _load_DebuggerPaneViewModel()).DebuggerPaneViewModel(debuggerPane, this._model, debuggerPane.isLifetimeView, pane => this._paneDestroyed(pane), size), addedItemsByDock);
       }
     });
+
+    this._debuggerVisible = true;
   }
 
   _addPaneContainerToWorkspace(container, dock, addedItemsByDock, dockSize) {
@@ -657,7 +739,7 @@ class DebuggerLayoutManager {
         this._saveDebuggerPaneLocations();
       }
 
-      this.hideDebuggerViews(null, false);
+      this.hideDebuggerViews(false);
       this._model.getActions().stopDebugging();
       return;
     }
@@ -712,7 +794,7 @@ class DebuggerLayoutManager {
     }
   }
 
-  hideDebuggerViews(api, performingLayout) {
+  hideDebuggerViews(performingLayout) {
     // Docks do not toggle closed automatically when we remove all their items.
     // They can contain things other than the debugger items though, and could
     // have been left open and empty by the user. Toggle closed any docks that
@@ -766,6 +848,19 @@ class DebuggerLayoutManager {
       this._rightPaneContainerModel.dispose();
       this._rightPaneContainerModel = null;
     }
+
+    this._debuggerVisible = false;
+  }
+
+  isDebuggerVisible() {
+    return this._debuggerVisible;
+  }
+
+  getWorkspaceDocksVisibility() {
+    this._saveDebuggerPaneLocations();
+    return this._getWorkspaceDocks().map(dock => {
+      return dock.dock.isVisible != null && dock.dock.isVisible();
+    });
   }
 }
 exports.DebuggerLayoutManager = DebuggerLayoutManager; /**

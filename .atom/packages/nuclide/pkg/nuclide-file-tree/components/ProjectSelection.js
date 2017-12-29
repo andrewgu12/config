@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ProjectSelection = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _UniversalDisposable;
 
@@ -27,6 +27,8 @@ function _load_TruncatedButton() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -38,7 +40,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @format
  */
 
-class ProjectSelection extends _react.default.Component {
+class ProjectSelection extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -75,6 +77,7 @@ class ProjectSelection extends _react.default.Component {
     this.setState({
       extraContent: this.calculateExtraContent()
     });
+    this.props.remeasureHeight();
   }
 
   calculateExtraContent() {
@@ -86,15 +89,15 @@ class ProjectSelection extends _react.default.Component {
   }
 
   render() {
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'padded' },
-      _react.default.createElement((_TruncatedButton || _load_TruncatedButton()).default, {
+      _react.createElement((_TruncatedButton || _load_TruncatedButton()).default, {
         onClick: () => this.runCommand('application:add-project-folder'),
         icon: 'device-desktop',
         label: 'Add Project Folder'
       }),
-      _react.default.createElement((_TruncatedButton || _load_TruncatedButton()).default, {
+      _react.createElement((_TruncatedButton || _load_TruncatedButton()).default, {
         onClick: () => this.runCommand('nuclide-remote-projects:connect'),
         icon: 'cloud-upload',
         label: 'Add Remote Project Folder'

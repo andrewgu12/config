@@ -17,12 +17,6 @@ function _load_ButtonGroup() {
   return _ButtonGroup = require('nuclide-commons-ui/ButtonGroup');
 }
 
-var _ProgressBar;
-
-function _load_ProgressBar() {
-  return _ProgressBar = require('./ProgressBar');
-}
-
 var _TaskRunnerButton;
 
 function _load_TaskRunnerButton() {
@@ -35,18 +29,25 @@ function _load_Dropdown() {
   return _Dropdown = require('../../../nuclide-ui/Dropdown');
 }
 
+var _FullWidthProgressBar;
+
+function _load_FullWidthProgressBar() {
+  return _FullWidthProgressBar = _interopRequireDefault(require('../../../nuclide-ui/FullWidthProgressBar'));
+}
+
 var _classnames;
 
 function _load_classnames() {
   return _classnames = _interopRequireDefault(require('classnames'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-class Toolbar extends _react.default.Component {
-
+class Toolbar extends _react.Component {
   render() {
     const className = (0, (_classnames || _load_classnames()).default)('nuclide-task-runner-toolbar', {
       disabled: this.props.toolbarDisabled
@@ -58,34 +59,34 @@ class Toolbar extends _react.default.Component {
     let dropdownVisibility = { visibility: 'hidden' };
     if (taskRunners.length === 0 && !this.props.toolbarDisabled) {
       dropdownVisibility = { display: 'none' };
-      taskRunnerSpecificContent = _react.default.createElement(NoTaskRunnersMessage, null);
+      taskRunnerSpecificContent = _react.createElement(NoTaskRunnersMessage, null);
     } else if (activeTaskRunner) {
       const taskRunnerState = this.props.statesForTaskRunners.get(activeTaskRunner);
       if (taskRunnerState) {
         taskRunnerOptions = getTaskRunnerOptions(taskRunners, this.props.statesForTaskRunners);
         const ExtraUi = this.props.extraUiComponent;
-        const extraUi = ExtraUi ? _react.default.createElement(ExtraUi, { key: 'extraui' }) : null;
+        const extraUi = ExtraUi ? _react.createElement(ExtraUi, { key: 'extraui' }) : null;
         const taskButtons = this._renderTaskButtons();
         taskRunnerSpecificContent = [taskButtons, extraUi];
         dropdownVisibility = {};
       }
     }
 
-    const ButtonComponent = buttonProps => _react.default.createElement((_TaskRunnerButton || _load_TaskRunnerButton()).TaskRunnerButton, Object.assign({}, buttonProps, {
+    const ButtonComponent = buttonProps => _react.createElement((_TaskRunnerButton || _load_TaskRunnerButton()).TaskRunnerButton, Object.assign({}, buttonProps, {
       disabled: this.props.taskIsRunning,
       iconComponent: this.props.iconComponent
     }));
 
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: `${className} padded` },
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'nuclide-task-runner-toolbar-contents' },
-        _react.default.createElement(
+        _react.createElement(
           'span',
           { className: 'inline-block', style: dropdownVisibility },
-          _react.default.createElement((_Dropdown || _load_Dropdown()).Dropdown, {
+          _react.createElement((_Dropdown || _load_Dropdown()).Dropdown, {
             buttonComponent: ButtonComponent,
             value: activeTaskRunner,
             options: taskRunnerOptions,
@@ -97,7 +98,7 @@ class Toolbar extends _react.default.Component {
         ),
         taskRunnerSpecificContent
       ),
-      _react.default.createElement((_ProgressBar || _load_ProgressBar()).ProgressBar, {
+      _react.createElement((_FullWidthProgressBar || _load_FullWidthProgressBar()).default, {
         progress: this.props.progress,
         visible: this.props.taskIsRunning
       })
@@ -106,14 +107,14 @@ class Toolbar extends _react.default.Component {
 
   _renderTaskButtons() {
     const taskButtons = this._getButtonsForTasks();
-    return _react.default.createElement(
+    return _react.createElement(
       'span',
       { className: 'inline-block', key: 'taskButtons' },
-      _react.default.createElement(
+      _react.createElement(
         (_ButtonGroup || _load_ButtonGroup()).ButtonGroup,
         null,
         taskButtons,
-        _react.default.createElement((_Button || _load_Button()).Button, {
+        _react.createElement((_Button || _load_Button()).Button, {
           className: 'nuclide-task-button',
           key: 'stop',
           size: (_Button || _load_Button()).ButtonSizes.SMALL,
@@ -143,7 +144,7 @@ class Toolbar extends _react.default.Component {
     }
 
     return state.tasks.filter(task => task.hidden !== true).map(task => {
-      return _react.default.createElement((_Button || _load_Button()).Button, {
+      return _react.createElement((_Button || _load_Button()).Button, {
         className: 'nuclide-task-button',
         key: task.type,
         size: (_Button || _load_Button()).ButtonSizes.SMALL,
@@ -185,11 +186,11 @@ function getTaskRunnerOptions(taskRunners, statesForTaskRunners) {
 
 function NoTaskRunnersMessage() {
   const featureLink = 'https://nuclide.io/docs/features/task-runner/';
-  return _react.default.createElement(
+  return _react.createElement(
     'span',
     { style: { 'white-space': 'nowrap' } },
     'Install and enable a ',
-    _react.default.createElement(
+    _react.createElement(
       'a',
       { href: featureLink },
       'task runner'

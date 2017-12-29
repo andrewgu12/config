@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.OpenFilesListComponent = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _classnames;
 
@@ -19,10 +19,22 @@ function _load_PanelComponentScroller() {
   return _PanelComponentScroller = require('nuclide-commons-ui/PanelComponentScroller');
 }
 
+var _FileTreeActions;
+
+function _load_FileTreeActions() {
+  return _FileTreeActions = _interopRequireDefault(require('../lib/FileTreeActions'));
+}
+
 var _FileTreeHelpers;
 
 function _load_FileTreeHelpers() {
   return _FileTreeHelpers = _interopRequireDefault(require('../lib/FileTreeHelpers'));
+}
+
+var _FileTreeStore;
+
+function _load_FileTreeStore() {
+  return _FileTreeStore = require('../lib/FileTreeStore');
 }
 
 var _PathWithFileIcon;
@@ -34,7 +46,7 @@ function _load_PathWithFileIcon() {
 var _Tree;
 
 function _load_Tree() {
-  return _Tree = require('../../nuclide-ui/Tree');
+  return _Tree = require('nuclide-commons-ui/Tree');
 }
 
 var _nuclideAnalytics;
@@ -51,8 +63,22 @@ function _load_goToLocation() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-class OpenFilesListComponent extends _react.default.PureComponent {
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
+const getActions = (_FileTreeActions || _load_FileTreeActions()).default.getInstance; /**
+                                                                                       * Copyright (c) 2015-present, Facebook, Inc.
+                                                                                       * All rights reserved.
+                                                                                       *
+                                                                                       * This source code is licensed under the license found in the LICENSE file in
+                                                                                       * the root directory of this source tree.
+                                                                                       *
+                                                                                       * 
+                                                                                       * @format
+                                                                                       */
+
+const store = (_FileTreeStore || _load_FileTreeStore()).FileTreeStore.getInstance();
+
+class OpenFilesListComponent extends _react.PureComponent {
   constructor(props) {
     super(props);
 
@@ -70,11 +96,22 @@ class OpenFilesListComponent extends _react.default.PureComponent {
   componentDidUpdate(prevProps) {
     const selectedRow = this.refs.selectedRow;
     if (selectedRow != null && prevProps.activeUri !== this.props.activeUri) {
+      // Our lint rule isn't smart enough to recognize that this is a custom method and not the one
+      // on HTMLElements, so we just have to squelch the error.
+      // eslint-disable-next-line rulesdir/dom-apis
       selectedRow.scrollIntoView();
     }
   }
 
-  _onClick(entry, event) {
+  _onMouseDown(entry, event) {
+    event.stopPropagation();
+    const rootNode = store.getRootForPath(entry.uri);
+    if ((_FileTreeHelpers || _load_FileTreeHelpers()).default.getSelectionMode(event) === 'single-select' && !entry.isSelected && rootNode != null) {
+      getActions().setTargetNode(rootNode.rootUri, entry.uri);
+    }
+  }
+
+  _onSelect(entry, event) {
     if (event.defaultPrevented) {
       return;
     }
@@ -87,7 +124,11 @@ class OpenFilesListComponent extends _react.default.PureComponent {
     }
 
     (0, (_nuclideAnalytics || _load_nuclideAnalytics()).track)('filetree-open-from-open-files', { uri });
-    (0, (_goToLocation || _load_goToLocation()).goToLocation)(uri);
+    (0, (_goToLocation || _load_goToLocation()).goToLocation)(uri, { activatePane: false });
+  }
+
+  _onConfirm(entry, event) {
+    (0, (_goToLocation || _load_goToLocation()).goToLocation)(entry.uri);
   }
 
   _onCloseClick(entry, event) {
@@ -114,31 +155,37 @@ class OpenFilesListComponent extends _react.default.PureComponent {
   render() {
     const sortedEntries = propsToEntries(this.props);
 
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'nuclide-file-tree-open-files' },
-      _react.default.createElement(
+      _react.createElement(
         (_PanelComponentScroller || _load_PanelComponentScroller()).PanelComponentScroller,
         null,
-        _react.default.createElement(
+        _react.createElement(
           (_Tree || _load_Tree()).TreeList,
           { showArrows: true, className: 'nuclide-file-tree-open-files-list' },
-          _react.default.createElement(
+          _react.createElement(
             (_Tree || _load_Tree()).NestedTreeItem,
             { hasFlatChildren: true },
             sortedEntries.map(e => {
               const isHoveredUri = this.state.hoveredUri === e.uri;
-              return _react.default.createElement(
+              return _react.createElement(
                 (_Tree || _load_Tree()).TreeItem,
                 {
-                  className: (0, (_classnames || _load_classnames()).default)({ 'text-highlight': isHoveredUri }),
+                  className: (0, (_classnames || _load_classnames()).default)('file', 'nuclide-path-with-terminal', {
+                    'text-highlight': isHoveredUri
+                  }),
                   selected: e.isSelected,
                   key: e.uri,
-                  onClick: this._onClick.bind(this, e),
+                  onConfirm: this._onConfirm.bind(this, e),
+                  onSelect: this._onSelect.bind(this, e),
                   onMouseEnter: this._onListItemMouseEnter.bind(this, e),
                   onMouseLeave: this._onListItemMouseLeave,
+                  onMouseDown: this._onMouseDown.bind(this, e),
+                  path: e.uri,
+                  name: e.name,
                   ref: e.isSelected ? 'selectedRow' : null },
-                _react.default.createElement('span', {
+                _react.createElement('span', {
                   className: (0, (_classnames || _load_classnames()).default)('icon', {
                     'icon-primitive-dot': e.isModified && !isHoveredUri,
                     'icon-x': isHoveredUri || !e.isModified,
@@ -146,7 +193,7 @@ class OpenFilesListComponent extends _react.default.PureComponent {
                   }),
                   onClick: this._onCloseClick.bind(this, e)
                 }),
-                _react.default.createElement((_PathWithFileIcon || _load_PathWithFileIcon()).default, { path: e.name })
+                _react.createElement((_PathWithFileIcon || _load_PathWithFileIcon()).default, { path: e.name })
               );
             })
           )
@@ -156,17 +203,7 @@ class OpenFilesListComponent extends _react.default.PureComponent {
   }
 }
 
-exports.OpenFilesListComponent = OpenFilesListComponent; /**
-                                                          * Copyright (c) 2015-present, Facebook, Inc.
-                                                          * All rights reserved.
-                                                          *
-                                                          * This source code is licensed under the license found in the LICENSE file in
-                                                          * the root directory of this source tree.
-                                                          *
-                                                          * 
-                                                          * @format
-                                                          */
-
+exports.OpenFilesListComponent = OpenFilesListComponent;
 function propsToEntries(props) {
   const entries = props.uris.map(uri => {
     const isModified = props.modifiedUris.indexOf(uri) >= 0;

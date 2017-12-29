@@ -209,9 +209,9 @@ module.exports = _client => {
           kind: "string"
         }
       }
-    }]).then(args => {
+    }])).switchMap(args => {
       return _client.callRemoteFunction("BuckService/buildWithOutput", "observable", args);
-    })).concatMap(id => id).concatMap(value => {
+    }).concatMap(value => {
       return _client.unmarshal(value, {
         kind: "named",
         name: "LegacyProcessMessage"
@@ -247,9 +247,9 @@ module.exports = _client => {
       type: {
         kind: "boolean"
       }
-    }]).then(args => {
+    }])).switchMap(args => {
       return _client.callRemoteFunction("BuckService/testWithOutput", "observable", args);
-    })).concatMap(id => id).concatMap(value => {
+    }).concatMap(value => {
       return _client.unmarshal(value, {
         kind: "named",
         name: "LegacyProcessMessage"
@@ -298,9 +298,9 @@ module.exports = _client => {
       type: {
         kind: "boolean"
       }
-    }]).then(args => {
+    }])).switchMap(args => {
       return _client.callRemoteFunction("BuckService/installWithOutput", "observable", args);
-    })).concatMap(id => id).concatMap(value => {
+    }).concatMap(value => {
       return _client.unmarshal(value, {
         kind: "named",
         name: "LegacyProcessMessage"
@@ -339,9 +339,9 @@ module.exports = _client => {
           kind: "string"
         }
       }
-    }]).then(args => {
+    }])).switchMap(args => {
       return _client.callRemoteFunction("BuckService/runWithOutput", "observable", args);
-    })).concatMap(id => id).concatMap(value => {
+    }).concatMap(value => {
       return _client.unmarshal(value, {
         kind: "named",
         name: "LegacyProcessMessage"
@@ -547,9 +547,9 @@ module.exports = _client => {
       type: {
         kind: "number"
       }
-    }]).then(args => {
+    }])).switchMap(args => {
       return _client.callRemoteFunction("BuckService/getWebSocketStream", "observable", args);
-    })).concatMap(id => id).concatMap(value => {
+    }).concatMap(value => {
       return _client.unmarshal(value, {
         kind: "named",
         name: "Object"
@@ -636,9 +636,9 @@ module.exports = _client => {
         kind: "named",
         name: "CompilationDatabaseParams"
       }
-    }]).then(args => {
+    }])).switchMap(args => {
       return _client.callRemoteFunction("BuckService/getCompilationDatabase", "observable", args);
-    })).concatMap(id => id).concatMap(value => {
+    }).concatMap(value => {
       return _client.unmarshal(value, {
         kind: "nullable",
         type: {
@@ -1412,7 +1412,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "process.js",
-        line: 584
+        line: 598
       },
       name: "ProcessExitMessage",
       definition: {
@@ -1450,7 +1450,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "process.js",
-        line: 590
+        line: 604
       },
       name: "ProcessMessage",
       definition: {
@@ -1524,7 +1524,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "process.js",
-        line: 603
+        line: 617
       },
       name: "LegacyProcessMessage",
       definition: {
@@ -2284,7 +2284,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "types.js",
-        line: 102
+        line: 107
       },
       name: "CompilationDatabaseParams",
       definition: {
@@ -2381,7 +2381,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "rpc-types.js",
-        line: 119
+        line: 123
       },
       name: "ClangCompilationDatabase",
       definition: {

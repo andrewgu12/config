@@ -37,9 +37,9 @@ function app(state, action) {
       return Object.assign({}, state, {
         deviceType: null,
         device: null,
-        devices: (_expected || _load_expected()).Expect.value([]),
-        infoTables: new Map(),
-        processes: [],
+        devices: (_expected || _load_expected()).Expect.pendingValue([]),
+        infoTables: (_expected || _load_expected()).Expect.pendingValue(new Map()),
+        processes: (_expected || _load_expected()).Expect.pendingValue([]),
         actions: [],
         processTasks: [],
         isDeviceConnected: false,
@@ -51,9 +51,9 @@ function app(state, action) {
       return Object.assign({}, state, {
         deviceType,
         device: null,
-        devices: (_expected || _load_expected()).Expect.value([]),
-        infoTables: new Map(),
-        processes: [],
+        devices: (_expected || _load_expected()).Expect.pendingValue([]),
+        infoTables: (_expected || _load_expected()).Expect.pendingValue(new Map()),
+        processes: (_expected || _load_expected()).Expect.pendingValue([]),
         actions: [],
         processTasks: [],
         isDeviceConnected: false
@@ -82,13 +82,19 @@ function app(state, action) {
     case (_Actions || _load_Actions()).SET_INFO_TABLES:
       const { infoTables } = action.payload;
       return Object.assign({}, state, {
-        infoTables
+        infoTables: (_expected || _load_expected()).Expect.value(infoTables)
+      });
+
+    case (_Actions || _load_Actions()).SET_APP_INFO_TABLES:
+      const { appInfoTables } = action.payload;
+      return Object.assign({}, state, {
+        appInfoTables: (_expected || _load_expected()).Expect.value(appInfoTables)
       });
 
     case (_Actions || _load_Actions()).SET_PROCESSES:
       const { processes } = action.payload;
       return Object.assign({}, state, {
-        processes
+        processes: (_expected || _load_expected()).Expect.value(processes)
       });
 
     case (_Actions || _load_Actions()).SET_PROCESS_TASKS:
@@ -113,6 +119,12 @@ function app(state, action) {
       const { deviceTypeTasks } = action.payload;
       return Object.assign({}, state, {
         deviceTypeTasks
+      });
+
+    case (_Actions || _load_Actions()).TOGGLE_DEVICE_POLLING:
+      const { isActive } = action.payload;
+      return Object.assign({}, state, {
+        isPollingDevices: isActive
       });
 
     default:

@@ -39,6 +39,7 @@ const OBJC_SELECTOR_NAME_REGEX = /([^\s:]+:)+$/g;
  */
 
 function findWholeRangeOfSymbol(textEditor, text, textRange, spelling, extent) {
+  // flowlint-next-line sketchy-null-string:off
   if (!spelling || text === spelling) {
     return [textRange];
   } else if (text + ':' === spelling) {

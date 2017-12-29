@@ -8,10 +8,10 @@ var _child_process = _interopRequireDefault(require('child_process'));
 
 var _events = _interopRequireDefault(require('events'));
 
-var _env;
+var _runtimeInfo;
 
-function _load_env() {
-  return _env = require('../../nuclide-node-transpiler/lib/env');
+function _load_runtimeInfo() {
+  return _runtimeInfo = require('../../commons-node/runtime-info');
 }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -27,7 +27,7 @@ const BOOTSTRAP_PATH = require.resolve('./bootstrap'); /**
                                                         * @format
                                                         */
 
-const TRANSPILER_PATH = require.resolve('../../nuclide-node-transpiler');
+const TRANSPILER_PATH = require.resolve('../../commons-node/load-transpiler');
 
 /**
  * Task creates and manages communication with another Node process. In addition
@@ -77,10 +77,12 @@ class Task {
 
   _fork() {
     // The transpiler is only loaded in development.
-    if ((_env || _load_env()).__DEV__) {
-      return _child_process.default.fork('--require', [TRANSPILER_PATH, BOOTSTRAP_PATH], { silent: true });
+    if ((_runtimeInfo || _load_runtimeInfo()).__DEV__) {
+      return _child_process.default.fork('--require', [TRANSPILER_PATH, BOOTSTRAP_PATH], { silent: true } // Needed so stdout/stderr are available.
+      );
     } else {
-      return _child_process.default.fork(BOOTSTRAP_PATH, [], { silent: true });
+      return _child_process.default.fork(BOOTSTRAP_PATH, [], { silent: true } // Needed so stdout/stderr are available.
+      );
     }
   }
 

@@ -29,7 +29,7 @@ function _load_ServerConnection() {
 var _reduxObservable;
 
 function _load_reduxObservable() {
-  return _reduxObservable = require('../../commons-node/redux-observable');
+  return _reduxObservable = require('nuclide-commons/redux-observable');
 }
 
 var _redux;
@@ -97,20 +97,20 @@ class Activation {
     this._disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default((_ServerConnection || _load_ServerConnection()).ServerConnection.observeRemoteConnections().subscribe(conns => {
       const hosts = conns.map(conn => conn.getUriOfRemotePath('/'));
       this._store.dispatch((_Actions || _load_Actions()).setHosts([''].concat(hosts)));
-    }));
+    }), this._registerCommandAndOpener());
   }
 
   dispose() {
     this._disposables.dispose();
   }
 
-  consumeWorkspaceViewsService(api) {
-    this._disposables.add(api.addOpener(uri => {
+  _registerCommandAndOpener() {
+    return new (_UniversalDisposable || _load_UniversalDisposable()).default(atom.workspace.addOpener(uri => {
       if (uri === (_DevicePanelWorkspaceView || _load_DevicePanelWorkspaceView()).WORKSPACE_VIEW_URI) {
         return new (_DevicePanelWorkspaceView || _load_DevicePanelWorkspaceView()).DevicePanelWorkspaceView(this._store);
       }
-    }), () => (0, (_destroyItemWhere || _load_destroyItemWhere()).destroyItemWhere)(item => item instanceof (_DevicePanelWorkspaceView || _load_DevicePanelWorkspaceView()).DevicePanelWorkspaceView), atom.commands.add('atom-workspace', 'nuclide-device-panel:toggle', event => {
-      api.toggle((_DevicePanelWorkspaceView || _load_DevicePanelWorkspaceView()).WORKSPACE_VIEW_URI, event.detail);
+    }), () => (0, (_destroyItemWhere || _load_destroyItemWhere()).destroyItemWhere)(item => item instanceof (_DevicePanelWorkspaceView || _load_DevicePanelWorkspaceView()).DevicePanelWorkspaceView), atom.commands.add('atom-workspace', 'nuclide-device-panel:toggle', () => {
+      atom.workspace.toggle((_DevicePanelWorkspaceView || _load_DevicePanelWorkspaceView()).WORKSPACE_VIEW_URI);
     }));
   }
 
@@ -119,7 +119,7 @@ class Activation {
   }
 
   _refreshDeviceTypes() {
-    this._store.dispatch((_Actions || _load_Actions()).setDeviceTypes(Array.from((0, (_providers || _load_providers()).getProviders)().deviceList).map(p => p.getType())));
+    this._store.dispatch((_Actions || _load_Actions()).setDeviceTypes(Array.from((0, (_providers || _load_providers()).getProviders)().deviceList).map(p => p.getType()).sort((a, b) => a.localeCompare(b))));
   }
 
   _createProviderRegistration(providers, onDispose) {
@@ -152,7 +152,9 @@ class Activation {
       registerProcessesProvider: this._createProviderRegistration(providers.deviceProcesses),
       registerTaskProvider: this._createProviderRegistration(providers.deviceTask),
       registerProcessTaskProvider: this._createProviderRegistration(providers.processTask),
-      registerDeviceTypeTaskProvider: this._createProviderRegistration(providers.deviceTypeTask)
+      registerDeviceTypeTaskProvider: this._createProviderRegistration(providers.deviceTypeTask, () => this._refreshDeviceTypes()),
+      registerDeviceActionProvider: this._createProviderRegistration(providers.deviceAction),
+      registerAppInfoProvider: this._createProviderRegistration(providers.appInfo)
     };
   }
 }

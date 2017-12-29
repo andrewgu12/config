@@ -11,7 +11,7 @@ function _load_classnames() {
   return _classnames = _interopRequireDefault(require('classnames'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _BreakpointListComponent;
 
@@ -19,10 +19,11 @@ function _load_BreakpointListComponent() {
   return _BreakpointListComponent = require('./BreakpointListComponent');
 }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-class BreakpointsView extends _react.default.PureComponent {
-
+class BreakpointsView extends _react.PureComponent {
   constructor(props) {
     super(props);
   }
@@ -31,14 +32,14 @@ class BreakpointsView extends _react.default.PureComponent {
     const { model } = this.props;
     const actions = model.getActions();
 
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       {
         className: (0, (_classnames || _load_classnames()).default)('nuclide-debugger-container-new', 'nuclide-debugger-breakpoint-list') },
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'nuclide-debugger-pane-content ' },
-        _react.default.createElement((_BreakpointListComponent || _load_BreakpointListComponent()).BreakpointListComponent, {
+        _react.createElement((_BreakpointListComponent || _load_BreakpointListComponent()).BreakpointListComponent, {
           actions: actions,
           breakpointStore: model.getBreakpointStore()
         })

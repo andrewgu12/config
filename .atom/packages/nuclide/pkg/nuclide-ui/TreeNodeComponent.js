@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.TreeNodeComponent = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactDom = _interopRequireDefault(require('react-dom'));
 
@@ -16,6 +16,8 @@ function _load_classnames() {
 }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
@@ -37,7 +39,7 @@ const SPINNER = '\uF087';
 /**
  * Represents one entry in a TreeComponent.
  */
-class TreeNodeComponent extends _react.default.PureComponent {
+class TreeNodeComponent extends _react.PureComponent {
   constructor(...args) {
     var _temp;
 
@@ -75,7 +77,7 @@ class TreeNodeComponent extends _react.default.PureComponent {
     if (this.props.isContainer) {
       if (this.props.isExpanded) {
         if (this.props.isLoading) {
-          arrow = _react.default.createElement(
+          arrow = _react.createElement(
             'span',
             { className: 'nuclide-tree-component-item-arrow-spinner' },
             SPINNER
@@ -88,7 +90,7 @@ class TreeNodeComponent extends _react.default.PureComponent {
       }
     }
 
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       {
         className: (0, (_classnames || _load_classnames()).default)(rowClassNameObj),
@@ -96,12 +98,12 @@ class TreeNodeComponent extends _react.default.PureComponent {
         onClick: this._onClick,
         onDoubleClick: this._onDoubleClick,
         onMouseDown: this._onMouseDown },
-      _react.default.createElement(
+      _react.createElement(
         'span',
         { className: 'nuclide-tree-component-item-arrow', ref: 'arrow' },
         arrow
       ),
-      this.props.labelElement != null ? this.props.labelElement : _react.default.createElement(
+      this.props.labelElement != null ? this.props.labelElement : _react.createElement(
         'span',
         {
           className: this.props.labelClassName

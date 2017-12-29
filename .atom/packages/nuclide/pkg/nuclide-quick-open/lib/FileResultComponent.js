@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _nuclideUri;
 
@@ -26,8 +26,10 @@ function _load_groupMatchIndexes() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function renderSubsequence(seq, props) {
-  return seq.length === 0 ? null : _react.default.createElement(
+  return seq.length === 0 ? null : _react.createElement(
     'span',
     props,
     seq
@@ -65,7 +67,7 @@ class FileResultComponent {
     }
 
     const pathComponents = (0, (_groupMatchIndexes || _load_groupMatchIndexes()).default)(filePath, matchIndexes, renderMatchedSubsequence, renderUnmatchedSubsequence);
-    return _react.default.createElement(
+    return _react.createElement(
       (_PathWithFileIcon || _load_PathWithFileIcon()).default,
       { path: (_nuclideUri || _load_nuclideUri()).default.basename(filePath) },
       pathComponents

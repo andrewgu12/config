@@ -11,7 +11,7 @@ function _load_string() {
   return _string = require('nuclide-commons/string');
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _AtomInput;
 
@@ -45,7 +45,9 @@ function _load_classnames() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-class LaunchUIComponent extends _react.default.Component {
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+class LaunchUIComponent extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -57,6 +59,7 @@ class LaunchUIComponent extends _react.default.Component {
       const launchArguments = (0, (_string || _load_string()).shellParse)(this.refs.launchArguments.getText());
       const launchEnvironmentVariables = (0, (_string || _load_string()).shellParse)(this.refs.launchEnvironmentVariables.getText());
       const launchWorkingDirectory = this.refs.launchWorkingDirectory.getText().trim();
+      const launchSourcePath = this.refs.launchSourcePath.getText().trim();
       const stdinFilePath = this.refs.stdinFilePath.getText().trim();
       const launchTarget = {
         executablePath: launchExecutable,
@@ -66,6 +69,9 @@ class LaunchUIComponent extends _react.default.Component {
         stdinFilePath,
         coreDump
       };
+      if (launchSourcePath != null) {
+        launchTarget.basepath = launchSourcePath;
+      }
       // Fire and forget.
       this.props.actions.launchDebugger(launchTarget);
 
@@ -75,7 +81,8 @@ class LaunchUIComponent extends _react.default.Component {
         launchEnvironmentVariables: this.state.launchEnvironmentVariables,
         launchWorkingDirectory: this.state.launchWorkingDirectory,
         stdinFilePath: this.state.stdinFilePath,
-        coreDump: this.state.coreDump
+        coreDump: this.state.coreDump,
+        launchSourcePath: this.state.launchSourcePath
       });
     };
 
@@ -86,7 +93,8 @@ class LaunchUIComponent extends _react.default.Component {
       launchEnvironmentVariables: '',
       launchWorkingDirectory: '',
       stdinFilePath: '',
-      coreDump: ''
+      coreDump: '',
+      launchSourcePath: ''
     };
   }
 
@@ -111,7 +119,8 @@ class LaunchUIComponent extends _react.default.Component {
         launchEnvironmentVariables: savedSettings.launchEnvironmentVariables,
         launchWorkingDirectory: savedSettings.launchWorkingDirectory,
         stdinFilePath: savedSettings.stdinFilePath,
-        coreDump: savedSettings.coreDump || ''
+        coreDump: savedSettings.coreDump || '',
+        launchSourcePath: savedSettings.launchSourcePath || ''
       });
     });
 
@@ -137,50 +146,50 @@ class LaunchUIComponent extends _react.default.Component {
     // TODO: smart fill the working directory textbox.
     // TODO: make tab stop between textbox work.
     // Reserve tabIndex [1~10] to header portion of the UI so we start from "11" here.
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'block' },
-      _react.default.createElement(
+      _react.createElement(
         'label',
         null,
         'Executable: '
       ),
-      _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+      _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
         ref: 'launchExecutable',
         tabIndex: '11',
         placeholderText: 'Input the executable path you want to launch',
         value: this.state.launchExecutable,
         onDidChange: value => this.setState({ launchExecutable: value })
       }),
-      _react.default.createElement(
+      _react.createElement(
         'label',
         null,
         'Core dump file: '
       ),
-      _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+      _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
         ref: 'coreDump',
         tabIndex: '12',
         placeholderText: 'Optional path to a core dump file to offline debug a crash',
         value: this.state.coreDump,
         onDidChange: value => this.setState({ coreDump: value })
       }),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'nuclide-native-launch-small-text' },
         'Be sure to copy the core dump to a location where Nuclide has read access. (Nuclide server does not run as root).'
       ),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         {
           className: (0, (_classnames || _load_classnames()).default)({
             'nuclide-native-launch-disabled': this.state.coreDump !== ''
           }) },
-        _react.default.createElement(
+        _react.createElement(
           'label',
           null,
           'Arguments: '
         ),
-        _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+        _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
           ref: 'launchArguments',
           tabIndex: '13',
           disabled: this.state.coreDump !== '',
@@ -188,12 +197,12 @@ class LaunchUIComponent extends _react.default.Component {
           value: this.state.launchArguments,
           onDidChange: value => this.setState({ launchArguments: value })
         }),
-        _react.default.createElement(
+        _react.createElement(
           'label',
           null,
           'Environment Variables: '
         ),
-        _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+        _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
           ref: 'launchEnvironmentVariables',
           tabIndex: '14',
           disabled: this.state.coreDump !== '',
@@ -201,27 +210,39 @@ class LaunchUIComponent extends _react.default.Component {
           value: this.state.launchEnvironmentVariables,
           onDidChange: value => this.setState({ launchEnvironmentVariables: value })
         }),
-        _react.default.createElement(
+        _react.createElement(
+          'label',
+          null,
+          'Source path: '
+        ),
+        _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+          ref: 'launchSourcePath',
+          tabIndex: '16',
+          placeholderText: 'Optional base path for sources',
+          value: this.state.launchSourcePath,
+          onDidChange: value => this.setState({ launchSourcePath: value })
+        }),
+        _react.createElement(
           'label',
           null,
           'Working directory: '
         ),
-        _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+        _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
           ref: 'launchWorkingDirectory',
-          tabIndex: '15',
+          tabIndex: '17',
           disabled: this.state.coreDump !== '',
           placeholderText: 'Working directory for the launched executable',
           value: this.state.launchWorkingDirectory,
           onDidChange: value => this.setState({ launchWorkingDirectory: value })
         }),
-        _react.default.createElement(
+        _react.createElement(
           'label',
           null,
           'Stdin file: '
         ),
-        _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+        _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
           ref: 'stdinFilePath',
-          tabIndex: '16',
+          tabIndex: '18',
           disabled: this.state.coreDump !== '',
           placeholderText: 'Redirect stdin to this file',
           value: this.state.stdinFilePath,

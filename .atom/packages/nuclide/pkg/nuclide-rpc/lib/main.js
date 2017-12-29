@@ -4,6 +4,13 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.__test__ = undefined;
+
+var _memoize2;
+
+function _load_memoize() {
+  return _memoize2 = _interopRequireDefault(require('lodash/memoize'));
+}
+
 exports.proxyFilename = proxyFilename;
 exports.createProxyFactory = createProxyFactory;
 
@@ -17,10 +24,12 @@ function _load_nuclideUri() {
 
 var _module = _interopRequireDefault(require('module'));
 
-var _proxyGenerator;
+var _os = _interopRequireDefault(require('os'));
 
-function _load_proxyGenerator() {
-  return _proxyGenerator = require('./proxy-generator');
+var _memoizeWithDisk;
+
+function _load_memoizeWithDisk() {
+  return _memoizeWithDisk = _interopRequireDefault(require('../../commons-node/memoizeWithDisk'));
 }
 
 var _serviceParser;
@@ -34,6 +43,9 @@ var _rxjsBundlesRxMinJs = require('rxjs/bundles/Rx.min.js');
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /** Cache for remote proxies. */
+const proxiesCache = new Map();
+
+// Proxy dependencies
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -45,9 +57,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @format
  */
 
-const proxiesCache = new Map();
-
-// Proxy dependencies
 function proxyFilename(definitionPath) {
   if (!(_nuclideUri || _load_nuclideUri()).default.isAbsolute(definitionPath)) {
     throw new Error(`"${definitionPath}" definition path must be absolute.`);
@@ -69,7 +78,7 @@ function createProxyFactory(serviceName, preserveFunctionNames, definitionPath, 
     } else {
       const definitionSource = _fs.default.readFileSync(definitionPath, 'utf8');
       const defs = (0, (_serviceParser || _load_serviceParser()).parseServiceDefinition)(definitionPath, definitionSource, predefinedTypes);
-      code = (0, (_proxyGenerator || _load_proxyGenerator()).generateProxy)(serviceName, preserveFunctionNames, defs);
+      code = memoizedGenerateProxy(serviceName, preserveFunctionNames, defs);
     }
 
     const m = loadCodeAsModule(code, filename);
@@ -86,6 +95,18 @@ function createProxyFactory(serviceName, preserveFunctionNames, definitionPath, 
 
   return factory;
 }
+
+const memoizedReadFile = (0, (_memoize2 || _load_memoize()).default)(filename => {
+  return _fs.default.readFileSync(filename, 'utf8');
+});
+
+const memoizedGenerateProxy = (0, (_memoizeWithDisk || _load_memoizeWithDisk()).default)(function generateProxy(serviceName, preserveFunctionNames, defs) {
+  // External dependencies: ensure that they're included in the key below.
+  const createProxyGenerator = require('./proxy-generator').default;
+  const generate = require('babel-generator').default;
+  const t = require('babel-types');
+  return createProxyGenerator(t, generate).generateProxy(serviceName, preserveFunctionNames, defs);
+}, (serviceName, preserveFunctionNames, defs) => [serviceName, preserveFunctionNames, defs, memoizedReadFile(require.resolve('./proxy-generator')), require('babel-generator/package.json').version, require('babel-types/package.json').version], (_nuclideUri || _load_nuclideUri()).default.join(_os.default.tmpdir(), 'nuclide-rpc-cache'));
 
 function loadCodeAsModule(code, filename) {
   if (!(code.length > 0)) {

@@ -8,7 +8,13 @@ var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
 
 exports.createConfigObs = createConfigObs;
 exports.getStore = getStore;
-exports.portForDebugBridge = portForDebugBridge;
+exports.portsForDebugBridge = portsForDebugBridge;
+
+var _DebugBridge;
+
+function _load_DebugBridge() {
+  return _DebugBridge = require('./DebugBridge');
+}
 
 var _process;
 
@@ -32,13 +38,29 @@ var _rxjsBundlesRxMinJs = require('rxjs/bundles/Rx.min.js');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+/**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the license found in the LICENSE file in
+ * the root directory of this source tree.
+ *
+ * 
+ * @format
+ */
+
 class DebugBridgePathStore {
-  constructor() {
+
+  constructor(defaultPort) {
     this._registeredPaths = new Map();
     this._sortedPaths = [];
     this._lastWorkingPath = null;
     this._customPath = null;
-    this._port = null;
+    this._ports = [];
+
+    if (defaultPort != null) {
+      this._ports.push(defaultPort);
+    }
   }
 
   registerPath(id, dbPath) {
@@ -60,9 +82,10 @@ class DebugBridgePathStore {
 
   getFullConfig() {
     return {
+      // flowlint-next-line sketchy-null-string:off
       active: this._customPath || this._lastWorkingPath,
       all: this.getPaths(),
-      port: this.getPort()
+      ports: this.getPorts()
     };
   }
 
@@ -77,23 +100,24 @@ class DebugBridgePathStore {
     return this._customPath;
   }
 
-  setPort(port) {
-    this._port = port;
+  addPort(port) {
+    // Keep the ports sorted such that the most recently added
+    // is always at the end.
+    this.removePort(port);
+    this._ports.push(port);
   }
 
-  getPort() {
-    return this._port;
+  removePort(port) {
+    const idx = this._ports.indexOf(port);
+    if (idx >= 0) {
+      this._ports.splice(idx, 1);
+    }
   }
-} /**
-   * Copyright (c) 2015-present, Facebook, Inc.
-   * All rights reserved.
-   *
-   * This source code is licensed under the license found in the LICENSE file in
-   * the root directory of this source tree.
-   *
-   * 
-   * @format
-   */
+
+  getPorts() {
+    return Array.from(this._ports);
+  }
+}
 
 const runningPromises = new Map();
 
@@ -141,9 +165,14 @@ function pathForDebugBridge(db) {
 }
 
 function createConfigObs(db) {
-  return _rxjsBundlesRxMinJs.Observable.defer(() => pathForDebugBridge(db)).map(path => ({
-    path,
-    port: portForDebugBridge(db)
+  return _rxjsBundlesRxMinJs.Observable.defer((0, _asyncToGenerator.default)(function* () {
+    return {
+      path: yield pathForDebugBridge(db),
+      ports: portsForDebugBridge(db)
+    };
+  })).map(config => ({
+    path: config.path,
+    ports: config.ports
   }));
 }
 
@@ -152,14 +181,14 @@ const pathStore = new Map();
 function getStore(db) {
   let cached = pathStore.get(db);
   if (cached == null) {
-    cached = new DebugBridgePathStore();
+    cached = new DebugBridgePathStore(db === 'adb' ? (_DebugBridge || _load_DebugBridge()).DEFAULT_ADB_PORT : null);
     cached.registerPath('default', { path: db, priority: -1 });
     pathStore.set(db, cached);
   }
   return cached;
 }
 
-function portForDebugBridge(db) {
+function portsForDebugBridge(db) {
   const store = getStore(db);
-  return store.getPort();
+  return store.getPorts();
 }

@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ProgressComponent = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _ProgressBar;
 
@@ -13,13 +13,12 @@ function _load_ProgressBar() {
   return _ProgressBar = require('nuclide-commons-ui/ProgressBar');
 }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-class ProgressComponent extends _react.default.Component {
-
+class ProgressComponent extends _react.Component {
   render() {
     const { message, value, max } = this.props.phase;
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       null,
       message,
@@ -28,10 +27,10 @@ class ProgressComponent extends _react.default.Component {
       ' / ',
       max,
       ')',
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'nuclide-refactorizer-progress' },
-        _react.default.createElement((_ProgressBar || _load_ProgressBar()).ProgressBar, { value: value, max: max })
+        _react.createElement((_ProgressBar || _load_ProgressBar()).ProgressBar, { value: value, max: max })
       )
     );
   }

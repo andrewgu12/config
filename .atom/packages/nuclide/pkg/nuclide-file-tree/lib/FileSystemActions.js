@@ -6,10 +6,10 @@ Object.defineProperty(exports, "__esModule", {
 
 var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
 
-var _FileDialogComponent;
+var _FileActionModal;
 
-function _load_FileDialogComponent() {
-  return _FileDialogComponent = _interopRequireDefault(require('../components/FileDialogComponent'));
+function _load_FileActionModal() {
+  return _FileActionModal = require('../../nuclide-ui/FileActionModal');
 }
 
 var _FileTreeHelpers;
@@ -30,9 +30,7 @@ function _load_FileTreeStore() {
   return _FileTreeStore = require('./FileTreeStore');
 }
 
-var _react = _interopRequireDefault(require('react'));
-
-var _reactDom = _interopRequireDefault(require('react-dom'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _nuclideUri;
 
@@ -54,21 +52,15 @@ function _load_nuclideVcsBase() {
   return _nuclideVcsBase = require('../../nuclide-vcs-base');
 }
 
+var _immutable;
+
+function _load_immutable() {
+  return _immutable = _interopRequireDefault(require('immutable'));
+}
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the license found in the LICENSE file in
- * the root directory of this source tree.
- *
- * 
- * @format
- */
-
-let atomPanel;
-let dialogComponent;
 
 class FileSystemActions {
   openAddFolderDialog(onDidConfirm) {
@@ -92,7 +84,14 @@ class FileSystemActions {
         const { path } = (_nuclideUri || _load_nuclideUri()).default.parse(filePath);
         const basename = (_nuclideUri || _load_nuclideUri()).default.basename(path);
         const newDirectory = directory.getSubdirectory(basename);
-        const created = yield newDirectory.create();
+        let created;
+        try {
+          created = yield newDirectory.create();
+        } catch (e) {
+          atom.notifications.addError(`Could not create directory '${basename}': ${e.toString()}`);
+          onDidConfirm(null);
+          return;
+        }
         if (!created) {
           atom.notifications.addError(`'${basename}' already exists.`);
           onDidConfirm(null);
@@ -119,6 +118,7 @@ class FileSystemActions {
   openAddFileDialogRelative(onDidConfirm) {
     const editor = atom.workspace.getActiveTextEditor();
     const filePath = editor != null ? editor.getPath() : null;
+    // flowlint-next-line sketchy-null-string:off
     if (!filePath) {
       return;
     }
@@ -153,21 +153,29 @@ class FileSystemActions {
         }
 
         const newFile = directory.getFile(pathToCreate);
-        const created = yield newFile.create();
-        if (created) {
-          const newFilePath = newFile.getPath();
-          // Open a new text editor while VCS actions complete in the background.
-          onDidConfirm(newFilePath);
-          if (hgRepository != null && options.addToVCS === true) {
-            try {
-              yield hgRepository.addAll([newFilePath]);
-            } catch (e) {
-              atom.notifications.addError(`Failed to add '${newFilePath}' to version control. Error: ${e.toString()}`);
-            }
-          }
-        } else {
+        let created;
+        try {
+          created = yield newFile.create();
+        } catch (e) {
+          atom.notifications.addError(`Could not create file '${newFile.getPath()}': ${e.toString()}`);
+          onDidConfirm(null);
+          return;
+        }
+        if (!created) {
           atom.notifications.addError(`'${pathToCreate}' already exists.`);
           onDidConfirm(null);
+          return;
+        }
+
+        const newFilePath = newFile.getPath();
+        // Open a new text editor while VCS actions complete in the background.
+        onDidConfirm(newFilePath);
+        if (hgRepository != null && options.addToVCS === true) {
+          try {
+            yield hgRepository.addAll([newFilePath]);
+          } catch (e) {
+            atom.notifications.addError(`Failed to add '${newFilePath}' to version control. Error: ${e.toString()}`);
+          }
         }
       });
 
@@ -210,50 +218,108 @@ class FileSystemActions {
     return (0, _asyncToGenerator.default)(function* () {
       const directory = file.getParent();
       const newFile = directory.getFile(newBasename);
-      const newPath = newFile.getPath();
-      const service = (0, (_nuclideRemoteConnection || _load_nuclideRemoteConnection()).getFileSystemServiceByNuclideUri)(newPath);
-      const exists = !(yield service.copy(file.getPath(), newPath));
-      if (exists) {
-        atom.notifications.addError(`'${newPath}' already exists.`);
-        onDidConfirm(null);
+      return _this._doCopy([{ old: file.getPath(), new: newFile.getPath() }], addToVCS, onDidConfirm);
+    })();
+  }
+
+  getDirectoryFromMetadata(cbMeta) {
+    if (cbMeta == null || typeof cbMeta !== 'object' || cbMeta.directory == null || typeof cbMeta.directory !== 'string') {
+      return null;
+    }
+    return (_FileTreeHelpers || _load_FileTreeHelpers()).default.getDirectoryByKey(cbMeta.directory);
+  }
+
+  _onConfirmPaste(newDirPath, addToVCS, onDidConfirm = function () {}) {
+    var _this2 = this;
+
+    return (0, _asyncToGenerator.default)(function* () {
+      const newDir = (_FileTreeHelpers || _load_FileTreeHelpers()).default.getDirectoryByKey(newDirPath);
+      if (newDir == null) {
+        // bad target
         return;
       }
-      const hgRepository = _this._getHgRepositoryForPath(newPath);
-      if (hgRepository != null && addToVCS) {
-        try {
-          // We are not recording the copy in mercurial on purpose, because most of the time
-          // it's either templates or files that have greatly changed since duplicating.
-          yield hgRepository.addAll([newPath]);
-        } catch (e) {
-          const message = newPath + ' was duplicated, but there was an error adding it to ' + 'version control.  Error: ' + e.toString();
-          atom.notifications.addError(message);
-          onDidConfirm(null);
-          return;
-        }
+
+      const cb = atom.clipboard.readWithMetadata();
+      const oldDir = _this2.getDirectoryFromMetadata(cb.metadata);
+      if (oldDir == null) {
+        // bad source
+        return;
       }
 
-      onDidConfirm(newPath);
+      const copyPaths = [];
+      cb.text.split(',').forEach(function (encodedFilename) {
+        const filename = decodeURIComponent(encodedFilename);
+        const oldPath = oldDir.getFile(filename).getPath();
+        const newPath = newDir.getFile(filename).getPath();
+        copyPaths.push({ old: oldPath, new: newPath });
+      });
+
+      yield _this2._doCopy(copyPaths, addToVCS, onDidConfirm);
+    })();
+  }
+
+  _doCopy(copyPaths, addToVCS, onDidConfirm) {
+    var _this3 = this;
+
+    return (0, _asyncToGenerator.default)(function* () {
+      const copiedPaths = yield Promise.all(copyPaths.filter(function ({ old: oldPath, new: newPath }) {
+        return (_nuclideUri || _load_nuclideUri()).default.getHostnameOpt(oldPath) === (_nuclideUri || _load_nuclideUri()).default.getHostnameOpt(newPath);
+      }).map((() => {
+        var _ref3 = (0, _asyncToGenerator.default)(function* ({ old: oldPath, new: newPath }) {
+          const service = (0, (_nuclideRemoteConnection || _load_nuclideRemoteConnection()).getFileSystemServiceByNuclideUri)(newPath);
+          const isFile = (yield service.stat(oldPath)).isFile();
+          const exists = isFile ? !(yield service.copy(oldPath, newPath)) : !(yield service.copyDir(oldPath, newPath));
+          if (exists) {
+            atom.notifications.addError(`'${newPath}' already exists.`);
+            return [];
+          } else {
+            return [newPath];
+          }
+        });
+
+        return function (_x5) {
+          return _ref3.apply(this, arguments);
+        };
+      })()));
+
+      const successfulPaths = [].concat(...copiedPaths);
+      onDidConfirm(successfulPaths);
+
+      if (successfulPaths.length !== 0) {
+        const hgRepository = _this3._getHgRepositoryForPath(successfulPaths[0]);
+        if (hgRepository != null && addToVCS) {
+          try {
+            // We are not recording the copy in mercurial on purpose, because most of the time
+            // it's either templates or files that have greatly changed since duplicating.
+            yield hgRepository.addAll(successfulPaths);
+          } catch (e) {
+            const message = 'Paths were duplicated, but there was an error adding them to ' + 'version control.  Error: ' + e.toString();
+            atom.notifications.addError(message);
+            return;
+          }
+        }
+      }
     })();
   }
 
   openRenameDialog() {
     const store = (_FileTreeStore || _load_FileTreeStore()).FileTreeStore.getInstance();
-    const selectedNodes = store.getSelectedNodes();
-    if (selectedNodes.size !== 1) {
+    const targetNodes = store.getTargetNodes();
+    if (targetNodes.size !== 1) {
       // Can only rename one entry at a time.
       return;
     }
 
-    const node = selectedNodes.first();
+    const node = targetNodes.first();
     const nodePath = node.localPath;
-    this._openDialog({
+    (0, (_FileActionModal || _load_FileActionModal()).openDialog)({
       iconClassName: 'icon-arrow-right',
       initialValue: (_nuclideUri || _load_nuclideUri()).default.basename(nodePath),
-      message: node.isContainer ? _react.default.createElement(
+      message: node.isContainer ? _react.createElement(
         'span',
         null,
         'Enter the new path for the directory.'
-      ) : _react.default.createElement(
+      ) : _react.createElement(
         'span',
         null,
         'Enter the new path for the file.'
@@ -263,33 +329,34 @@ class FileSystemActions {
           atom.notifications.addError(`Rename to ${newBasename} failed: ${error.message}`);
         });
       },
-      onClose: this._closeDialog,
+      onClose: (_FileActionModal || _load_FileActionModal()).closeDialog,
       selectBasename: true
     });
   }
 
   openDuplicateDialog(onDidConfirm) {
     const store = (_FileTreeStore || _load_FileTreeStore()).FileTreeStore.getInstance();
-    const selectedNodes = store.getSelectedNodes();
-    if (selectedNodes.size !== 1) {
-      // Can only copy one entry at a time.
-      return;
-    }
+    const targetNodes = store.getTargetNodes();
+    this.openNextDuplicateDialog(targetNodes, onDidConfirm);
+  }
 
-    const node = selectedNodes.first();
+  openNextDuplicateDialog(nodes, onDidConfirm) {
+    const node = nodes.first();
     const nodePath = node.localPath;
     let initialValue = (_nuclideUri || _load_nuclideUri()).default.basename(nodePath);
     const ext = (_nuclideUri || _load_nuclideUri()).default.extname(nodePath);
     initialValue = initialValue.substr(0, initialValue.length - ext.length) + '-copy' + ext;
     const hgRepository = (_FileTreeHgHelpers || _load_FileTreeHgHelpers()).default.getHgRepositoryForNode(node);
     const additionalOptions = {};
+    // eslint-disable-next-line eqeqeq
     if (hgRepository !== null) {
       additionalOptions.addToVCS = 'Add the new file to version control.';
     }
-    this._openDialog({
+
+    const dialogProps = {
       iconClassName: 'icon-arrow-right',
       initialValue,
-      message: _react.default.createElement(
+      message: _react.createElement(
         'span',
         null,
         'Enter the new path for the duplicate.'
@@ -304,8 +371,56 @@ class FileSystemActions {
           atom.notifications.addError(`Failed to duplicate '${file.getPath()}'`);
         });
       },
-      onClose: this._closeDialog,
+      onClose: () => {
+        if (nodes.rest().count() > 0) {
+          this.openNextDuplicateDialog(nodes.rest(), onDidConfirm);
+        } else {
+          (0, (_FileActionModal || _load_FileActionModal()).closeDialog)();
+        }
+      },
       selectBasename: true,
+      additionalOptions
+    };
+    (0, (_FileActionModal || _load_FileActionModal()).openDialog)(dialogProps);
+  }
+
+  openPasteDialog() {
+    const store = (_FileTreeStore || _load_FileTreeStore()).FileTreeStore.getInstance();
+    const node = store.getSingleSelectedNode();
+    if (node == null) {
+      // don't paste if unselected
+      return;
+    }
+    let newDir = (_FileTreeHelpers || _load_FileTreeHelpers()).default.getDirectoryByKey(node.uri);
+    if (newDir == null) {
+      // maybe it's a file?
+      const file = (_FileTreeHelpers || _load_FileTreeHelpers()).default.getFileByKey(node.uri);
+      if (file == null) {
+        // nope! do nothing if we can't find an entry
+        return;
+      }
+      newDir = file.getParent();
+    }
+
+    const additionalOptions = {};
+    // eslint-disable-next-line eqeqeq
+    if ((_FileTreeHgHelpers || _load_FileTreeHgHelpers()).default.getHgRepositoryForNode(node) !== null) {
+      additionalOptions.addToVCS = 'Add the new file(s) to version control.';
+    }
+    (0, (_FileActionModal || _load_FileActionModal()).openDialog)({
+      iconClassName: 'icon-arrow-right',
+      initialValue: (_FileTreeHelpers || _load_FileTreeHelpers()).default.dirPathToKey(newDir.getPath()),
+      message: _react.createElement(
+        'span',
+        null,
+        'Paste file(s) from clipboard into'
+      ),
+      onConfirm: (pasteDirPath, options) => {
+        this._onConfirmPaste(pasteDirPath.trim(), Boolean(options.addToVCS)).catch(error => {
+          atom.notifications.addError(`Failed to paste into '${pasteDirPath}': ${error}`);
+        });
+      },
+      onClose: (_FileActionModal || _load_FileActionModal()).closeDialog,
       additionalOptions
     });
   }
@@ -326,41 +441,31 @@ class FileSystemActions {
   }
 
   _openAddDialog(entryType, path, onConfirm, additionalOptions = {}) {
-    this._openDialog({
+    (0, (_FileActionModal || _load_FileActionModal()).openDialog)({
       iconClassName: 'icon-file-add',
-      message: _react.default.createElement(
+      message: _react.createElement(
         'span',
         null,
         'Enter the path for the new ',
         entryType,
         ' in the root:',
-        _react.default.createElement('br', null),
+        _react.createElement('br', null),
         path
       ),
       onConfirm,
-      onClose: this._closeDialog,
+      onClose: (_FileActionModal || _load_FileActionModal()).closeDialog,
       additionalOptions
     });
   }
-
-  _openDialog(props) {
-    this._closeDialog();
-    const dialogHostElement = document.createElement('div');
-    atomPanel = atom.workspace.addModalPanel({ item: dialogHostElement });
-    dialogComponent = _reactDom.default.render(_react.default.createElement((_FileDialogComponent || _load_FileDialogComponent()).default, props), dialogHostElement);
-  }
-
-  _closeDialog() {
-    if (atomPanel != null) {
-      if (dialogComponent != null) {
-        _reactDom.default.unmountComponentAtNode(atomPanel.getItem());
-        dialogComponent = null;
-      }
-
-      atomPanel.destroy();
-      atomPanel = null;
-    }
-  }
-}
+} /**
+   * Copyright (c) 2015-present, Facebook, Inc.
+   * All rights reserved.
+   *
+   * This source code is licensed under the license found in the LICENSE file in
+   * the root directory of this source tree.
+   *
+   * 
+   * @format
+   */
 
 exports.default = new FileSystemActions();

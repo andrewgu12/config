@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.isRunningInTest = exports.OS_TYPE = undefined;
-exports.isRunningInClient = isRunningInClient;
+exports.isRunningInServer = isRunningInServer;
 exports.getAtomNuclideDir = getAtomNuclideDir;
 exports.getAtomVersion = getAtomVersion;
 exports.getNuclideVersion = getNuclideVersion;
@@ -64,20 +64,27 @@ const OS_TYPE = exports.OS_TYPE = {
 //
 // [1]: https://github.com/atom/atom/blob/v1.6.2/src/window-load-settings-helpers.coffee#L10-L14
 const isRunningInTest = exports.isRunningInTest = (0, (_once || _load_once()).default)(() => {
-  if (isRunningInClient()) {
+  if (typeof atom === 'object') {
     return atom.inSpecMode();
   } else {
     return process.env.NODE_ENV === 'test';
   }
 });
 
-function isRunningInClient() {
-  return typeof atom !== 'undefined';
+// Nuclide code can run in one of three situations:
+//
+// 1) Inside of Atom (just checking the Atom global is enough)
+// 2) Inside of a forked Atom Helper (which has ELECTRON_RUN_AS_NODE)
+// 3) Inside of the Nuclide server, or another plain Node script
+//
+// It's hard to explicitly check 3) so this checks for the absence of 1/2.
+function isRunningInServer() {
+  return typeof atom === 'undefined' && process.env.ELECTRON_RUN_AS_NODE !== '1';
 }
 
 // This path may be a symlink.
 function getAtomNuclideDir() {
-  if (!isRunningInClient()) {
+  if (typeof atom !== 'object') {
     throw Error('Not running in Atom.');
   }
   const nuclidePackageModule = atom.packages.getLoadedPackage('nuclide');
@@ -90,7 +97,7 @@ function getAtomNuclideDir() {
 }
 
 function getAtomVersion() {
-  if (!isRunningInClient()) {
+  if (typeof atom !== 'object') {
     throw Error('Not running in Atom.');
   }
   return atom.getVersion();

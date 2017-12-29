@@ -22,8 +22,10 @@ const logger = (0, (_log4js || _load_log4js()).getLogger)('nuclide-fuzzy-native'
  */
 
 try {
+  // eslint-disable-next-line rulesdir/no-commonjs
   module.exports = require('nuclide-prebuilt-libs/fuzzy-native');
 } catch (e) {
   logger.error('Failed to load native fuzzy matching. Falling back to JS implementation', e);
+  // eslint-disable-next-line rulesdir/no-commonjs
   module.exports = require('./FallbackMatcher');
 }

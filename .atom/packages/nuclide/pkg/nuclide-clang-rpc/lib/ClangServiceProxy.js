@@ -5,7 +5,7 @@ let Observable;
 module.exports = _client => {
   const remoteModule = {};
 
-  remoteModule.compile = function (arg0, arg1, arg2, arg3) {
+  remoteModule.compile = function (arg0, arg1, arg2, arg3, arg4) {
     return Observable.fromPromise(_client.marshalArguments(Array.from(arguments), [{
       name: "src",
       type: {
@@ -37,9 +37,17 @@ module.exports = _client => {
           }
         }
       }
-    }]).then(args => {
+    }, {
+      name: "useRTags",
+      type: {
+        kind: "nullable",
+        type: {
+          kind: "boolean"
+        }
+      }
+    }])).switchMap(args => {
       return _client.callRemoteFunction("ClangService/compile", "observable", args);
-    })).concatMap(id => id).concatMap(value => {
+    }).concatMap(value => {
       return _client.unmarshal(value, {
         kind: "nullable",
         type: {
@@ -50,7 +58,7 @@ module.exports = _client => {
     }).publish();
   };
 
-  remoteModule.getCompletions = function (arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7) {
+  remoteModule.getCompletions = function (arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) {
     return _client.marshalArguments(Array.from(arguments), [{
       name: "src",
       type: {
@@ -100,6 +108,14 @@ module.exports = _client => {
           type: {
             kind: "string"
           }
+        }
+      }
+    }, {
+      name: "useRTags",
+      type: {
+        kind: "nullable",
+        type: {
+          kind: "boolean"
         }
       }
     }]).then(args => {
@@ -591,12 +607,126 @@ Object.defineProperty(module.exports, "defs", {
         }]
       }
     },
-    ClangCompileResult: {
+    ClangDiagnosticChild: {
       kind: "alias",
       location: {
         type: "source",
         fileName: "rpc-types.js",
         line: 31
+      },
+      name: "ClangDiagnosticChild",
+      definition: {
+        kind: "object",
+        fields: [{
+          name: "spelling",
+          type: {
+            kind: "string"
+          },
+          optional: false
+        }, {
+          name: "location",
+          type: {
+            kind: "named",
+            name: "ClangLocation"
+          },
+          optional: false
+        }, {
+          name: "ranges",
+          type: {
+            kind: "array",
+            type: {
+              kind: "named",
+              name: "ClangSourceRange"
+            }
+          },
+          optional: false
+        }]
+      }
+    },
+    ClangDiagnostic: {
+      kind: "alias",
+      location: {
+        type: "source",
+        fileName: "rpc-types.js",
+        line: 37
+      },
+      name: "ClangDiagnostic",
+      definition: {
+        kind: "object",
+        fields: [{
+          name: "spelling",
+          type: {
+            kind: "string"
+          },
+          optional: false
+        }, {
+          name: "severity",
+          type: {
+            kind: "number"
+          },
+          optional: false
+        }, {
+          name: "location",
+          type: {
+            kind: "named",
+            name: "ClangLocation"
+          },
+          optional: false
+        }, {
+          name: "ranges",
+          type: {
+            kind: "nullable",
+            type: {
+              kind: "array",
+              type: {
+                kind: "named",
+                name: "ClangSourceRange"
+              }
+            }
+          },
+          optional: false
+        }, {
+          name: "fixits",
+          type: {
+            kind: "array",
+            type: {
+              kind: "object",
+              fields: [{
+                name: "range",
+                type: {
+                  kind: "named",
+                  name: "ClangSourceRange"
+                },
+                optional: false
+              }, {
+                name: "value",
+                type: {
+                  kind: "string"
+                },
+                optional: false
+              }]
+            }
+          },
+          optional: true
+        }, {
+          name: "children",
+          type: {
+            kind: "array",
+            type: {
+              kind: "named",
+              name: "ClangDiagnosticChild"
+            }
+          },
+          optional: true
+        }]
+      }
+    },
+    ClangCompileResult: {
+      kind: "alias",
+      location: {
+        type: "source",
+        fileName: "rpc-types.js",
+        line: 57
       },
       name: "ClangCompileResult",
       definition: {
@@ -606,96 +736,8 @@ Object.defineProperty(module.exports, "defs", {
           type: {
             kind: "array",
             type: {
-              kind: "object",
-              fields: [{
-                name: "spelling",
-                type: {
-                  kind: "string"
-                },
-                optional: false
-              }, {
-                name: "severity",
-                type: {
-                  kind: "number"
-                },
-                optional: false
-              }, {
-                name: "location",
-                type: {
-                  kind: "named",
-                  name: "ClangLocation"
-                },
-                optional: false
-              }, {
-                name: "ranges",
-                type: {
-                  kind: "nullable",
-                  type: {
-                    kind: "array",
-                    type: {
-                      kind: "named",
-                      name: "ClangSourceRange"
-                    }
-                  }
-                },
-                optional: false
-              }, {
-                name: "fixits",
-                type: {
-                  kind: "array",
-                  type: {
-                    kind: "object",
-                    fields: [{
-                      name: "range",
-                      type: {
-                        kind: "named",
-                        name: "ClangSourceRange"
-                      },
-                      optional: false
-                    }, {
-                      name: "value",
-                      type: {
-                        kind: "string"
-                      },
-                      optional: false
-                    }]
-                  }
-                },
-                optional: true
-              }, {
-                name: "children",
-                type: {
-                  kind: "array",
-                  type: {
-                    kind: "object",
-                    fields: [{
-                      name: "spelling",
-                      type: {
-                        kind: "string"
-                      },
-                      optional: false
-                    }, {
-                      name: "location",
-                      type: {
-                        kind: "named",
-                        name: "ClangLocation"
-                      },
-                      optional: false
-                    }, {
-                      name: "ranges",
-                      type: {
-                        kind: "array",
-                        type: {
-                          kind: "named",
-                          name: "ClangSourceRange"
-                        }
-                      },
-                      optional: false
-                    }]
-                  }
-                },
-                optional: true
-              }]
+              kind: "named",
+              name: "ClangDiagnostic"
             }
           },
           optional: false
@@ -713,7 +755,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "rpc-types.js",
-        line: 119
+        line: 123
       },
       name: "ClangCompilationDatabase",
       definition: {
@@ -753,7 +795,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "rpc-types.js",
-        line: 114
+        line: 118
       },
       name: "ClangRequestSettings",
       definition: {
@@ -786,13 +828,13 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "ClangService.js",
-        line: 116
+        line: 129
       },
       type: {
         location: {
           type: "source",
           fileName: "ClangService.js",
-          line: 116
+          line: 129
         },
         kind: "function",
         argumentTypes: [{
@@ -826,6 +868,14 @@ Object.defineProperty(module.exports, "defs", {
               }
             }
           }
+        }, {
+          name: "useRTags",
+          type: {
+            kind: "nullable",
+            type: {
+              kind: "boolean"
+            }
+          }
         }],
         returnType: {
           kind: "observable",
@@ -844,7 +894,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "rpc-types.js",
-        line: 60
+        line: 64
       },
       name: "ClangCompletion",
       definition: {
@@ -925,13 +975,13 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "ClangService.js",
-        line: 138
+        line: 163
       },
       type: {
         location: {
           type: "source",
           fileName: "ClangService.js",
-          line: 138
+          line: 163
         },
         kind: "function",
         argumentTypes: [{
@@ -985,6 +1035,14 @@ Object.defineProperty(module.exports, "defs", {
               }
             }
           }
+        }, {
+          name: "useRTags",
+          type: {
+            kind: "nullable",
+            type: {
+              kind: "boolean"
+            }
+          }
         }],
         returnType: {
           kind: "promise",
@@ -1006,7 +1064,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "rpc-types.js",
-        line: 76
+        line: 80
       },
       name: "ClangDeclaration",
       definition: {
@@ -1059,13 +1117,13 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "ClangService.js",
-        line: 165
+        line: 193
       },
       type: {
         location: {
           type: "source",
           fileName: "ClangService.js",
-          line: 165
+          line: 193
         },
         kind: "function",
         argumentTypes: [{
@@ -1139,7 +1197,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "rpc-types.js",
-        line: 84
+        line: 88
       },
       name: "ClangCursor",
       definition: {
@@ -1195,13 +1253,13 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "ClangService.js",
-        line: 187
+        line: 216
       },
       type: {
         location: {
           type: "source",
           fileName: "ClangService.js",
-          line: 187
+          line: 216
         },
         kind: "function",
         argumentTypes: [{
@@ -1267,13 +1325,13 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "ClangService.js",
-        line: 206
+        line: 236
       },
       type: {
         location: {
           type: "source",
           fileName: "ClangService.js",
-          line: 206
+          line: 236
         },
         kind: "function",
         argumentTypes: [{
@@ -1309,7 +1367,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "rpc-types.js",
-        line: 93
+        line: 97
       },
       name: "ClangOutlineTree",
       definition: {
@@ -1377,13 +1435,13 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "ClangService.js",
-        line: 218
+        line: 248
       },
       type: {
         location: {
           type: "source",
           fileName: "ClangService.js",
-          line: 218
+          line: 248
         },
         kind: "function",
         argumentTypes: [{
@@ -1438,7 +1496,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "rpc-types.js",
-        line: 108
+        line: 112
       },
       name: "ClangLocalReferences",
       definition: {
@@ -1474,13 +1532,13 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "ClangService.js",
-        line: 236
+        line: 266
       },
       type: {
         location: {
           type: "source",
           fileName: "ClangService.js",
-          line: 236
+          line: 266
         },
         kind: "function",
         argumentTypes: [{
@@ -1543,13 +1601,13 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "ClangService.js",
-        line: 256
+        line: 286
       },
       type: {
         location: {
           type: "source",
           fileName: "ClangService.js",
-          line: 256
+          line: 286
         },
         kind: "function",
         argumentTypes: [{
@@ -1611,7 +1669,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "rpc-types.js",
-        line: 125
+        line: 129
       },
       name: "ClangCompilationDatabaseEntry",
       definition: {
@@ -1652,13 +1710,13 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "ClangService.js",
-        line: 282
+        line: 338
       },
       type: {
         location: {
           type: "source",
           fileName: "ClangService.js",
-          line: 282
+          line: 338
         },
         kind: "function",
         argumentTypes: [{
@@ -1689,13 +1747,13 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "ClangService.js",
-        line: 297
+        line: 353
       },
       type: {
         location: {
           type: "source",
           fileName: "ClangService.js",
-          line: 297
+          line: 353
         },
         kind: "function",
         argumentTypes: [{
@@ -1716,13 +1774,13 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "ClangService.js",
-        line: 304
+        line: 361
       },
       type: {
         location: {
           type: "source",
           fileName: "ClangService.js",
-          line: 304
+          line: 361
         },
         kind: "function",
         argumentTypes: [],
@@ -1737,13 +1795,13 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "ClangService.js",
-        line: 308
+        line: 366
       },
       type: {
         location: {
           type: "source",
           fileName: "ClangService.js",
-          line: 308
+          line: 366
         },
         kind: "function",
         argumentTypes: [],

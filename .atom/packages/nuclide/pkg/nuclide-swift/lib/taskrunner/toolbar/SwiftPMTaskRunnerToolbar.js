@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _Button;
 
@@ -20,23 +20,24 @@ function _load_SwiftPMSettingsModal() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-class SwiftPMTaskRunnerToolbar extends _react.default.Component {
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
+class SwiftPMTaskRunnerToolbar extends _react.Component {
   constructor(props) {
     super(props);
     this.state = { settingsVisible: false };
   }
 
   render() {
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'nuclide-swift-task-runner-toolbar' },
-      _react.default.createElement((_Button || _load_Button()).Button, {
+      _react.createElement((_Button || _load_Button()).Button, {
         className: 'nuclide-swift-settings icon icon-gear',
         size: (_Button || _load_Button()).ButtonSizes.SMALL,
         onClick: () => this._showSettings()
       }),
-      this.state.settingsVisible ? _react.default.createElement((_SwiftPMSettingsModal || _load_SwiftPMSettingsModal()).default, {
+      this.state.settingsVisible ? _react.createElement((_SwiftPMSettingsModal || _load_SwiftPMSettingsModal()).default, {
         configuration: this.props.store.getConfiguration(),
         Xcc: this.props.store.getXcc(),
         Xlinker: this.props.store.getXlinker(),

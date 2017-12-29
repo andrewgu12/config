@@ -11,9 +11,13 @@ function _load_classnames() {
   return _classnames = _interopRequireDefault(require('classnames'));
 }
 
-var _atom = require('atom');
+var _UniversalDisposable;
 
-var _react = _interopRequireDefault(require('react'));
+function _load_UniversalDisposable() {
+  return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
+}
+
+var _react = _interopRequireWildcard(require('react'));
 
 var _DebuggerCallstackComponent;
 
@@ -27,13 +31,15 @@ function _load_DebuggerStore() {
   return _DebuggerStore = require('./DebuggerStore');
 }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-class CallstackView extends _react.default.PureComponent {
+class CallstackView extends _react.PureComponent {
 
   constructor(props) {
     super(props);
-    this._disposables = new _atom.CompositeDisposable();
+    this._disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default();
     const debuggerStore = props.model.getStore();
     this.state = {
       mode: debuggerStore.getDebuggerMode()
@@ -63,14 +69,14 @@ class CallstackView extends _react.default.PureComponent {
     const { mode } = this.state;
     const disabledClass = mode !== (_DebuggerStore || _load_DebuggerStore()).DebuggerMode.RUNNING ? '' : ' nuclide-debugger-container-new-disabled';
 
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       {
         className: (0, (_classnames || _load_classnames()).default)('nuclide-debugger-container-new', disabledClass) },
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'nuclide-debugger-pane-content' },
-        _react.default.createElement((_DebuggerCallstackComponent || _load_DebuggerCallstackComponent()).DebuggerCallstackComponent, {
+        _react.createElement((_DebuggerCallstackComponent || _load_DebuggerCallstackComponent()).DebuggerCallstackComponent, {
           actions: actions,
           bridge: model.getBridge(),
           callstackStore: model.getCallstackStore()

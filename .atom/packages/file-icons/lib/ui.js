@@ -6,17 +6,19 @@ const {CompositeDisposable, Disposable, Emitter} = require("atom");
 let delayNext = false;
 
 
+// TODO: Double-check how much of this file is even needed once Atom 1.23 hits stable
 class UI {
 	
 	constructor(){
 		this.reset();
+		this.lightTheme = false;
 	}
 	
 	
 	// TODO: Clean up the whole notion of "colour modes/motifs", etc.
 	init(){
-		this.projects    = [];
-		this.lightTheme  = false;
+		this.projects = [];
+		this.hasDocks = "function" === typeof atom.workspace.getLeftDock;
 		
 		this.disposables.add(
 			atom.project.onDidChangePaths(to => this.setProjects(to)),
@@ -46,11 +48,13 @@ class UI {
 		this.emitter     && this.emitter.dispose();
 		this.disposables = new CompositeDisposable();
 		this.emitter     = new Emitter();
+		this.hasDocks    = null;
 	}
 
 
 	observe(){
 		this.disposables.add(
+			// TODO: Axe this (and onOpenArchive/emitOpenedArchive methods) once Atom 1.23 hits stable
 			atom.workspace.observePaneItems(paneItem => {
 				if("ArchiveEditor" === paneItem.constructor.name)
 					this.emitOpenedArchive(paneItem);

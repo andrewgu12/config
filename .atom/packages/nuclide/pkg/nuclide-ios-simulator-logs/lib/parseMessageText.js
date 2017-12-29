@@ -28,7 +28,7 @@ function parseMessageText(raw) {
     return {
       text: raw,
       level: null,
-      tags: null
+      tags: []
     };
   }
 

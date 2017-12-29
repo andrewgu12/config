@@ -3,8 +3,9 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.STRING_REGEX = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _ValueComponentClassNames;
 
@@ -18,7 +19,7 @@ function _load_TextRenderer() {
   return _TextRenderer = require('./TextRenderer');
 }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
@@ -32,9 +33,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  */
 
 // TODO @jxg export debugger typedefs from main module. (t11406963)
+const booleanRegex = /^true|false$/i;
+const STRING_REGEX = exports.STRING_REGEX = /^(['"]).*\1$/;
+
 function renderNullish(evaluationResult) {
   const { type } = evaluationResult;
-  return type === 'undefined' || type === 'null' ? _react.default.createElement(
+  return type === 'undefined' || type === 'null' ? _react.createElement(
     'span',
     { className: (_ValueComponentClassNames || _load_ValueComponentClassNames()).ValueComponentClassNames.nullish },
     type
@@ -43,26 +47,42 @@ function renderNullish(evaluationResult) {
 
 function renderString(evaluationResult) {
   const { type, value } = evaluationResult;
-  return type === 'string' ? _react.default.createElement(
-    'span',
-    { className: (_ValueComponentClassNames || _load_ValueComponentClassNames()).ValueComponentClassNames.string },
-    _react.default.createElement(
+  if (value == null) {
+    return null;
+  }
+  if (STRING_REGEX.test(value)) {
+    return _react.createElement(
       'span',
-      { className: (_ValueComponentClassNames || _load_ValueComponentClassNames()).ValueComponentClassNames.stringOpeningQuote },
-      '"'
-    ),
-    value,
-    _react.default.createElement(
+      { className: (_ValueComponentClassNames || _load_ValueComponentClassNames()).ValueComponentClassNames.string },
+      value
+    );
+  } else if (type === 'string') {
+    return _react.createElement(
       'span',
-      { className: (_ValueComponentClassNames || _load_ValueComponentClassNames()).ValueComponentClassNames.stringClosingQuote },
-      '"'
-    )
-  ) : null;
+      { className: (_ValueComponentClassNames || _load_ValueComponentClassNames()).ValueComponentClassNames.string },
+      _react.createElement(
+        'span',
+        { className: (_ValueComponentClassNames || _load_ValueComponentClassNames()).ValueComponentClassNames.stringOpeningQuote },
+        '"'
+      ),
+      value,
+      _react.createElement(
+        'span',
+        { className: (_ValueComponentClassNames || _load_ValueComponentClassNames()).ValueComponentClassNames.stringClosingQuote },
+        '"'
+      )
+    );
+  } else {
+    return null;
+  }
 }
 
 function renderNumber(evaluationResult) {
   const { type, value } = evaluationResult;
-  return type === 'number' ? _react.default.createElement(
+  if (value == null) {
+    return null;
+  }
+  return type === 'number' || !isNaN(Number(value)) ? _react.createElement(
     'span',
     { className: (_ValueComponentClassNames || _load_ValueComponentClassNames()).ValueComponentClassNames.number },
     String(value)
@@ -71,7 +91,10 @@ function renderNumber(evaluationResult) {
 
 function renderBoolean(evaluationResult) {
   const { type, value } = evaluationResult;
-  return type === 'boolean' ? _react.default.createElement(
+  if (value == null) {
+    return null;
+  }
+  return type === 'boolean' || booleanRegex.test(value) ? _react.createElement(
     'span',
     { className: (_ValueComponentClassNames || _load_ValueComponentClassNames()).ValueComponentClassNames.boolean },
     String(value)
@@ -84,7 +107,11 @@ function renderDefault(evaluationResult) {
 
 const valueRenderers = [(_TextRenderer || _load_TextRenderer()).TextRenderer, renderString, renderNumber, renderNullish, renderBoolean, renderDefault];
 
-class SimpleValueComponent extends _react.default.Component {
+class SimpleValueComponent extends _react.Component {
+  shouldComponentUpdate(nextProps) {
+    const { expression, evaluationResult } = this.props;
+    return expression !== nextProps.expression || evaluationResult.type !== nextProps.evaluationResult.type || evaluationResult.value !== nextProps.evaluationResult.value || evaluationResult.description !== nextProps.evaluationResult.description;
+  }
 
   render() {
     const { expression, evaluationResult } = this.props;
@@ -96,10 +123,11 @@ class SimpleValueComponent extends _react.default.Component {
       }
     }
     if (displayValue == null || displayValue === '') {
+      // flowlint-next-line sketchy-null-string:off
       displayValue = evaluationResult.description || '(N/A)';
     }
     if (expression == null) {
-      return _react.default.createElement(
+      return _react.createElement(
         'span',
         null,
         displayValue
@@ -107,12 +135,12 @@ class SimpleValueComponent extends _react.default.Component {
     }
     // TODO @jxg use a text editor to apply proper syntax highlighting for expressions
     // (t11408154)
-    const renderedExpression = _react.default.createElement(
+    const renderedExpression = _react.createElement(
       'span',
       { className: (_ValueComponentClassNames || _load_ValueComponentClassNames()).ValueComponentClassNames.identifier },
       expression
     );
-    return _react.default.createElement(
+    return _react.createElement(
       'span',
       null,
       renderedExpression,

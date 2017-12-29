@@ -6,46 +6,6 @@ Object.defineProperty(exports, "__esModule", {
 
 var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
 
-let getServerArgs = (() => {
-  var _ref = (0, _asyncToGenerator.default)(function* (src) {
-    let overrides = {};
-    try {
-      // Override the python path and additional sys paths
-      // if override script is present.
-      // $FlowFB
-      const findJediServerArgs = require('./fb/find-jedi-server-args').default;
-      overrides = yield findJediServerArgs(src);
-    } catch (e) {}
-    // Ignore.
-
-
-    // Append the user's PYTHONPATH if it exists.
-    const { PYTHONPATH } = yield (0, (_process || _load_process()).getOriginalEnvironment)();
-    if (PYTHONPATH != null && PYTHONPATH.trim() !== '') {
-      overrides.paths = (overrides.paths || []).concat((_nuclideUri || _load_nuclideUri()).default.splitPathList(PYTHONPATH));
-    }
-
-    return Object.assign({
-      // Default to assuming that python is in system PATH.
-      pythonPath: 'python',
-      paths: []
-    }, overrides);
-  });
-
-  return function getServerArgs(_x) {
-    return _ref.apply(this, arguments);
-  };
-})(); /**
-       * Copyright (c) 2015-present, Facebook, Inc.
-       * All rights reserved.
-       *
-       * This source code is licensed under the license found in the LICENSE file in
-       * the root directory of this source tree.
-       *
-       * 
-       * @format
-       */
-
 var _lruCache;
 
 function _load_lruCache() {
@@ -64,12 +24,6 @@ function _load_nuclideUri() {
   return _nuclideUri = _interopRequireDefault(require('nuclide-commons/nuclideUri'));
 }
 
-var _process;
-
-function _load_process() {
-  return _process = require('nuclide-commons/process');
-}
-
 var _JediServer;
 
 function _load_JediServer() {
@@ -83,6 +37,17 @@ function _load_LinkTreeManager() {
 }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the license found in the LICENSE file in
+ * the root directory of this source tree.
+ *
+ * 
+ * @format
+ */
 
 class JediServerManager {
   // Cache the promises of additional paths to ensure that we never trigger two
@@ -102,24 +67,18 @@ class JediServerManager {
   }
 
   getJediService(src) {
-    var _this = this;
+    let server = this._servers.get(src);
+    if (server == null) {
+      server = new (_JediServer || _load_JediServer()).default(src);
+      this._servers.set(src, server);
 
-    return (0, _asyncToGenerator.default)(function* () {
-      let server = _this._servers.get(src);
-      if (server == null) {
-        const { pythonPath, paths } = yield getServerArgs(src);
-        // Create a JediServer using default python path.
-        server = new (_JediServer || _load_JediServer()).default(src, pythonPath, paths);
-        _this._servers.set(src, server);
+      // Add link tree and top-level module paths without awaiting,
+      // so we don't block the service from returning.
+      this._addLinkTreePaths(src, server);
+      this._addTopLevelModulePath(src, server);
+    }
 
-        // Add link tree and top-level module paths without awaiting,
-        // so we don't block the service from returning.
-        _this._addLinkTreePaths(src, server);
-        _this._addTopLevelModulePath(src, server);
-      }
-
-      return server.getService();
-    })();
+    return server.getService();
   }
 
   getLinkTreePaths(src) {
@@ -148,10 +107,10 @@ class JediServerManager {
   }
 
   _addLinkTreePaths(src, server) {
-    var _this2 = this;
+    var _this = this;
 
     return (0, _asyncToGenerator.default)(function* () {
-      const linkTreePaths = yield _this2.getLinkTreePaths(src);
+      const linkTreePaths = yield _this.getLinkTreePaths(src);
       if (server.isDisposed() || linkTreePaths.length === 0) {
         return;
       }
@@ -161,10 +120,11 @@ class JediServerManager {
   }
 
   _addTopLevelModulePath(src, server) {
-    var _this3 = this;
+    var _this2 = this;
 
     return (0, _asyncToGenerator.default)(function* () {
-      const topLevelModulePath = yield _this3.getTopLevelModulePath(src);
+      const topLevelModulePath = yield _this2.getTopLevelModulePath(src);
+      // flowlint-next-line sketchy-null-string:off
       if (server.isDisposed() || !topLevelModulePath) {
         return;
       }

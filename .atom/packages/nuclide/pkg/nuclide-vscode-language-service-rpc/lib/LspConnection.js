@@ -52,6 +52,10 @@ class LspConnection {
     this._jsonRpcConnection.sendNotification('exit');
   }
 
+  rage() {
+    return this._jsonRpcConnection.sendRequest('telemetry/rage');
+  }
+
   showMessageNotification(params) {
     this._jsonRpcConnection.sendNotification('window/showMessage', params);
   }
@@ -62,10 +66,6 @@ class LspConnection {
 
   logMessage(params) {
     this._jsonRpcConnection.sendNotification('window/logMessage', params);
-  }
-
-  telemetry(params) {
-    this._jsonRpcConnection.sendNotification('telemetry/event', params);
   }
 
   didChangeConfiguration(params) {
@@ -96,36 +96,36 @@ class LspConnection {
     this._jsonRpcConnection.sendNotification('textDocument/publishDiagnostics', params);
   }
 
-  completion(params) {
-    return this._jsonRpcConnection.sendRequest('textDocument/completion', params);
+  completion(params, token) {
+    return this._jsonRpcConnection.sendRequest('textDocument/completion', params, token);
   }
 
   completionItemResolve(params) {
     return this._jsonRpcConnection.sendRequest('completionItem/resolve', params);
   }
 
-  hover(params) {
-    return this._jsonRpcConnection.sendRequest('textDocument/hover', params);
+  hover(params, token) {
+    return this._jsonRpcConnection.sendRequest('textDocument/hover', params, token);
   }
 
   signatureHelp(params) {
     return this._jsonRpcConnection.sendRequest('textDocument/signatureHelp', params);
   }
 
-  gotoDefinition(params) {
-    return this._jsonRpcConnection.sendRequest('textDocument/definition', params);
+  gotoDefinition(params, token) {
+    return this._jsonRpcConnection.sendRequest('textDocument/definition', params, token);
   }
 
   findReferences(params) {
     return this._jsonRpcConnection.sendRequest('textDocument/references', params);
   }
 
-  documentHighlight(params) {
-    return this._jsonRpcConnection.sendRequest('textDocument/documentHighlight', params);
+  documentHighlight(params, token) {
+    return this._jsonRpcConnection.sendRequest('textDocument/documentHighlight', params, token);
   }
 
-  documentSymbol(params) {
-    return this._jsonRpcConnection.sendRequest('textDocument/documentSymbol', params);
+  documentSymbol(params, token) {
+    return this._jsonRpcConnection.sendRequest('textDocument/documentSymbol', params, token);
   }
 
   typeCoverage(params) {
@@ -134,6 +134,10 @@ class LspConnection {
 
   workspaceSymbol(params) {
     return this._jsonRpcConnection.sendRequest('workspace/symbol', params);
+  }
+
+  executeCommand(params) {
+    return this._jsonRpcConnection.sendRequest('workspace/executeCommand', params);
   }
 
   codeAction(params) {
@@ -190,6 +194,18 @@ class LspConnection {
 
   onShowMessageRequest(callback) {
     this._jsonRpcConnection.onRequest({ method: 'window/showMessageRequest' }, callback);
+  }
+
+  onApplyEditRequest(callback) {
+    this._jsonRpcConnection.onRequest({ method: 'workspace/applyEdit' }, callback);
+  }
+
+  onProgressNotification(callback) {
+    this._jsonRpcConnection.onNotification({ method: 'window/progress' }, callback);
+  }
+
+  onActionRequiredNotification(callback) {
+    this._jsonRpcConnection.onNotification({ method: 'window/actionRequired' }, callback);
   }
 }
 exports.LspConnection = LspConnection;

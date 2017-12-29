@@ -69,6 +69,7 @@ class TypeHintManager {
       const typeHint = yield (_analytics || _load_analytics()).default.trackTiming(name + '.typeHint', function () {
         return provider.typeHint(editor, position);
       });
+      // flowlint-next-line sketchy-null-mixed:off
       if (!typeHint || _this._marker) {
         return;
       }

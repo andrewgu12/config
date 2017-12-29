@@ -16,7 +16,9 @@ function _load_classnames() {
   return _classnames = _interopRequireDefault(require('classnames'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -32,13 +34,12 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
                                                                                                                                                                                                                               * @format
                                                                                                                                                                                                                               */
 
-class TruncatedButton extends _react.default.Component {
-
+class TruncatedButton extends _react.Component {
   render() {
     const _props = this.props,
           { children, className, label } = _props,
           props = _objectWithoutProperties(_props, ['children', 'className', 'label']);
-    return _react.default.createElement(
+    return _react.createElement(
       (_Button || _load_Button()).Button,
       Object.assign({
         className: (0, (_classnames || _load_classnames()).default)('btn-block', 'nuclide-ui-truncated-button', className),

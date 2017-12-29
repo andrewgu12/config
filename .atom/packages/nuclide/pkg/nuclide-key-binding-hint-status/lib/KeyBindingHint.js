@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _Icon;
 
@@ -38,6 +38,8 @@ function _load_humanizeEventName() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 /* global KeyboardEvent */
 
 // Given a command name, return an array of human readable key bindings.
@@ -65,7 +67,7 @@ function keyBindingsFromCommand(commandName) {
   return humanizedKeyBindings;
 }
 
-class KeyBindingHint extends _react.default.Component {
+class KeyBindingHint extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -100,14 +102,14 @@ class KeyBindingHint extends _react.default.Component {
   render() {
     const { event } = this.state;
     if (event == null) {
-      return _react.default.createElement('div', null);
+      return _react.createElement('div', null);
     }
     const keyBindings = keyBindingsFromCommand(event.type);
 
     if (!keyBindings.length) {
       // TODO: Consider indicating that this command lacks a binding.
       // TODO: Consider allowing the user to create a binding via a context menu.
-      return _react.default.createElement('div', null);
+      return _react.createElement('div', null);
     }
 
     const firstBinding = keyBindings.length ? keyBindings[0] : '';
@@ -118,13 +120,13 @@ class KeyBindingHint extends _react.default.Component {
       keyBindingTarget: window.document.activeElement
     });
 
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { ref: tooltip },
-      _react.default.createElement(
+      _react.createElement(
         (_Icon || _load_Icon()).Icon,
         { icon: 'keyboard' },
-        _react.default.createElement(
+        _react.createElement(
           'span',
           { style: { paddingLeft: '5px' } },
           firstBinding

@@ -37,32 +37,35 @@ let createEditorForNuclide = (() => {
       // Atom does this for local files.
       // https://github.com/atom/atom/blob/v1.9.8/src/workspace.coffee#L547
       const largeFileMode = buffer.getText().length > 2 * 1024 * 1024; // 2MB
-
-      // In Atom 1.11.0, `buildTextEditor` will call `textEditorRegistry.maintainGrammar`
-      // and `textEditorRegistry.maintainConfig` with the new editor. Since
-      // `createEditorForNuclide` is called via `openURIInPane` -> `addOpener`,
-      // that process will also call `maintainGrammar` and `maintainConfig`. This
-      // results in `undefined` disposables created in `Workspace.subscribeToAddedItems`.
-      // So when a pane is closed, the call to a non-existent `dispose` throws.
-      if (typeof atom.textEditors.build === 'function') {
-        // https://github.com/atom/atom/blob/v1.11.0-beta5/src/workspace.coffee#L564
-        const editor = atom.textEditors.build({
-          buffer,
-          largeFileMode,
-          autoHeight: false
-        });
-        return editor;
-      } else {
-        const editor = atom.workspace.buildTextEditor({ buffer, largeFileMode });
-        if (!atom.textEditors.editors.has(editor)) {
-          // https://github.com/atom/atom/blob/v1.9.8/src/workspace.coffee#L559-L562
-          const disposable = atom.textEditors.add(editor);
-          editor.onDidDestroy(function () {
-            disposable.dispose();
-          });
-        }
-        return editor;
-      }
+      const textEditor = atom.textEditors.build({
+        buffer,
+        largeFileMode,
+        autoHeight: false
+      });
+      // Add a custom serializer that deserializes to a placeholder TextEditor
+      // that we have total control over. The usual Atom deserialization flow for editors
+      // typically involves attempting to load the file from disk, which tends to throw.
+      textEditor.serialize = function () {
+        return {
+          deserializer: 'RemoteTextEditorPlaceholder',
+          data: {
+            uri: (0, (_nullthrows || _load_nullthrows()).default)(textEditor.getPath()),
+            contents: textEditor.getText(),
+            // If the editor was unsaved, we'll restore the unsaved contents after load.
+            isModified: textEditor.isModified()
+          }
+        };
+      };
+      // Null out the buffer's serializer.
+      // We don't need to waste time deserializing this (especially on Windows, where
+      // attempting to read the path blocks Atom from loading)
+      // As of Atom 1.22 null just gets filtered out by the project serializer.
+      // https://github.com/atom/atom/blob/master/src/project.js#L117
+      // $FlowIgnore
+      buffer.serialize = function () {
+        return null;
+      };
+      return textEditor;
     } catch (err) {
       (_constants || _load_constants()).logger.warn('buffer load issue:', err);
       atom.notifications.addError(`Failed to open ${uri}: ${err.message}`);
@@ -74,12 +77,6 @@ let createEditorForNuclide = (() => {
     return _ref.apply(this, arguments);
   };
 })();
-
-/**
- * Check if the remote buffer has already been initialized in editor.
- * This checks if the buffer is instance of NuclideTextBuffer.
- */
-
 
 let reloadRemoteProjects = (() => {
   var _ref2 = (0, _asyncToGenerator.default)(function* (remoteProjects) {
@@ -118,6 +115,8 @@ let reloadRemoteProjects = (() => {
             textEditor.destroy();
           }
         });
+
+        (_nuclideRemoteConnection || _load_nuclideRemoteConnection()).ServerConnection.cancelConnection(config.host);
       } else {
         // It's fine the user connected to a different project on the same host:
         // we should still be able to restore this using the new connection.
@@ -153,6 +152,13 @@ exports.getHomeFragments = getHomeFragments;
 exports.provideRemoteProjectsService = provideRemoteProjectsService;
 exports.consumeNotifications = consumeNotifications;
 exports.consumeWorkingSetsStore = consumeWorkingSetsStore;
+exports.deserializeRemoteTextEditorPlaceholder = deserializeRemoteTextEditorPlaceholder;
+
+var _textEditor;
+
+function _load_textEditor() {
+  return _textEditor = require('nuclide-commons-atom/text-editor');
+}
 
 var _nuclideRemoteConnection;
 
@@ -164,6 +170,12 @@ var _constants;
 
 function _load_constants() {
   return _constants = require('./constants');
+}
+
+var _RemoteTextEditorPlaceholder;
+
+function _load_RemoteTextEditorPlaceholder() {
+  return _RemoteTextEditorPlaceholder = require('./RemoteTextEditorPlaceholder');
 }
 
 var _utils;
@@ -185,6 +197,18 @@ function _load_loadingNotification() {
 }
 
 var _atom = require('atom');
+
+var _nullthrows;
+
+function _load_nullthrows() {
+  return _nullthrows = _interopRequireDefault(require('nullthrows'));
+}
+
+var _UniversalDisposable;
+
+function _load_UniversalDisposable() {
+  return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
+}
 
 var _nuclideAnalytics;
 
@@ -243,7 +267,8 @@ function _load_AtomNotifications() {
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
- * Stores the host and cwd of a remote connection.
+ * Stores the host, cwd, displayTitle of a remote connection and
+ * a property switch for whether to prompt to connect again if reconnect attempt fails.
  */
 let packageSubscriptions = null; /**
                                   * Copyright (c) 2015-present, Facebook, Inc.
@@ -267,7 +292,8 @@ function createSerializableRemoteConnectionConfiguration(config) {
   return {
     host: config.host,
     cwd: config.cwd,
-    displayTitle: config.displayTitle
+    displayTitle: config.displayTitle,
+    promptReconnectOnFailure: config.promptReconnectOnFailure
   };
 }
 
@@ -360,19 +386,13 @@ function deleteDummyRemoteRootDirectories() {
       atom.project.removePath(directory.getPath());
     }
   }
-}function isRemoteBufferInitialized(editor) {
-  const buffer = editor.getBuffer();
-  if (buffer && buffer.constructor.name === 'NuclideTextBuffer') {
-    return true;
-  }
-  return false;
 }
 
 function shutdownServersAndRestartNuclide() {
   atom.confirm({
     message: 'This will shutdown your Nuclide servers and restart Atom, ' + 'discarding all unsaved changes. Continue?',
     buttons: {
-      'Shutdown & Restart': (() => {
+      'Shutdown && Restart': (() => {
         var _ref3 = (0, _asyncToGenerator.default)(function* () {
           try {
             yield (0, (_nuclideAnalytics || _load_nuclideAnalytics()).trackImmediate)('nuclide-remote-projects:kill-and-restart');
@@ -394,7 +414,7 @@ function shutdownServersAndRestartNuclide() {
 }
 
 function activate(state) {
-  const subscriptions = new _atom.CompositeDisposable();
+  const subscriptions = new (_UniversalDisposable || _load_UniversalDisposable()).default();
 
   controller = new (_RemoteProjectsController || _load_RemoteProjectsController()).default();
   remoteProjectsService = new (_RemoteProjectsService || _load_RemoteProjectsService()).default();
@@ -411,15 +431,17 @@ function activate(state) {
       // Then, we are ready to replace it with the remote tab in the same pane.
       const { pane, editor, uri, filePath } = openInstance;
 
-      // Skip restoring the editer who has remote content loaded.
-      if (isRemoteBufferInitialized(editor)) {
+      // Skip restoring the editor who has remote content loaded.
+      if (editor instanceof _atom.TextEditor && editor.getBuffer().file instanceof (_nuclideRemoteConnection || _load_nuclideRemoteConnection()).RemoteFile) {
         continue;
       }
 
       // Atom ensures that each pane only has one item per unique URI.
       // Null out the existing pane item's URI so we can insert the new one
       // without closing the pane.
-      editor.getURI = () => null;
+      if (editor instanceof _atom.TextEditor) {
+        editor.getURI = () => null;
+      }
       // Cleanup the old pane item on successful opening or when no connection could be
       // established.
       const cleanupBuffer = () => {
@@ -432,7 +454,12 @@ function activate(state) {
         // If we clean up the buffer before the `openUriInPane` finishes,
         // the pane will be closed, because it could have no other items.
         // So we must clean up after.
-        atom.workspace.openURIInPane(uri, pane).then(cleanupBuffer, cleanupBuffer);
+        atom.workspace.openURIInPane(uri, pane).then(newEditor => {
+          if (editor instanceof (_RemoteTextEditorPlaceholder || _load_RemoteTextEditorPlaceholder()).RemoteTextEditorPlaceholder && editor.isModified()) {
+            // If we had unsaved changes previously, restore them.
+            newEditor.setText(editor.getText());
+          }
+        }).then(cleanupBuffer, cleanupBuffer);
       }
     }
   }));
@@ -443,26 +470,28 @@ function activate(state) {
 
   // Subscribe opener before restoring the remote projects.
   subscriptions.add(atom.workspace.addOpener((uri = '') => {
-    if (uri.startsWith('nuclide:')) {
-      const serverConnection = (_nuclideRemoteConnection || _load_nuclideRemoteConnection()).ServerConnection.getForUri(uri);
-      if (serverConnection == null) {
-        // It's possible that the URI opens before the remote connection has finished loading
-        // (or the remote connection cannot be restored for some reason).
-        //
-        // In this case, we can just let Atom open a blank editor. Once the connection
-        // is re-established, the `onDidAddRemoteConnection` logic above will restore the
-        // editor contents as appropriate.
-        return;
-      }
-      const connection = (_nuclideRemoteConnection || _load_nuclideRemoteConnection()).RemoteConnection.getForUri(uri);
-      // On Atom restart, it tries to open the uri path as a file tab because it's not a local
-      // directory. We can't let that create a file with the initial working directory path.
-      if (connection != null && uri === connection.getUriForInitialWorkingDirectory()) {
-        const blankEditor = atom.workspace.buildTextEditor({});
-        // No matter what we do here, Atom is going to create a blank editor.
-        // We don't want the user to see this, so destroy it as soon as possible.
-        setImmediate(() => blankEditor.destroy());
-        return blankEditor;
+    if (uri.startsWith('nuclide:') || (_nuclideUri || _load_nuclideUri()).default.isInArchive(uri)) {
+      if (uri.startsWith('nuclide:')) {
+        const serverConnection = (_nuclideRemoteConnection || _load_nuclideRemoteConnection()).ServerConnection.getForUri(uri);
+        if (serverConnection == null) {
+          // It's possible that the URI opens before the remote connection has finished loading
+          // (or the remote connection cannot be restored for some reason).
+          //
+          // In this case, we can just let Atom open a blank editor. Once the connection
+          // is re-established, the `onDidAddRemoteConnection` logic above will restore the
+          // editor contents as appropriate.
+          return;
+        }
+        const connection = (_nuclideRemoteConnection || _load_nuclideRemoteConnection()).RemoteConnection.getForUri(uri);
+        // On Atom restart, it tries to open the uri path as a file tab because it's not a local
+        // directory. We can't let that create a file with the initial working directory path.
+        if (connection != null && uri === connection.getUriForInitialWorkingDirectory()) {
+          const blankEditor = atom.workspace.buildTextEditor({});
+          // No matter what we do here, Atom is going to create a blank editor.
+          // We don't want the user to see this, so destroy it as soon as possible.
+          setImmediate(() => blankEditor.destroy());
+          return blankEditor;
+        }
       }
       if (pendingFiles[uri]) {
         return pendingFiles[uri];
@@ -471,6 +500,13 @@ function activate(state) {
       const removeFromCache = () => delete pendingFiles[uri];
       textEditorPromise.then(removeFromCache, removeFromCache);
       return textEditorPromise;
+    }
+  }));
+
+  subscriptions.add((0, (_textEditor || _load_textEditor()).observeTextEditors)(editor => {
+    const uri = editor.getURI();
+    if (uri != null && (_nuclideUri || _load_nuclideUri()).default.isInArchive(uri)) {
+      (0, (_textEditor || _load_textEditor()).enforceReadOnlyEditor)(editor);
     }
   }));
 
@@ -565,4 +601,8 @@ function consumeNotifications(raiseNativeNotification) {
 
 function consumeWorkingSetsStore(store) {
   workingSetsStore = store;
+}
+
+function deserializeRemoteTextEditorPlaceholder(state) {
+  return new (_RemoteTextEditorPlaceholder || _load_RemoteTextEditorPlaceholder()).RemoteTextEditorPlaceholder(state);
 }

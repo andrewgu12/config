@@ -11,9 +11,9 @@ function _load_Button() {
   return _Button = require('nuclide-commons-ui/Button');
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
@@ -26,14 +26,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @format
  */
 
-class TaskButton extends _react.default.Component {
-
+class TaskButton extends _react.Component {
   _getLabel() {
     if (!this.props.isRunning) {
       return this.props.name;
     }
     const progress = this.props.progress != null ? `${this.props.progress.toFixed(2)}%` : 'running';
-    return _react.default.createElement(
+    return _react.createElement(
       'i',
       null,
       this.props.name,
@@ -44,7 +43,7 @@ class TaskButton extends _react.default.Component {
   }
 
   render() {
-    return _react.default.createElement(
+    return _react.createElement(
       (_Button || _load_Button()).Button,
       {
         size: (_Button || _load_Button()).ButtonSizes.SMALL,

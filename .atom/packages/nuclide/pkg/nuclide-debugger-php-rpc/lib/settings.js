@@ -9,7 +9,7 @@ exports.clearSettings = clearSettings;
 
 
 const defaultSettings = {
-  singleThreadStepping: false
+  singleThreadStepping: true
 }; /**
     * Copyright (c) 2015-present, Facebook, Inc.
     * All rights reserved.

@@ -45,28 +45,16 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 const BUSY_DEBOUNCE_DELAY = 300;
 
-const emptyTarget = {
-  waitingForComputer: false,
-  waitingForUser: false
-};
-
 class MessageStore {
   constructor() {
     this._counter = 0;
     this._messages = new Set();
+    this._currentVisibleMessages = [];
     this._messageStream = new _rxjsBundlesRxMinJs.BehaviorSubject([]);
-    this._targetStream = new _rxjsBundlesRxMinJs.BehaviorSubject(emptyTarget);
   }
-  // _messages will include all messages in the store, including those that
-  // aren't currently visible. _messageStream will only contain visible ones.
-
 
   getMessageStream() {
     return this._messageStream;
-  }
-
-  getTargetStream() {
-    return this._targetStream;
   }
 
   dispose() {
@@ -80,25 +68,20 @@ class MessageStore {
     }
 
     this._messageStream.complete();
-    this._targetStream.complete();
   }
 
   _publish() {
-    const messages = [...this._messages].filter(m => m.isVisible()).sort((m1, m2) => m1.compare(m2));
+    // Currently visible messages should no longer reveal the tooltip again.
+    this._currentVisibleMessages.forEach(message => message.setRevealTooltip(false));
+    const visibleMessages = [...this._messages].filter(m => m.isVisible()).sort((m1, m2) => m1.compare(m2));
 
-    const prevTarget = this._targetStream.getValue();
-    const newTarget = {
-      waitingForComputer: messages.some(m => m.waitingFor === 'computer'),
-      waitingForUser: messages.some(m => m.waitingFor === 'user')
-    };
-    if (newTarget.waitingForUser !== prevTarget.waitingForUser || newTarget.waitingForComputer !== prevTarget.waitingForComputer) {
-      this._targetStream.next(newTarget);
-    }
-
-    const prevMessages = this._messageStream.getValue();
-    const newMessages = (0, (_collection || _load_collection()).arrayCompact)(messages.map(m => m.getTitleHTML()));
-    if (!(0, (_collection || _load_collection()).arrayEqual)(newMessages, prevMessages)) {
-      this._messageStream.next(newMessages);
+    // We only send out on messageStream when the list of visible
+    // BusyMessageInstance object identities has changed, e.g. when ones
+    // are made visible or invisible or new ones are created. We don't send
+    // out just on title change.
+    if (!(0, (_collection || _load_collection()).arrayEqual)(this._currentVisibleMessages, visibleMessages)) {
+      this._messageStream.next(visibleMessages);
+      this._currentVisibleMessages = visibleMessages;
     }
   }
 
@@ -114,7 +97,10 @@ class MessageStore {
     this._messages.add(message);
     messageDisposables.add(() => this._messages.delete(message));
 
-    if (options == null || options.debounce !== false) {
+    // debounce defaults 'true' for busy-signal, and 'false' for action-required
+    const debounceRaw = options == null ? null : options.debounce;
+    const debounce = debounceRaw == null ? waitingFor === 'computer' : debounceRaw;
+    if (debounce) {
       message.setIsVisibleForDebounce(false);
       // After the debounce time, we'll check whether the messageId is still
       // around (i.e. hasn't yet been disposed), and if so we'll display it.
@@ -151,6 +137,12 @@ class MessageStore {
         message.setIsVisibleForFile(newVisible);
       });
       messageDisposables.add(teardown);
+    }
+
+    if (options.revealTooltip) {
+      // When the UI component receives this message, it'll reveal the tooltip.
+      // We'll clear this flag after the message becomes visible the first time.
+      message.setRevealTooltip(true);
     }
 
     message.setTitle(title);

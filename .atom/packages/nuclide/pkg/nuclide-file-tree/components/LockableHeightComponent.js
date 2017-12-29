@@ -5,11 +5,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.LockableHeight = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-class LockableHeight extends _react.default.Component {
+class LockableHeight extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -45,12 +45,13 @@ class LockableHeight extends _react.default.Component {
       style = { maxHeight: lockedHeight, minHeight: lockedHeight };
       className = 'nuclide-file-tree-locked-height';
     }
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       {
         style: style,
         className: className,
         ref: node => {
+          // $FlowFixMe(>=0.53.0) Flow suppress
           this._root = node;
         } },
       this.props.children

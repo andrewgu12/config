@@ -176,7 +176,10 @@ function getLinesFromCommand(command, args, localDirectoryPath) {
     // An exit code of 0 or 1 is perfectly normal for grep (1 = no results).
     // `hg grep` can sometimes have an exit code of 123, since it uses xargs.
     isExitError: ({ exitCode, signal }) => {
-      return !signal && (exitCode == null || exitCode > 1 && exitCode !== 123);
+      return (
+        // flowlint-next-line sketchy-null-string:off
+        !signal && (exitCode == null || exitCode > 1 && exitCode !== 123)
+      );
     }
   }).filter(event => event.kind === 'stdout').map(event => {
     if (!(event.kind === 'stdout')) {

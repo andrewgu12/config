@@ -14,11 +14,15 @@ function _load_UniversalDisposable() {
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 class BusyMessageInstance {
+  // These things might be modified afterwards:
+
   // These things are set at construction-time:
   constructor(publishCallback, creationOrder, waitingFor, onDidClick, disposables) {
-    this._title = null;
+    this._titleElement = document.createElement('span');
+    this._currentTitle = null;
     this._isVisibleForDebounce = true;
     this._isVisibleForFile = true;
+    this._revealTooltip = false;
 
     this._publishCallback = publishCallback;
     this._creationOrder = creationOrder;
@@ -26,8 +30,6 @@ class BusyMessageInstance {
     this._onDidClick = onDidClick;
     this._disposables = disposables;
   }
-  // These things might be modified afterwards:
-
 
   get waitingFor() {
     return this._waitingFor;
@@ -38,23 +40,28 @@ class BusyMessageInstance {
       throw new Error('Invariant violation: "!this._disposables.disposed"');
     }
 
+    if (this._currentTitle === val) {
+      return;
+    }
+    this._currentTitle = val;
+    while (this._titleElement.firstChild != null) {
+      this._titleElement.removeChild(this._titleElement.firstChild);
+    }
     if (this._onDidClick == null) {
-      const span = document.createElement('span');
-      span.appendChild(document.createTextNode(val));
-      this._title = span;
+      this._titleElement.appendChild(document.createTextNode(val));
     } else {
       const anchor = document.createElement('a');
       anchor.onclick = this._onDidClick;
       anchor.appendChild(document.createTextNode(val));
-      this._title = anchor;
+      this._titleElement.appendChild(anchor);
     }
     if (this.isVisible()) {
       this._publishCallback();
     }
   }
 
-  getTitleHTML() {
-    return this._title;
+  getTitleElement() {
+    return this._titleElement;
   }
 
   setIsVisibleForDebounce(val) {
@@ -80,7 +87,15 @@ class BusyMessageInstance {
       throw new Error('Invariant violation: "!this._disposables.disposed"');
     }
 
-    return this._isVisibleForFile && this._isVisibleForDebounce && this._title != null;
+    return this._isVisibleForFile && this._isVisibleForDebounce && this._currentTitle != null;
+  }
+
+  setRevealTooltip(val) {
+    this._revealTooltip = val;
+  }
+
+  shouldRevealTooltip() {
+    return this._revealTooltip;
   }
 
   compare(that) {
@@ -89,7 +104,7 @@ class BusyMessageInstance {
 
   dispose() {
     this._disposables.dispose();
-    this._title = null;
+    this._currentTitle = null;
     this._publishCallback();
   }
 }

@@ -5,7 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.activate = activate;
 exports.deactivate = deactivate;
-exports.consumeWorkspaceViewsService = consumeWorkspaceViewsService;
 
 var _viewableFromReactElement;
 
@@ -31,7 +30,7 @@ function _load_Inspector2() {
   return _Inspector2 = require('./ui/Inspector');
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _destroyItemWhere;
 
@@ -39,23 +38,23 @@ function _load_destroyItemWhere() {
   return _destroyItemWhere = require('nuclide-commons-atom/destroyItemWhere');
 }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the license found in the LICENSE file in
- * the root directory of this source tree.
- *
- * 
- * @format
- */
-
-let disposables = null;
+let disposables = null; /**
+                         * Copyright (c) 2015-present, Facebook, Inc.
+                         * All rights reserved.
+                         *
+                         * This source code is licensed under the license found in the LICENSE file in
+                         * the root directory of this source tree.
+                         *
+                         * 
+                         * @format
+                         */
 
 function activate() {
-  disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default();
+  disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default(registerCommandAndOpener());
 }
 
 function deactivate() {
@@ -67,16 +66,12 @@ function deactivate() {
   disposables = null;
 }
 
-function consumeWorkspaceViewsService(api) {
-  if (!(disposables != null)) {
-    throw new Error('Invariant violation: "disposables != null"');
-  }
-
-  disposables.add(api.addOpener(uri => {
+function registerCommandAndOpener() {
+  return new (_UniversalDisposable || _load_UniversalDisposable()).default(atom.workspace.addOpener(uri => {
     if (uri === (_Inspector2 || _load_Inspector2()).WORKSPACE_VIEW_URI) {
-      return (0, (_viewableFromReactElement || _load_viewableFromReactElement()).viewableFromReactElement)(_react.default.createElement((_Inspector || _load_Inspector()).default, null));
+      return (0, (_viewableFromReactElement || _load_viewableFromReactElement()).viewableFromReactElement)(_react.createElement((_Inspector || _load_Inspector()).default, null));
     }
-  }), () => (0, (_destroyItemWhere || _load_destroyItemWhere()).destroyItemWhere)(item => item instanceof (_Inspector || _load_Inspector()).default), atom.commands.add('atom-workspace', 'nuclide-react-inspector:toggle', event => {
-    api.toggle((_Inspector2 || _load_Inspector2()).WORKSPACE_VIEW_URI, event.detail);
+  }), () => (0, (_destroyItemWhere || _load_destroyItemWhere()).destroyItemWhere)(item => item instanceof (_Inspector || _load_Inspector()).default), atom.commands.add('atom-workspace', 'nuclide-react-inspector:toggle', () => {
+    atom.workspace.toggle((_Inspector2 || _load_Inspector2()).WORKSPACE_VIEW_URI);
   }));
 }

@@ -11,7 +11,9 @@ function _load_classnames() {
   return _classnames = _interopRequireDefault(require('classnames'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -32,9 +34,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 const ButtonToolbar = exports.ButtonToolbar = props => {
   const { children, className } = props;
-  return _react.default.createElement(
-    'div',
-    { className: (0, (_classnames || _load_classnames()).default)('btn-toolbar', className) },
-    children
+  return (
+    // $FlowFixMe(>=0.53.0) Flow suppress
+    _react.createElement(
+      'div',
+      { className: (0, (_classnames || _load_classnames()).default)('btn-toolbar', className) },
+      children
+    )
   );
 };

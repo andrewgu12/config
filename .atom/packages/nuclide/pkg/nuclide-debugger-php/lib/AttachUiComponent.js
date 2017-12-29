@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.AttachUiComponent = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _AttachProcessInfo;
 
@@ -51,6 +51,8 @@ function _load_nuclideDebuggerBase() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -62,7 +64,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @format
  */
 
-class AttachUiComponent extends _react.default.Component {
+class AttachUiComponent extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -131,18 +133,18 @@ class AttachUiComponent extends _react.default.Component {
   }
 
   render() {
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'block' },
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'nuclide-debugger-php-launch-attach-ui-select-project' },
-        _react.default.createElement(
+        _react.createElement(
           'label',
           null,
           'Selected Project Directory: '
         ),
-        _react.default.createElement((_Dropdown || _load_Dropdown()).Dropdown, {
+        _react.createElement((_Dropdown || _load_Dropdown()).Dropdown, {
           className: 'inline-block nuclide-debugger-connection-box',
           options: this.state.pathMenuItems,
           onChange: this._handlePathsDropdownChange,

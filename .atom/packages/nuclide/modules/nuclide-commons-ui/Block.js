@@ -5,12 +5,14 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Block = undefined;
 
-var _react = _interopRequireDefault(require("react"));
+var _react = _interopRequireWildcard(require("react"));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 /** A Block. */
-const Block = exports.Block = props => _react.default.createElement(
+const Block = exports.Block = props =>
+// $FlowFixMe(>=0.53.0) Flow suppress
+_react.createElement(
   "div",
   { className: "block" },
   props.children

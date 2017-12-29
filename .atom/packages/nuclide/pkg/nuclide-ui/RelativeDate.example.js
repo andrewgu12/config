@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.RelativeDateExamples = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _Block;
 
@@ -21,24 +21,26 @@ function _load_RelativeDate() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const RelativeDateExample = () => _react.default.createElement(
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+const RelativeDateExample = () => _react.createElement(
   'div',
   null,
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement(
+    _react.createElement(
       'div',
       null,
       'Updated every 10 seconds (default): "',
-      _react.default.createElement((_RelativeDate || _load_RelativeDate()).default, { date: new Date() }),
+      _react.createElement((_RelativeDate || _load_RelativeDate()).default, { date: new Date() }),
       '"'
     ),
-    _react.default.createElement(
+    _react.createElement(
       'div',
       null,
       'Updated every 1 second: "',
-      _react.default.createElement((_RelativeDate || _load_RelativeDate()).default, { date: new Date(), delay: 1000 }),
+      _react.createElement((_RelativeDate || _load_RelativeDate()).default, { date: new Date(), delay: 1000 }),
       '"'
     )
   )

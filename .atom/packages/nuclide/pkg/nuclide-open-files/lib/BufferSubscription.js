@@ -7,7 +7,11 @@ exports.BufferSubscription = undefined;
 
 var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
 
-var _atom = require('atom');
+var _UniversalDisposable;
+
+function _load_UniversalDisposable() {
+  return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
+}
 
 var _log4js;
 
@@ -61,9 +65,11 @@ class BufferSubscription {
     this._changeCount = 1;
     this._sentOpen = false;
 
-    const subscriptions = new _atom.CompositeDisposable();
+    const subscriptions = new (_UniversalDisposable || _load_UniversalDisposable()).default();
 
-    subscriptions.add(buffer.onDidChange((() => {
+    subscriptions.add(
+    // TODO: (hansonw) T22837054 Use buffer.onDidChangeText here.
+    buffer.onDidChange((() => {
       var _ref = (0, _asyncToGenerator.default)(function* (event) {
         _this._changeCount++;
         if (_this._notifier == null) {
@@ -107,6 +113,37 @@ class BufferSubscription {
         return _ref.apply(this, arguments);
       };
     })()));
+
+    subscriptions.add(buffer.onDidSave((0, _asyncToGenerator.default)(function* () {
+      if (_this._notifier == null) {
+        return;
+      }
+
+      const filePath = _this._buffer.getPath();
+
+      if (!(filePath != null)) {
+        throw new Error('Invariant violation: "filePath != null"');
+      }
+
+      if (!(_this._notifier != null)) {
+        throw new Error('Invariant violation: "this._notifier != null"');
+      }
+
+      const notifier = yield _this._notifier;
+      const version = _this._changeCount;
+      if (_this._sentOpen) {
+        _this.sendEvent({
+          kind: (_nuclideOpenFilesRpc || _load_nuclideOpenFilesRpc()).FileEventKind.SAVE,
+          fileVersion: {
+            notifier,
+            filePath,
+            version
+          }
+        });
+      } else {
+        _this._sendOpenByNotifier(notifier, version);
+      }
+    })));
 
     this._subscriptions = subscriptions;
 
@@ -190,7 +227,7 @@ class BufferSubscription {
       this._lastAttemptedSync = resyncVersion;
 
       const sendResync = (() => {
-        var _ref2 = (0, _asyncToGenerator.default)(function* () {
+        var _ref3 = (0, _asyncToGenerator.default)(function* () {
           if (_this3._notifier == null) {
             logger.error('Resync preempted by remote connection closed');
             return;
@@ -236,7 +273,7 @@ class BufferSubscription {
         });
 
         return function sendResync() {
-          return _ref2.apply(this, arguments);
+          return _ref3.apply(this, arguments);
         };
       })();
 

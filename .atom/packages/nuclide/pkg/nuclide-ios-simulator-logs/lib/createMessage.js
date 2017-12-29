@@ -16,10 +16,13 @@ function _load_parseMessageText() {
  */
 function createMessage(record) {
   const { text, level, tags } = (0, (_parseMessageText || _load_parseMessageText()).parseMessageText)(record.Message);
+  if (record.Facility) {
+    tags.push(record.Facility);
+  }
   return {
     text,
     level: level == null ? getLevel(record.Level) : level,
-    tags: tags == null ? undefined : tags
+    tags: tags.length === 0 ? undefined : tags
   };
 } /**
    * Copyright (c) 2015-present, Facebook, Inc.
@@ -53,6 +56,7 @@ function getLevel(level) {
       // Debug
       return 'debug';
     default:
+      level;
       throw new Error(`Invalid ASL level: ${level}`);
   }
 }

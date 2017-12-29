@@ -23,9 +23,11 @@ function _load_createPaneContainer() {
   return _createPaneContainer = _interopRequireDefault(require('../commons-atom/create-pane-container'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactDom = _interopRequireDefault(require('react-dom'));
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -44,7 +46,7 @@ const FlexDirections = exports.FlexDirections = Object.freeze({
      */
 
 function getChildrenFlexScales(children) {
-  return (0, (_collection || _load_collection()).arrayCompact)(_react.default.Children.map(children, child => {
+  return (0, (_collection || _load_collection()).arrayCompact)(_react.Children.map(children, child => {
     if (child == null) {
       return null;
     } else if (!(child.type === ResizableFlexItem)) {
@@ -55,7 +57,7 @@ function getChildrenFlexScales(children) {
   }) || []);
 }
 
-class ResizableFlexContainer extends _react.default.Component {
+class ResizableFlexContainer extends _react.Component {
 
   componentDidMount() {
     this._setupPanes(this.props);
@@ -100,7 +102,7 @@ class ResizableFlexContainer extends _react.default.Component {
   _renderPanes() {
     const { children } = this.props;
     let i = 0;
-    _react.default.Children.forEach(children, child => {
+    _react.Children.forEach(children, child => {
       if (child == null) {
         return;
       }
@@ -128,15 +130,14 @@ class ResizableFlexContainer extends _react.default.Component {
   render() {
     const { className } = this.props;
     const containerClassName = (0, (_classnames || _load_classnames()).default)('nuclide-ui-resizable-flex-container', className);
-    return _react.default.createElement('div', { className: containerClassName, ref: 'flexContainer' });
+    return _react.createElement('div', { className: containerClassName, ref: 'flexContainer' });
   }
 }
 
 exports.ResizableFlexContainer = ResizableFlexContainer;
-class ResizableFlexItem extends _react.default.Component {
-
+class ResizableFlexItem extends _react.Component {
   render() {
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'nuclide-ui-resizable-flex-item' },
       this.props.children

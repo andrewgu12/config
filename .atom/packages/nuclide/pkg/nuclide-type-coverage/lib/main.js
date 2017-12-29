@@ -26,7 +26,7 @@ exports.consumeCoverageProvider = consumeCoverageProvider;
 exports.consumeStatusBar = consumeStatusBar;
 exports.getDiagnosticsProvider = getDiagnosticsProvider;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactDom = _interopRequireDefault(require('react-dom'));
 
@@ -64,6 +64,8 @@ function _load_coverageDiagnostics() {
   return _coverageDiagnostics = require('./coverageDiagnostics');
 }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
@@ -100,8 +102,7 @@ class Activation {
   }
 
   consumeStatusBar(statusBar) {
-    const item = document.createElement('div');
-    item.className = 'inline-block';
+    const item = document.createElement('span');
 
     const statusBarTile = statusBar.addLeftTile({
       item,
@@ -109,7 +110,7 @@ class Activation {
     });
 
     const resultStream = this._activeEditorRegistry.getResultsStream();
-    _reactDom.default.render(_react.default.createElement((_StatusBarTile || _load_StatusBarTile()).StatusBarTile, {
+    _reactDom.default.render(_react.createElement((_StatusBarTile || _load_StatusBarTile()).StatusBarTile, {
       results: resultStream,
       isActive: this._shouldRenderDiagnostics,
       onClick: () => this._toggleEvents.next()

@@ -53,6 +53,7 @@ class ClientCallback {
   dispose() {
     this._serverMessageObservable.complete();
     this._userOutputObservable.complete();
+    this._atomNotificationObservable.complete();
   }
 }
 exports.default = ClientCallback;

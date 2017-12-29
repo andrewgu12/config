@@ -84,6 +84,7 @@ class XhrConnectionHeartbeat {
         yield _this2.sendHeartBeat();
         _this2._heartbeatConnectedOnce = true;
         const now = Date.now();
+        // flowlint-next-line sketchy-null-number:off
         _this2._lastHeartbeatTime = _this2._lastHeartbeatTime || now;
         if (_this2._lastHeartbeat === 'away' || now - _this2._lastHeartbeatTime > MAX_HEARTBEAT_AWAY_RECONNECT_MS) {
           // Trigger a websocket reconnect.

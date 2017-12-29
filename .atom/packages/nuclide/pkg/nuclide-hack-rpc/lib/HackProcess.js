@@ -183,6 +183,12 @@ function _load_Completions() {
   return _Completions = require('./Completions');
 }
 
+var _constants;
+
+function _load_constants() {
+  return _constants = require('../../nuclide-hack-common/lib/constants');
+}
+
 var _autocomplete;
 
 function _load_autocomplete() {
@@ -192,18 +198,17 @@ function _load_autocomplete() {
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // From hphp/hack/src/utils/exit_status.ml
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the license found in the LICENSE file in
- * the root directory of this source tree.
- *
- * 
- * @format
- */
+const HACK_SERVER_ALREADY_EXISTS_EXIT_CODE = 77; /**
+                                                  * Copyright (c) 2015-present, Facebook, Inc.
+                                                  * All rights reserved.
+                                                  *
+                                                  * This source code is licensed under the license found in the LICENSE file in
+                                                  * the root directory of this source tree.
+                                                  *
+                                                  * 
+                                                  * @format
+                                                  */
 
-const HACK_SERVER_ALREADY_EXISTS_EXIT_CODE = 77;
 const HACK_IDE_NEW_CLIENT_CONNECTED_EXIT_CODE = 207;
 
 // This isn't truly correct, but this will be deprecated with the LSP anyway.
@@ -234,7 +239,7 @@ class HackProcess {
     // TODO: Filter on hhconfigPath
     .filter(fileEvent => {
       const fileExtension = (_nuclideUri || _load_nuclideUri()).default.extname(fileEvent.fileVersion.filePath);
-      return (_hackConfig || _load_hackConfig()).HACK_FILE_EXTENSIONS.indexOf(fileExtension) !== -1;
+      return (_constants || _load_constants()).HACK_FILE_EXTENSIONS.indexOf(fileExtension) !== -1;
     }).combineLatest(_rxjsBundlesRxMinJs.Observable.fromPromise(this.getConnectionService())).subscribe(([fileEvent, service]) => {
       const filePath = fileEvent.fileVersion.filePath;
       const version = fileEvent.fileVersion.version;
@@ -252,8 +257,11 @@ class HackProcess {
         case (_nuclideOpenFilesRpc || _load_nuclideOpenFilesRpc()).FileEventKind.EDIT:
           service.didChangeFile(filePath, version, [editToHackEdit(fileEvent)]);
           break;
+        case (_nuclideOpenFilesRpc || _load_nuclideOpenFilesRpc()).FileEventKind.SAVE:
+          break;
         default:
-          throw new Error(`Unexpected FileEvent kind: ${JSON.stringify(fileEvent)}`);
+          fileEvent.kind;
+          throw new Error(`Unexpected FileEvent kind: ${fileEvent.kind}`);
       }
       this._fileVersionNotifier.onEvent(fileEvent);
     });

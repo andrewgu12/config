@@ -9,7 +9,7 @@ exports.inverseScoreComparator = inverseScoreComparator;
 
 
 /**
- * String comparator that lists the capitalized verson of a string before the lowercase version.
+ * String comparator that lists the capitalized version of a string before the lowercase version.
  *
  * Apparently String.prototype.localeCompare() is not i18n-aware in Node 0.10.x. There's a ton of
  * debate on this:

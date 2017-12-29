@@ -38,10 +38,11 @@ class Devices {
 
   getDeviceList() {
     return this._db.getDevices().switchMap(devices => {
-      return _rxjsBundlesRxMinJs.Observable.concat(...devices.map(name => {
-        const db = new this._db(name);
+      return _rxjsBundlesRxMinJs.Observable.concat(...devices.map(deviceId => {
+        const db = new this._db(deviceId);
         return _rxjsBundlesRxMinJs.Observable.forkJoin(db.getDeviceArchitecture().catch(() => _rxjsBundlesRxMinJs.Observable.of('')), db.getAPIVersion().catch(() => _rxjsBundlesRxMinJs.Observable.of('')), db.getDeviceModel().catch(() => _rxjsBundlesRxMinJs.Observable.of(''))).map(([architecture, apiVersion, model]) => ({
-          name,
+          name: deviceId.name,
+          port: deviceId.port,
           architecture,
           apiVersion,
           model

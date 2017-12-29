@@ -4,6 +4,51 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
+
+let getServerArgs = (() => {
+  var _ref = (0, _asyncToGenerator.default)(function* (src) {
+    let overrides = {};
+    try {
+      // Override the python path and additional sys paths
+      // if override script is present.
+      // $FlowFB
+      const findJediServerArgs = require('./fb/find-jedi-server-args').default;
+      overrides = yield findJediServerArgs(src);
+    } catch (e) {}
+    // Ignore.
+
+
+    // Append the user's PYTHONPATH if it exists.
+    const { PYTHONPATH } = yield (0, (_process || _load_process()).getOriginalEnvironment)();
+    if (PYTHONPATH != null && PYTHONPATH.trim() !== '') {
+      overrides.paths = (overrides.paths || []).concat((_nuclideUri || _load_nuclideUri()).default.splitPathList(PYTHONPATH));
+    }
+
+    // Jedi only parses Python3 files if we start with Python3.
+    // It's not the end of the world if Python3 isn't available, though.
+    let pythonPath = 'python';
+    if (overrides.pythonPath == null) {
+      const python3Path = yield (0, (_which || _load_which()).default)('python3');
+      if (python3Path != null) {
+        pythonPath = python3Path;
+      }
+    }
+
+    return Object.assign({
+      // Default to assuming that python is in system PATH.
+      pythonPath,
+      paths: []
+    }, overrides);
+  });
+
+  return function getServerArgs(_x) {
+    return _ref.apply(this, arguments);
+  };
+})();
+
+var _rxjsBundlesRxMinJs = require('rxjs/bundles/Rx.min.js');
+
 var _nuclideUri;
 
 function _load_nuclideUri() {
@@ -14,6 +59,12 @@ var _process;
 
 function _load_process() {
   return _process = require('nuclide-commons/process');
+}
+
+var _which;
+
+function _load_which() {
+  return _which = _interopRequireDefault(require('nuclide-commons/which'));
 }
 
 var _nuclideRpc;
@@ -30,18 +81,17 @@ function _load_nuclideMarshalersCommon() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const PYTHON_EXECUTABLE = 'python'; /**
-                                     * Copyright (c) 2015-present, Facebook, Inc.
-                                     * All rights reserved.
-                                     *
-                                     * This source code is licensed under the license found in the LICENSE file in
-                                     * the root directory of this source tree.
-                                     *
-                                     * 
-                                     * @format
-                                     */
+const LIB_PATH = (_nuclideUri || _load_nuclideUri()).default.join(__dirname, '../VendorLib'); /**
+                                                                                               * Copyright (c) 2015-present, Facebook, Inc.
+                                                                                               * All rights reserved.
+                                                                                               *
+                                                                                               * This source code is licensed under the license found in the LICENSE file in
+                                                                                               * the root directory of this source tree.
+                                                                                               *
+                                                                                               * 
+                                                                                               * @format
+                                                                                               */
 
-const LIB_PATH = (_nuclideUri || _load_nuclideUri()).default.join(__dirname, '../VendorLib');
 const PROCESS_PATH = (_nuclideUri || _load_nuclideUri()).default.join(__dirname, '../python/jediserver.py');
 const OPTS = {
   cwd: (_nuclideUri || _load_nuclideUri()).default.dirname(PROCESS_PATH),
@@ -62,15 +112,17 @@ function getServiceRegistry() {
 
 class JediServer {
 
-  constructor(src, pythonPath = PYTHON_EXECUTABLE, paths = []) {
+  constructor(src) {
     // Generate a name for this server using the src file name, used to namespace logs
     const name = `JediServer-${(_nuclideUri || _load_nuclideUri()).default.basename(src)}`;
-    let args = [PROCESS_PATH, '-s', src];
-    if (paths.length > 0) {
-      args.push('-p');
-      args = args.concat(paths);
-    }
-    const processStream = (0, (_process || _load_process()).spawn)(pythonPath, args, OPTS);
+    const processStream = _rxjsBundlesRxMinJs.Observable.fromPromise(getServerArgs(src)).switchMap(({ pythonPath, paths }) => {
+      let args = [PROCESS_PATH, '-s', src];
+      if (paths.length > 0) {
+        args.push('-p');
+        args = args.concat(paths);
+      }
+      return (0, (_process || _load_process()).spawn)(pythonPath, args, OPTS);
+    });
     this._process = new (_nuclideRpc || _load_nuclideRpc()).RpcProcess(name, getServiceRegistry(), processStream);
     this._isDisposed = false;
   }

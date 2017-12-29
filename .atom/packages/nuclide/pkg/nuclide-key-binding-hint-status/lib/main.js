@@ -1,6 +1,6 @@
 'use strict';
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactDom = _interopRequireDefault(require('react-dom'));
 
@@ -24,6 +24,8 @@ function _load_KeyBindingHint() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -46,7 +48,11 @@ class Activation {
     this._statusNode = document.createElement('div');
     this._statusNode.classList.add('inline-block', 'text');
 
-    _reactDom.default.render(_react.default.createElement((_KeyBindingHint || _load_KeyBindingHint()).default, null), this._statusNode);
+    if (!this._statusNode) {
+      throw new Error('Invariant violation: "this._statusNode"');
+    }
+
+    _reactDom.default.render(_react.createElement((_KeyBindingHint || _load_KeyBindingHint()).default, null), this._statusNode);
 
     this._disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default(() => {
       _reactDom.default.unmountComponentAtNode(this._statusNode);

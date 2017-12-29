@@ -61,6 +61,7 @@ exports.default = (() => {
     // TODO(asuarez): Fix this when we have server-side settings.
     if (global.atom) {
       const path = atom.config.get('nuclide.nuclide-clang.libclangPath');
+      // flowlint-next-line sketchy-null-string:off
       if (path) {
         libClangLibraryFile = path.trim();
       }

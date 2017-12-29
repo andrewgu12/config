@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.FreeformRefactorComponent = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _AtomInput;
 
@@ -39,8 +39,6 @@ function _load_refactorActions() {
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -69,8 +67,7 @@ function getDefault(arg) {
   throw new Error('unreachable');
 }
 
-class FreeformRefactorComponent extends _react.default.Component {
-
+class FreeformRefactorComponent extends _react.Component {
   constructor(props) {
     super(props);
 
@@ -93,14 +90,14 @@ class FreeformRefactorComponent extends _react.default.Component {
   }
 
   render() {
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       null,
       this._getControls(),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { style: { display: 'flex', justifyContent: 'flex-end' } },
-        _react.default.createElement(
+        _react.createElement(
           (_Button || _load_Button()).Button,
           {
             className: 'nuclide-refactorizer-execute-button',
@@ -116,11 +113,11 @@ class FreeformRefactorComponent extends _react.default.Component {
     return this.props.phase.refactoring.arguments.map((arg, index) => {
       switch (arg.type) {
         case 'string':
-          return [_react.default.createElement(
+          return [_react.createElement(
             'div',
             { key: 'label', className: 'nuclide-refactorizer-freeform-label' },
             arg.description
-          ), _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+          ), _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
             key: 'input',
             autofocus: index === 0,
             startSelected: index === 0,
@@ -130,17 +127,17 @@ class FreeformRefactorComponent extends _react.default.Component {
             onConfirm: this._execute
           })];
         case 'boolean':
-          return _react.default.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
+          return _react.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
             label: arg.description,
             checked: Boolean(this.state.args.get(arg.name)),
             onChange: checked => this._updateArg(arg.name, checked)
           });
         case 'enum':
-          return [_react.default.createElement(
+          return [_react.createElement(
             'div',
             { key: 'label', className: 'nuclide-refactorizer-freeform-label' },
             arg.description
-          ), _react.default.createElement((_Dropdown || _load_Dropdown()).Dropdown, {
+          ), _react.createElement((_Dropdown || _load_Dropdown()).Dropdown, {
             key: 'dropdown',
             value: this.state.args.get(arg.name) || arg.options[0],
             options: arg.options.map(val => ({
@@ -151,7 +148,7 @@ class FreeformRefactorComponent extends _react.default.Component {
           })];
       }
     }).map((elem, index) => {
-      return _react.default.createElement(
+      return _react.createElement(
         'div',
         { key: index, className: 'nuclide-refactorizer-freeform-group' },
         elem

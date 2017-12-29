@@ -67,11 +67,12 @@ module.exports = _client => {
     return Observable.fromPromise(_client.marshalArguments(Array.from(arguments), [{
       name: "device",
       type: {
-        kind: "string"
+        kind: "named",
+        name: "DeviceId"
       }
-    }]).then(args => {
+    }])).switchMap(args => {
       return _client.callRemoteFunction("SdbService/getDeviceInfo", "observable", args);
-    })).concatMap(id => id).concatMap(value => {
+    }).concatMap(value => {
       return _client.unmarshal(value, {
         kind: "map",
         keyType: {
@@ -85,9 +86,9 @@ module.exports = _client => {
   };
 
   remoteModule.getDeviceList = function () {
-    return Observable.fromPromise(_client.marshalArguments(Array.from(arguments), []).then(args => {
+    return Observable.fromPromise(_client.marshalArguments(Array.from(arguments), [])).switchMap(args => {
       return _client.callRemoteFunction("SdbService/getDeviceList", "observable", args);
-    })).concatMap(id => id).concatMap(value => {
+    }).concatMap(value => {
       return _client.unmarshal(value, {
         kind: "array",
         type: {
@@ -102,7 +103,8 @@ module.exports = _client => {
     return _client.marshalArguments(Array.from(arguments), [{
       name: "device",
       type: {
-        kind: "string"
+        kind: "named",
+        name: "DeviceId"
       }
     }, {
       name: "packageName",
@@ -122,7 +124,8 @@ module.exports = _client => {
     return _client.marshalArguments(Array.from(arguments), [{
       name: "device",
       type: {
-        kind: "string"
+        kind: "named",
+        name: "DeviceId"
       }
     }, {
       name: "path",
@@ -142,7 +145,8 @@ module.exports = _client => {
     return Observable.fromPromise(_client.marshalArguments(Array.from(arguments), [{
       name: "device",
       type: {
-        kind: "string"
+        kind: "named",
+        name: "DeviceId"
       }
     }, {
       name: "packagePath",
@@ -150,9 +154,9 @@ module.exports = _client => {
         kind: "named",
         name: "NuclideUri"
       }
-    }]).then(args => {
+    }])).switchMap(args => {
       return _client.callRemoteFunction("SdbService/installPackage", "observable", args);
-    })).concatMap(id => id).concatMap(value => {
+    }).concatMap(value => {
       return _client.unmarshal(value, {
         kind: "named",
         name: "LegacyProcessMessage"
@@ -164,7 +168,8 @@ module.exports = _client => {
     return _client.marshalArguments(Array.from(arguments), [{
       name: "device",
       type: {
-        kind: "string"
+        kind: "named",
+        name: "DeviceId"
       }
     }, {
       name: "identifier",
@@ -180,23 +185,75 @@ module.exports = _client => {
     });
   };
 
-  remoteModule.uninstallPackage = function (arg0, arg1) {
-    return Observable.fromPromise(_client.marshalArguments(Array.from(arguments), [{
+  remoteModule.stopProcess = function (arg0, arg1, arg2) {
+    return _client.marshalArguments(Array.from(arguments), [{
       name: "device",
       type: {
-        kind: "string"
+        kind: "named",
+        name: "DeviceId"
       }
     }, {
       name: "packageName",
       type: {
         kind: "string"
       }
+    }, {
+      name: "pid",
+      type: {
+        kind: "number"
+      }
     }]).then(args => {
+      return _client.callRemoteFunction("SdbService/stopProcess", "promise", args);
+    }).then(value => {
+      return _client.unmarshal(value, {
+        kind: "void"
+      });
+    });
+  };
+
+  remoteModule.uninstallPackage = function (arg0, arg1) {
+    return Observable.fromPromise(_client.marshalArguments(Array.from(arguments), [{
+      name: "device",
+      type: {
+        kind: "named",
+        name: "DeviceId"
+      }
+    }, {
+      name: "packageName",
+      type: {
+        kind: "string"
+      }
+    }])).switchMap(args => {
       return _client.callRemoteFunction("SdbService/uninstallPackage", "observable", args);
-    })).concatMap(id => id).concatMap(value => {
+    }).concatMap(value => {
       return _client.unmarshal(value, {
         kind: "named",
         name: "LegacyProcessMessage"
+      });
+    }).publish();
+  };
+
+  remoteModule.getProcesses = function (arg0, arg1) {
+    return Observable.fromPromise(_client.marshalArguments(Array.from(arguments), [{
+      name: "device",
+      type: {
+        kind: "named",
+        name: "DeviceId"
+      }
+    }, {
+      name: "timeout",
+      type: {
+        kind: "number"
+      }
+    }])).switchMap(args => {
+      return _client.callRemoteFunction("SdbService/getProcesses", "observable", args);
+    }).concatMap(value => {
+      return _client.unmarshal(value, {
+        kind: "array",
+        type: {
+          kind: "named",
+          name: "Process"
+        }
       });
     }).publish();
   };
@@ -273,13 +330,13 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "SdbService.js",
-        line: 24
+        line: 29
       },
       type: {
         location: {
           type: "source",
           fileName: "SdbService.js",
-          line: 24
+          line: 29
         },
         kind: "function",
         argumentTypes: [{
@@ -315,7 +372,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "types.js",
-        line: 40
+        line: 43
       },
       name: "DebugBridgeFullConfig",
       definition: {
@@ -339,9 +396,9 @@ Object.defineProperty(module.exports, "defs", {
           },
           optional: false
         }, {
-          name: "port",
+          name: "ports",
           type: {
-            kind: "nullable",
+            kind: "array",
             type: {
               kind: "number"
             }
@@ -356,13 +413,13 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "SdbService.js",
-        line: 32
+        line: 37
       },
       type: {
         location: {
           type: "source",
           fileName: "SdbService.js",
-          line: 32
+          line: 37
         },
         kind: "function",
         argumentTypes: [],
@@ -381,13 +438,13 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "SdbService.js",
-        line: 36
+        line: 41
       },
       type: {
         location: {
           type: "source",
           fileName: "SdbService.js",
-          line: 36
+          line: 41
         },
         kind: "function",
         argumentTypes: [{
@@ -407,25 +464,51 @@ Object.defineProperty(module.exports, "defs", {
         }
       }
     },
+    DeviceId: {
+      kind: "alias",
+      location: {
+        type: "source",
+        fileName: "types.js",
+        line: 22
+      },
+      name: "DeviceId",
+      definition: {
+        kind: "object",
+        fields: [{
+          name: "name",
+          type: {
+            kind: "string"
+          },
+          optional: false
+        }, {
+          name: "port",
+          type: {
+            kind: "number"
+          },
+          optional: false
+        }]
+      }
+    },
     getDeviceInfo: {
       kind: "function",
       name: "getDeviceInfo",
       location: {
         type: "source",
         fileName: "SdbService.js",
-        line: 40
+        line: 45
       },
       type: {
         location: {
           type: "source",
           fileName: "SdbService.js",
-          line: 40
+          line: 45
         },
         kind: "function",
         argumentTypes: [{
           name: "device",
           type: {
-            kind: "string"
+            kind: "named",
+            name: "DeviceId"
           }
         }],
         returnType: {
@@ -447,7 +530,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "types.js",
-        line: 22
+        line: 24
       },
       name: "DeviceDescription",
       definition: {
@@ -456,6 +539,12 @@ Object.defineProperty(module.exports, "defs", {
           name: "name",
           type: {
             kind: "string"
+          },
+          optional: false
+        }, {
+          name: "port",
+          type: {
+            kind: "number"
           },
           optional: false
         }, {
@@ -485,13 +574,13 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "SdbService.js",
-        line: 46
+        line: 51
       },
       type: {
         location: {
           type: "source",
           fileName: "SdbService.js",
-          line: 46
+          line: 51
         },
         kind: "function",
         argumentTypes: [],
@@ -513,19 +602,20 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "SdbService.js",
-        line: 52
+        line: 57
       },
       type: {
         location: {
           type: "source",
           fileName: "SdbService.js",
-          line: 52
+          line: 57
         },
         kind: "function",
         argumentTypes: [{
           name: "device",
           type: {
-            kind: "string"
+            kind: "named",
+            name: "DeviceId"
           }
         }, {
           name: "packageName",
@@ -547,19 +637,20 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "SdbService.js",
-        line: 59
+        line: 64
       },
       type: {
         location: {
           type: "source",
           fileName: "SdbService.js",
-          line: 59
+          line: 64
         },
         kind: "function",
         argumentTypes: [{
           name: "device",
           type: {
-            kind: "string"
+            kind: "named",
+            name: "DeviceId"
           }
         }, {
           name: "path",
@@ -580,7 +671,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "process.js",
-        line: 584
+        line: 598
       },
       name: "ProcessExitMessage",
       definition: {
@@ -618,7 +709,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "process.js",
-        line: 590
+        line: 604
       },
       name: "ProcessMessage",
       definition: {
@@ -692,7 +783,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "process.js",
-        line: 603
+        line: 617
       },
       name: "LegacyProcessMessage",
       definition: {
@@ -784,19 +875,20 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "SdbService.js",
-        line: 66
+        line: 71
       },
       type: {
         location: {
           type: "source",
           fileName: "SdbService.js",
-          line: 66
+          line: 71
         },
         kind: "function",
         argumentTypes: [{
           name: "device",
           type: {
-            kind: "string"
+            kind: "named",
+            name: "DeviceId"
           }
         }, {
           name: "packagePath",
@@ -820,19 +912,20 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "SdbService.js",
-        line: 74
+        line: 79
       },
       type: {
         location: {
           type: "source",
           fileName: "SdbService.js",
-          line: 74
+          line: 79
         },
         kind: "function",
         argumentTypes: [{
           name: "device",
           type: {
-            kind: "string"
+            kind: "named",
+            name: "DeviceId"
           }
         }, {
           name: "identifier",
@@ -848,25 +941,66 @@ Object.defineProperty(module.exports, "defs", {
         }
       }
     },
+    stopProcess: {
+      kind: "function",
+      name: "stopProcess",
+      location: {
+        type: "source",
+        fileName: "SdbService.js",
+        line: 86
+      },
+      type: {
+        location: {
+          type: "source",
+          fileName: "SdbService.js",
+          line: 86
+        },
+        kind: "function",
+        argumentTypes: [{
+          name: "device",
+          type: {
+            kind: "named",
+            name: "DeviceId"
+          }
+        }, {
+          name: "packageName",
+          type: {
+            kind: "string"
+          }
+        }, {
+          name: "pid",
+          type: {
+            kind: "number"
+          }
+        }],
+        returnType: {
+          kind: "promise",
+          type: {
+            kind: "void"
+          }
+        }
+      }
+    },
     uninstallPackage: {
       kind: "function",
       name: "uninstallPackage",
       location: {
         type: "source",
         fileName: "SdbService.js",
-        line: 81
+        line: 94
       },
       type: {
         location: {
           type: "source",
           fileName: "SdbService.js",
-          line: 81
+          line: 94
         },
         kind: "function",
         argumentTypes: [{
           name: "device",
           type: {
-            kind: "string"
+            kind: "named",
+            name: "DeviceId"
           }
         }, {
           name: "packageName",
@@ -879,6 +1013,100 @@ Object.defineProperty(module.exports, "defs", {
           type: {
             kind: "named",
             name: "LegacyProcessMessage"
+          }
+        }
+      }
+    },
+    Process: {
+      kind: "alias",
+      location: {
+        type: "source",
+        fileName: "types.js",
+        line: 32
+      },
+      name: "Process",
+      definition: {
+        kind: "object",
+        fields: [{
+          name: "user",
+          type: {
+            kind: "string"
+          },
+          optional: false
+        }, {
+          name: "pid",
+          type: {
+            kind: "number"
+          },
+          optional: false
+        }, {
+          name: "name",
+          type: {
+            kind: "string"
+          },
+          optional: false
+        }, {
+          name: "cpuUsage",
+          type: {
+            kind: "nullable",
+            type: {
+              kind: "number"
+            }
+          },
+          optional: false
+        }, {
+          name: "memUsage",
+          type: {
+            kind: "nullable",
+            type: {
+              kind: "number"
+            }
+          },
+          optional: false
+        }, {
+          name: "isJava",
+          type: {
+            kind: "boolean"
+          },
+          optional: false
+        }]
+      }
+    },
+    getProcesses: {
+      kind: "function",
+      name: "getProcesses",
+      location: {
+        type: "source",
+        fileName: "SdbService.js",
+        line: 102
+      },
+      type: {
+        location: {
+          type: "source",
+          fileName: "SdbService.js",
+          line: 102
+        },
+        kind: "function",
+        argumentTypes: [{
+          name: "device",
+          type: {
+            kind: "named",
+            name: "DeviceId"
+          }
+        }, {
+          name: "timeout",
+          type: {
+            kind: "number"
+          }
+        }],
+        returnType: {
+          kind: "observable",
+          type: {
+            kind: "array",
+            type: {
+              kind: "named",
+              name: "Process"
+            }
           }
         }
       }

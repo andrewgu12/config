@@ -42,26 +42,18 @@ function _load_createPackage() {
   return _createPackage = _interopRequireDefault(require('nuclide-commons-atom/createPackage'));
 }
 
-var _StatusBar;
-
-function _load_StatusBar() {
-  return _StatusBar = require('./StatusBar');
-}
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the license found in the LICENSE file in
- * the root directory of this source tree.
- *
- * 
- * @format
- */
-
-const controller = new (_NavigationStackController || _load_NavigationStackController()).NavigationStackController();
+const controller = new (_NavigationStackController || _load_NavigationStackController()).NavigationStackController(); /**
+                                                                                                                       * Copyright (c) 2015-present, Facebook, Inc.
+                                                                                                                       * All rights reserved.
+                                                                                                                       *
+                                                                                                                       * This source code is licensed under the license found in the LICENSE file in
+                                                                                                                       * the root directory of this source tree.
+                                                                                                                       *
+                                                                                                                       * 
+                                                                                                                       * @format
+                                                                                                                       */
 
 class Activation {
 
@@ -118,10 +110,16 @@ class Activation {
     }));
   }
 
-  consumeStatusBar(statusBar) {
-    const disposable = (0, (_StatusBar || _load_StatusBar()).consumeStatusBar)(statusBar, controller);
-    this._disposables.add(disposable);
-    return disposable;
+  getNavigationStackProvider() {
+    const stackChanges = controller.observeStackChanges().map(stack => ({
+      hasPrevious: stack.hasPrevious(),
+      hasNext: stack.hasNext()
+    }));
+    return {
+      subscribe: callback => new (_UniversalDisposable || _load_UniversalDisposable()).default(stackChanges.subscribe(callback)),
+      navigateForwards: () => controller.navigateForwards(),
+      navigateBackwards: () => controller.navigateBackwards()
+    };
   }
 
   dispose() {

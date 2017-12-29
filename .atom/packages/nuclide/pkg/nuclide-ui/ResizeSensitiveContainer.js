@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ResizeSensitiveContainer = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _classnames;
 
@@ -20,6 +20,8 @@ function _load_observable() {
 }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 const EXPANSION_BUFFER = 50;
 
@@ -49,7 +51,7 @@ const EXPANSION_BUFFER = 50;
  * @format
  */
 
-class ResizeSensor extends _react.default.Component {
+class ResizeSensor extends _react.Component {
   constructor(...args) {
     var _temp;
 
@@ -93,29 +95,31 @@ class ResizeSensor extends _react.default.Component {
       height: targetHeight + EXPANSION_BUFFER
     };
 
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       {
         className: 'nuclide-resize-sensitive-container-sensor',
         onAnimationStart: this._handleScroll },
-      _react.default.createElement(
+      _react.createElement(
         'div',
         {
+          // $FlowFixMe(>=0.53.0) Flow suppress
           ref: this._handleExpandRef,
           className: 'nuclide-resize-sensitive-container-expand',
           onScroll: this._handleScroll },
-        _react.default.createElement('div', {
+        _react.createElement('div', {
           className: 'nuclide-resize-sensitive-container-expand-inner',
           style: expandInnerStyle
         })
       ),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         {
+          // $FlowFixMe(>=0.53.0) Flow suppress
           ref: this._handleShrinkRef,
           className: 'nuclide-resize-sensitive-container-shrink',
           onScroll: this._handleScroll },
-        _react.default.createElement('div', { className: 'nuclide-resize-sensitive-container-shrink-inner' })
+        _react.createElement('div', { className: 'nuclide-resize-sensitive-container-shrink-inner' })
       )
     );
   }
@@ -130,7 +134,7 @@ class ResizeSensor extends _react.default.Component {
  *       changes as a result of a DOM mutation, use MeasuredComponent
  *       instead.
  */
-class ResizeSensitiveContainer extends _react.default.Component {
+class ResizeSensitiveContainer extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -185,10 +189,10 @@ class ResizeSensitiveContainer extends _react.default.Component {
     const { children, className, tabIndex } = this.props;
     const { height, width } = this.state;
     const containerClasses = (0, (_classnames || _load_classnames()).default)('nuclide-resize-sensitive-container', className);
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'nuclide-resize-sensitive-container-wrapper' },
-      _react.default.createElement(
+      _react.createElement(
         'div',
         {
           ref: this._handleContainer,
@@ -196,7 +200,7 @@ class ResizeSensitiveContainer extends _react.default.Component {
           tabIndex: tabIndex },
         children
       ),
-      this._containerRendered() ? _react.default.createElement(ResizeSensor, {
+      this._containerRendered() ? _react.createElement(ResizeSensor, {
         targetHeight: height,
         targetWidth: width,
         onDetectedResize: this._handleResize

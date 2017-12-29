@@ -65,6 +65,12 @@ function _load_event() {
   return _event = require('nuclide-commons/event');
 }
 
+var _textEditor;
+
+function _load_textEditor() {
+  return _textEditor = require('nuclide-commons-atom/text-editor');
+}
+
 var _UniversalDisposable;
 
 function _load_UniversalDisposable() {
@@ -79,6 +85,17 @@ function _load_nuclideLanguageServiceRpc() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+/**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the license found in the LICENSE file in
+ * the root directory of this source tree.
+ *
+ * 
+ * @format
+ */
+
 function registerDiagnostics(name, grammars, config, logger, connectionToLanguageService, busySignalProvider) {
   const result = new (_UniversalDisposable || _load_UniversalDisposable()).default();
   let provider;
@@ -88,23 +105,15 @@ function registerDiagnostics(name, grammars, config, logger, connectionToLanguag
       result.add(provider);
       break;
     case '0.2.0':
-      provider = new ObservableDiagnosticProvider(config.analyticsEventName, logger, connectionToLanguageService);
+      provider = new ObservableDiagnosticProvider(config.analyticsEventName, grammars, logger, connectionToLanguageService);
       break;
     default:
+      config.version;
       throw new Error('Unexpected diagnostics version');
   }
-  result.add(atom.packages.serviceHub.provide('diagnostics', config.version, provider));
+  result.add(atom.packages.serviceHub.provide('DEPRECATED-diagnostics', config.version, provider));
   return result;
-} /**
-   * Copyright (c) 2015-present, Facebook, Inc.
-   * All rights reserved.
-   *
-   * This source code is licensed under the license found in the LICENSE file in
-   * the root directory of this source tree.
-   *
-   * 
-   * @format
-   */
+}
 
 class FileDiagnosticsProvider {
 
@@ -179,19 +188,17 @@ class FileDiagnosticsProvider {
           pathsForHackLanguage.add(path);
         }
       };
-      if (diagnostics.filePathToMessages != null) {
-        diagnostics.filePathToMessages.forEach(function (messages, messagePath) {
-          addPath(messagePath);
-          messages.forEach(function (message) {
-            addPath(message.filePath);
-            if (message.trace != null) {
-              message.trace.forEach(function (trace) {
-                addPath(trace.filePath);
-              });
-            }
-          });
+      diagnostics.forEach(function (messages, messagePath) {
+        addPath(messagePath);
+        messages.forEach(function (message) {
+          addPath(message.filePath);
+          if (message.trace != null) {
+            message.trace.forEach(function (trace) {
+              addPath(trace.filePath);
+            });
+          }
         });
-      }
+      });
 
       _this._providerBase.publishMessageUpdate(diagnostics);
     }));
@@ -275,7 +282,8 @@ class FileDiagnosticsProvider {
 exports.FileDiagnosticsProvider = FileDiagnosticsProvider;
 class ObservableDiagnosticProvider {
 
-  constructor(analyticsEventName, logger, connectionToLanguageService) {
+  constructor(analyticsEventName, grammars, logger, connectionToLanguageService) {
+    this._grammarScopes = new Set(grammars);
     this._logger = logger;
     this._analyticsEventName = analyticsEventName;
     this._connectionToFiles = new (_cache || _load_cache()).Cache(connection => new Set());
@@ -293,23 +301,18 @@ class ObservableDiagnosticProvider {
           return _rxjsBundlesRxMinJs.Observable.empty();
         }));
       }).map(updates => {
+        (0, (_nuclideAnalytics || _load_nuclideAnalytics()).track)(this._analyticsEventName);
         const filePathToMessages = new Map();
-        updates.forEach(update => {
-          const { filePath, messages } = update;
-          (0, (_nuclideAnalytics || _load_nuclideAnalytics()).track)(this._analyticsEventName);
+        updates.forEach((messages, filePath) => {
           const fileCache = this._connectionToFiles.get(connection);
           if (messages.length === 0) {
-            this._logger.debug(`Observing diagnostics: removing ${filePath}, ${this._analyticsEventName}`);
             fileCache.delete(filePath);
           } else {
-            this._logger.debug(`Observing diagnostics: adding ${filePath}, ${this._analyticsEventName}`);
             fileCache.add(filePath);
           }
           filePathToMessages.set(filePath, messages);
         });
-        return {
-          filePathToMessages
-        };
+        return filePathToMessages;
       });
     }).catch(error => {
       this._logger.error(`Error: observeEntries, ${this._analyticsEventName}`, error);
@@ -328,6 +331,20 @@ class ObservableDiagnosticProvider {
       this._logger.error(`Error: invalidations, ${this._analyticsEventName} ${error}`);
       throw error;
     });
+
+    // this._connectionToFiles is lazy, but diagnostics should appear as soon as
+    // a file belonging to the connection is open.
+    // Monitor open text editors and trigger a connection for each one, if needed.
+    this._subscriptions = new (_UniversalDisposable || _load_UniversalDisposable()).default((0, (_textEditor || _load_textEditor()).observeTextEditors)(editor => {
+      const path = editor.getPath();
+      if (path != null && this._grammarScopes.has(editor.getGrammar().scopeName)) {
+        this._connectionToLanguageService.getForUri(path);
+      }
+    }));
+  }
+
+  dispose() {
+    this._subscriptions.dispose();
   }
 }
 exports.ObservableDiagnosticProvider = ObservableDiagnosticProvider;

@@ -164,6 +164,7 @@ function getEventsFromProcess(processStream) {
           };
         }
       default:
+        message;
         throw new Error('impossible');
     }
   });

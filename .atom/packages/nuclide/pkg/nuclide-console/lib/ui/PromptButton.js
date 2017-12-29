@@ -4,11 +4,13 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _electron = _interopRequireDefault(require('electron'));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 const { remote } = _electron.default; /**
                                        * Copyright (c) 2015-present, Facebook, Inc.
@@ -25,7 +27,7 @@ if (!(remote != null)) {
   throw new Error('Invariant violation: "remote != null"');
 }
 
-class PromptButton extends _react.default.Component {
+class PromptButton extends _react.Component {
   constructor(...args) {
     var _temp;
 
@@ -46,17 +48,17 @@ class PromptButton extends _react.default.Component {
   }
 
   render() {
-    return _react.default.createElement(
+    return _react.createElement(
       'span',
       {
         className: 'nuclide-console-prompt-wrapper',
         onClick: this._handleClick },
-      _react.default.createElement(
+      _react.createElement(
         'span',
         { className: 'nuclide-console-prompt-label' },
         this.props.children
       ),
-      _react.default.createElement('span', { className: 'icon icon-chevron-right' })
+      _react.createElement('span', { className: 'icon icon-chevron-right' })
     );
   }
 

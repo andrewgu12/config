@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.FileTreeToolbarComponent = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactDom = _interopRequireDefault(require('react-dom'));
 
@@ -65,7 +65,9 @@ function _load_ButtonGroup() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-class FileTreeToolbarComponent extends _react.default.Component {
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+class FileTreeToolbarComponent extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -153,7 +155,7 @@ class FileTreeToolbarComponent extends _react.default.Component {
   componentDidMount() {
     this._disposables.add(atom.commands.add('atom-workspace',
     // This command is exposed in the nuclide-working-sets menu config.
-    // eslint-disable-next-line nuclide-internal/atom-apis
+    // eslint-disable-next-line rulesdir/atom-apis
     'working-sets:select-active', this._toggleWorkingSetsSelector));
   }
 
@@ -185,7 +187,7 @@ class FileTreeToolbarComponent extends _react.default.Component {
 
     let selectWorkingSetButton;
     if (!this.state.definitionsAreEmpty && !isEditingWorkingSet) {
-      selectWorkingSetButton = _react.default.createElement(SelectWorkingSetButton, {
+      selectWorkingSetButton = _react.createElement(SelectWorkingSetButton, {
         onClick: this._toggleWorkingSetsSelector,
         onFocus: this._checkIfClosingSelector,
         isWorkingSetEmpty: workingSet.isEmpty()
@@ -194,7 +196,7 @@ class FileTreeToolbarComponent extends _react.default.Component {
 
     let workingSetNameAndSave;
     if (isEditingWorkingSet && !editedWorkingSetIsEmpty) {
-      workingSetNameAndSave = _react.default.createElement((_WorkingSetNameAndSaveComponent || _load_WorkingSetNameAndSaveComponent()).WorkingSetNameAndSaveComponent, {
+      workingSetNameAndSave = _react.createElement((_WorkingSetNameAndSaveComponent || _load_WorkingSetNameAndSaveComponent()).WorkingSetNameAndSaveComponent, {
         isEditing: this.state.isUpdatingExistingWorkingSet,
         initialName: this.state.updatedWorkingSetName,
         onUpdate: this._updateWorkingSet,
@@ -203,25 +205,25 @@ class FileTreeToolbarComponent extends _react.default.Component {
       });
     }
 
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       {
         className: (0, (_classnames || _load_classnames()).default)({
           'nuclide-file-tree-toolbar': true,
           'nuclide-file-tree-toolbar-fader': workingSet.isEmpty() && !this.state.selectionIsActive && !this._store.isEditingWorkingSet()
         }) },
-      _react.default.createElement(
+      _react.createElement(
         (_ButtonGroup || _load_ButtonGroup()).ButtonGroup,
         { className: 'pull-right', size: (_ButtonGroup || _load_ButtonGroup()).ButtonGroupSizes.SMALL },
         selectWorkingSetButton,
-        _react.default.createElement(DefineWorkingSetButton, {
+        _react.createElement(DefineWorkingSetButton, {
           isActive: isEditingWorkingSet,
           isWorkingSetEmpty: workingSet.isEmpty(),
           shouldShowLabel: shouldShowButtonLabel,
           onClick: this._toggleWorkingSetEditMode
         })
       ),
-      _react.default.createElement('div', { className: 'clearfix' }),
+      _react.createElement('div', { className: 'clearfix' }),
       workingSetNameAndSave
     );
   }
@@ -242,7 +244,7 @@ class FileTreeToolbarComponent extends _react.default.Component {
       this.setState({ selectionIsActive: false });
     };
 
-    _reactDom.default.render(_react.default.createElement((_WorkingSetSelectionComponent || _load_WorkingSetSelectionComponent()).WorkingSetSelectionComponent, {
+    _reactDom.default.render(_react.createElement((_WorkingSetSelectionComponent || _load_WorkingSetSelectionComponent()).WorkingSetSelectionComponent, {
       workingSetsStore: this.props.workingSetsStore,
       onClose: onClose,
       onEditWorkingSet: this._editWorkingSet
@@ -275,11 +277,10 @@ exports.FileTreeToolbarComponent = FileTreeToolbarComponent; /**
                                                               * @format
                                                               */
 
-class SelectWorkingSetButton extends _react.default.Component {
-
+class SelectWorkingSetButton extends _react.Component {
   render() {
     const { isWorkingSetEmpty, onClick, onFocus } = this.props;
-    return _react.default.createElement(
+    return _react.createElement(
       (_Button || _load_Button()).Button,
       {
         icon: 'pencil',
@@ -298,11 +299,10 @@ class SelectWorkingSetButton extends _react.default.Component {
   }
 }
 
-class DefineWorkingSetButton extends _react.default.Component {
-
+class DefineWorkingSetButton extends _react.Component {
   render() {
     const { isActive, isWorkingSetEmpty, shouldShowLabel, onClick } = this.props;
-    return _react.default.createElement(
+    return _react.createElement(
       (_Button || _load_Button()).Button,
       {
         icon: isActive ? undefined : 'plus',

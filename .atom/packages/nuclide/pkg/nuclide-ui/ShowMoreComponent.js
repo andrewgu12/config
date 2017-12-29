@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ShowMoreComponent = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _MeasuredComponent;
 
@@ -19,7 +19,7 @@ function _load_Button() {
   return _Button = require('nuclide-commons-ui/Button');
 }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 /** A component which sets a max height and includes a "Show More" button
  * aligned at the bottom. Clicking "Show More" will remove the max height restriction
@@ -36,8 +36,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @format
  */
 
-class ShowMoreComponent extends _react.default.Component {
-
+class ShowMoreComponent extends _react.Component {
   constructor(props) {
     super(props);
 
@@ -70,31 +69,31 @@ class ShowMoreComponent extends _react.default.Component {
       overflowY: 'hidden'
     } : {};
     const displayNoneIfBelowMaxHeight = currentHeight <= maxHeight ? { display: 'none' } : {};
-    const showMoreButton = _react.default.createElement(
+    const showMoreButton = _react.createElement(
       'div',
       {
         className: 'nuclide-ui-show-more-button-container',
         style: displayNoneIfBelowMaxHeight },
-      _react.default.createElement(
+      _react.createElement(
         (_Button || _load_Button()).Button,
         { onClick: this._toggleShowMore, size: 'EXTRA_SMALL' },
         showMessage
       )
     );
 
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       null,
-      _react.default.createElement(
+      _react.createElement(
         'div',
         {
           className: 'nuclide-ui-show-more-component',
           style: conditionalStyle },
-        _react.default.createElement('div', {
+        _react.createElement('div', {
           className: 'nuclide-ui-show-more-gradient',
           style: displayNoneIfBelowMaxHeight
         }),
-        _react.default.createElement(
+        _react.createElement(
           (_MeasuredComponent || _load_MeasuredComponent()).MeasuredComponent,
           { onMeasurementsChanged: this._updateMeasurements },
           this.props.children

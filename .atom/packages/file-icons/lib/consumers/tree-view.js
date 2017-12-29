@@ -22,6 +22,21 @@ class TreeView extends Consumer {
 				this.disposables.dispose("project");
 			})
 		);
+		
+		// Monkey-patching doesn't fire if user opens project to an existing (and empty)
+		// workspace window. See: https://github.com/file-icons/atom/issues/655#issuecomment-335127348
+		this.disposables.set("pane",
+			atom.workspace.onDidChangeActivePaneItem(item => {
+				const pkg = atom.packages.loadedPackages[this.name];
+				if(!this.active && pkg && item && "TreeView" === item.constructor.name){
+					this.package       = pkg;
+					this.packagePath   = pkg.path;
+					this.packageModule = pkg.mainModule;
+					this.updateStatus();
+					this.disposables.dispose("pane");
+				}
+			})
+		);
 	}
 	
 	
@@ -37,13 +52,15 @@ class TreeView extends Consumer {
 		this.element       = treeView;
 		this.entryElements = (treeView[0] || treeView.element).getElementsByClassName("entry");
 		
-		// TODO: Remove check when/if atom/tree-view#966 is merged/shipped
+		// TODO: 1. Move following block to Atom-FS module.
+		// TODO: 2. Add remaining handlers for callbacks added by atom/tree-view#1049.
 		if("function" === typeof this.element.onEntryMoved){
 			const onMove = this.element.onEntryMoved(paths => {
-				FileSystem.updatePath(paths.oldPath, paths.newPath);
+				FileSystem.updatePath(paths.initialPath, paths.newPath);
 			});
 			this.disposables.add(onMove);
 		}
+		
 		this.disposables.add(
 			atom.project.onDidChangePaths(() => this.rebuild()),
 			atom.config.onDidChange("tree-view.hideIgnoredNames", () => this.rebuild()),
@@ -64,6 +81,14 @@ class TreeView extends Consumer {
 	}
 	
 	
+	updateStatus(){
+		const pkg = atom.packages.activePackages[this.name];
+		const seemsActive = pkg && !this.active && pkg.mainModule && pkg.mainModule.treeView;
+		if(!seemsActive) return false;
+		return super.updateStatus();
+	}
+	
+	
 
 	rebuild(){
 		if(!this.element || !this.element.roots)
@@ -75,7 +100,8 @@ class TreeView extends Consumer {
 	
 	
 	track(...entries){
-		for(const entry of entries){
+		for(let entry of entries){
+			entry = Array.isArray(entry) ? entry[1] : entry;
 			if(!this.entries.has(entry)){
 				const isDirectory = "expansionState" in entry;
 				const element     = this.elementForEntry(entry);

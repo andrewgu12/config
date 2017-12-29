@@ -53,6 +53,7 @@ class SwiftPMAutocompletionProvider {
     return (0, _asyncToGenerator.default)(function* () {
       const filePath = request.editor.getPath();
       let compilerArgs;
+      // flowlint-next-line sketchy-null-string:off
       if (filePath) {
         const commands = yield _this._store.getCompileCommands();
         compilerArgs = commands.get(filePath);
@@ -60,8 +61,11 @@ class SwiftPMAutocompletionProvider {
 
       const { bufferPosition, editor, prefix } = request;
       const offset = editor.getBuffer().characterIndexForPosition(bufferPosition) - prefix.length;
-      const result = yield (0, (_SourceKitten || _load_SourceKitten()).asyncExecuteSourceKitten)('complete', ['--text', request.editor.getText(), '--offset', String(offset), '--', compilerArgs ? compilerArgs : '']);
+      const result = yield (0, (_SourceKitten || _load_SourceKitten()).asyncExecuteSourceKitten)('complete', ['--text', request.editor.getText(), '--offset', String(offset), '--',
+      // flowlint-next-line sketchy-null-string:off
+      compilerArgs ? compilerArgs : '']);
 
+      // flowlint-next-line sketchy-null-string:off
       if (!result) {
         return [];
       }

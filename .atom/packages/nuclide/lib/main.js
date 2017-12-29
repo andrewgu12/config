@@ -3,12 +3,15 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.config = undefined;
-exports.activate = activate;
-exports.deactivate = deactivate;
-exports.serialize = serialize;
+exports.serialize = exports.deactivate = exports.activate = exports.config = undefined;
 
 require('./preload-dependencies');
+
+var _nuclideUri;
+
+function _load_nuclideUri() {
+  return _nuclideUri = _interopRequireDefault(require('nuclide-commons/nuclideUri'));
+}
 
 var _FeatureLoader;
 
@@ -28,12 +31,28 @@ var _electron = _interopRequireDefault(require('electron'));
 
 var _path = _interopRequireDefault(require('path'));
 
-var _atom = require('atom');
-
 var _atomPackageDeps;
 
 function _load_atomPackageDeps() {
   return _atomPackageDeps = require('atom-package-deps');
+}
+
+var _nullthrows;
+
+function _load_nullthrows() {
+  return _nullthrows = _interopRequireDefault(require('nullthrows'));
+}
+
+var _semver;
+
+function _load_semver() {
+  return _semver = _interopRequireDefault(require('semver'));
+}
+
+var _patchCommands;
+
+function _load_patchCommands() {
+  return _patchCommands = _interopRequireDefault(require('./patchCommands'));
 }
 
 var _installErrorReporter;
@@ -42,10 +61,10 @@ function _load_installErrorReporter() {
   return _installErrorReporter = _interopRequireDefault(require('./installErrorReporter'));
 }
 
-var _patchEditors;
+var _installDevTools;
 
-function _load_patchEditors() {
-  return _patchEditors = _interopRequireDefault(require('./patchEditors'));
+function _load_installDevTools() {
+  return _installDevTools = _interopRequireDefault(require('./installDevTools'));
 }
 
 var _package;
@@ -60,17 +79,22 @@ function _load_nuclideLogging() {
   return _nuclideLogging = require('../pkg/nuclide-logging');
 }
 
-var _serviceManager;
+var _UniversalDisposable;
 
-function _load_serviceManager() {
-  return _serviceManager = require('../pkg/nuclide-remote-connection/lib/service-manager');
+function _load_UniversalDisposable() {
+  return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
+}
+
+var _env;
+
+function _load_env() {
+  return _env = require('nuclide-node-transpiler/lib/env');
 }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// Install the error reporting even before Nuclide is activated.
-
-// eslint-disable-next-line nuclide-internal/prefer-nuclide-uri
+// The minimum version of Atom required to run Nuclide. Anything less than this and users will get
+// a redbox and Nuclide will not activate.
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -92,12 +116,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  */
 
+const MINIMUM_SUPPORTED_ATOM_VERSION = '1.19.0';
+
+// Install the error reporting even before Nuclide is activated.
+
+// eslint-disable-next-line rulesdir/prefer-nuclide-uri
 let errorReporterDisposable = (0, (_installErrorReporter || _load_installErrorReporter()).default)();
 // Install the logger config before Nuclide is activated.
 (0, (_nuclideLogging || _load_nuclideLogging()).initializeLogging)();
-
-// Patch Text editors to try to eliminate memory leaks.
-(0, (_patchEditors || _load_patchEditors()).default)();
 
 const { remote } = _electron.default;
 
@@ -112,18 +138,14 @@ const baseConfig = {
     title: 'Install Recommended Packages on Startup',
     type: 'boolean'
   },
+  // TODO(hansonw): Enable these for everyone.
   useLocalRpc: {
-    default: false,
-    description: 'Use RPC marshalling for local services. This ensures better compatibility between the local' + ' and remote case. Useful for internal Nuclide development. Requires restart to take' + ' effect.',
-    title: 'Use RPC for local Services.',
+    default: (_env || _load_env()).__DEV__,
+    description: 'Use a RPC process for local services. This ensures better compatibility between the local' + ' and remote case and improves local performance. Requires restart to take' + ' effect.',
+    title: 'Use RPC for local services.',
     type: 'boolean'
   }
 };
-
-// `setUseLocalRpc` can only be called once, so it's set out here during load.
-const _useLocalRpc = atom.config.get('nuclide.useLocalRpc');
-const _shouldUseLocalRpc = typeof _useLocalRpc !== 'boolean' ? baseConfig.useLocalRpc.default : _useLocalRpc;
-(0, (_serviceManager || _load_serviceManager()).setUseLocalRpc)(_shouldUseLocalRpc);
 
 // Nuclide packages for Atom are called "features"
 const FEATURES_DIR = _path.default.join(__dirname, '../pkg');
@@ -192,25 +214,39 @@ _fs.default.readdirSync(ATOM_IDE_DIR).forEach(item => {
   }
 });
 
-const featureLoader = new (_FeatureLoader || _load_FeatureLoader()).default({
-  features,
-  pkgName: 'nuclide'
-});
-featureLoader.load();
+const shouldInitialize = ensureAtomVersion();
 
-const config = exports.config = Object.assign({}, baseConfig, featureLoader.getConfig());
+let featureLoader;
+
+if (shouldInitialize) {
+  featureLoader = new (_FeatureLoader || _load_FeatureLoader()).default({
+    features,
+    pkgName: 'nuclide'
+  });
+  featureLoader.load();
+}
+
+const config = exports.config = shouldInitialize ? Object.assign({}, baseConfig, (0, (_nullthrows || _load_nullthrows()).default)(featureLoader).getConfig()) : undefined;
 
 let disposables;
-function activate() {
+function _activate() {
   if (errorReporterDisposable == null) {
     errorReporterDisposable = (0, (_installErrorReporter || _load_installErrorReporter()).default)();
   }
 
-  disposables = new _atom.CompositeDisposable();
+  if (atom.inDevMode() && process.env.SANDCASTLE == null) {
+    (0, (_installDevTools || _load_installDevTools()).default)();
+  }
+
+  disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default();
+  disposables.add((0, (_patchCommands || _load_patchCommands()).default)());
 
   // Add the "Nuclide" menu, if it's not there already.
   disposables.add(atom.menu.add([{
-    label: 'Nuclide',
+    // On Windows, menu labels have an & before a letter to indicate which
+    // ALT key combination maps to that menu. In our case, Alt+N should open
+    // the Nuclide menu.
+    label: process.platform === 'win32' ? '&Nuclide' : 'Nuclide',
     submenu: [{
       label: `Version ${(_package || _load_package()).default.version}`,
       enabled: false
@@ -226,6 +262,11 @@ function activate() {
     atom.menu.template.splice(newIndex, 0, menuItem);
     atom.menu.update();
   }
+
+  // Remove all remote directories up front to prevent packages from using remote URIs
+  // before they are ready. The nuclide-remote-projects package manually
+  // serializes/deserializes and then reloads these during the activation phase.
+  atom.project.setPaths(atom.project.getPaths().filter(uri => !(_nuclideUri || _load_nuclideUri()).default.isRemote(uri)));
 
   // Activate all of the loaded features. Technically, this will be a no-op
   // generally because Atom [will activate all loaded packages][1]. However,
@@ -249,29 +290,72 @@ function activate() {
     }
   }
 
-  sortNuclideMenu();
-  disposables.add(atom.packages.onDidActivatePackage(() => {
-    sortNuclideMenu();
+  const menusToSort = ['Nuclide', 'View'];
+  disposables.add(atom.packages.onDidActivateInitialPackages(() => {
+    sortMenuGroups(menusToSort);
+
+    if (!(disposables != null)) {
+      throw new Error('Invariant violation: "disposables != null"');
+    }
+
+    disposables.add(atom.packages.onDidActivatePackage(() => {
+      sortMenuGroups(menusToSort);
+    }));
   }));
 }
 
-function sortNuclideMenu() {
-  const nuclideMenu = atom.menu.template.find(menu => menu.label === 'Nuclide');
-  if (nuclideMenu != null) {
-    nuclideMenu.submenu.sort((a, b) => {
-      // Always put the "Version" label up top.
-      if (a.label.startsWith('Version')) {
-        return -1;
-      }
-
-      // Sort everything else alphabetically.
-      return a.label.localeCompare(b.label);
-    });
-    atom.menu.update();
-  }
+function sortLabelValue(label) {
+  // Ignore the Windows accelerator key hint when sorting, the & doesn't
+  // actually appear in the UX so it shouldn't affect the sort.
+  return String(label).replace('&', '');
 }
 
-function deactivate() {
+function sortSubmenuGroup(menuItems, startIndex, itemCount) {
+  // Sort a subset of the items in the menu of length itemCount beginning
+  // at startIndex.
+  const itemsToSort = menuItems.splice(startIndex, itemCount);
+  itemsToSort.sort((a, b) => {
+    // Always put the "Version" label up top.
+    if (sortLabelValue(a.label).startsWith('Version')) {
+      return -1;
+    } else {
+      return sortLabelValue(a.label).localeCompare(sortLabelValue(b.label));
+    }
+  });
+
+  menuItems.splice(startIndex, 0, ...itemsToSort);
+}
+
+function sortMenuGroups(menuNames) {
+  for (const menuName of menuNames) {
+    // Sorts the items in a menu alphabetically. If the menu contains one or more
+    // separators, then the items within each separator subgroup will be sorted
+    // with respect to each other, but items will remain in the same groups, and
+    // the separators will not be moved.
+    const menu = atom.menu.template.find(m => sortLabelValue(m.label) === menuName);
+    if (menu == null) {
+      continue;
+    }
+
+    // Sort each group of items (separated by a separator) individually.
+    let sortStart = 0;
+    for (let i = 0; i < menu.submenu.length; i++) {
+      if (menu.submenu[i].type === 'separator') {
+        sortSubmenuGroup(menu.submenu, sortStart, i - sortStart);
+        sortStart = i + 1;
+      }
+    }
+
+    // Sort any remaining items after the last separator.
+    if (sortStart < menu.submenu.length) {
+      sortSubmenuGroup(menu.submenu, sortStart, menu.submenu.length - sortStart);
+    }
+  }
+
+  atom.menu.update();
+}
+
+function _deactivate() {
   if (!(disposables != null)) {
     throw new Error('Invariant violation: "disposables != null"');
   }
@@ -288,6 +372,43 @@ function deactivate() {
   errorReporterDisposable = null;
 }
 
-function serialize() {
+function _serialize() {
   featureLoader.serialize();
 }
+
+function ensureAtomVersion() {
+  if ((_semver || _load_semver()).default.lt(atom.getVersion(), MINIMUM_SUPPORTED_ATOM_VERSION)) {
+    const notification = atom.notifications.addError('**Atom Upgrade Required**', {
+      description: `Nuclide requires Atom ${MINIMUM_SUPPORTED_ATOM_VERSION}. **All of its functionality will` + ' be disabled until you upgrade.**',
+      dismissable: true,
+      buttons: [{
+        text: 'Quit Atom',
+        className: 'icon icon-stop',
+        onDidClick() {
+          atom.commands.dispatch(atom.views.getView(atom.workspace), 'application:quit');
+        }
+      }, {
+        text: 'Continue without Nuclide',
+        className: 'nuclide-min-atom-button',
+        onDidClick() {
+          notification.dismiss();
+        }
+      }]
+    });
+    // Hide the normal close button so that people need to use our custom button to close (and are
+    // hopefully, as a result, more aware of what we're saying). Unfortunately, Atom doesn't provide
+    // access to this view so we have to find it.
+    const continueButton = document.querySelector('.nuclide-min-atom-button');
+    const notificationEl = continueButton && continueButton.closest('atom-notification');
+    const closeButton = notificationEl && notificationEl.querySelector('.close');
+    if (closeButton != null) {
+      closeButton.style.display = 'none';
+    }
+    return false;
+  }
+  return true;
+}
+
+const activate = exports.activate = shouldInitialize ? _activate : undefined;
+const deactivate = exports.deactivate = shouldInitialize ? _deactivate : undefined;
+const serialize = exports.serialize = shouldInitialize ? _serialize : undefined;

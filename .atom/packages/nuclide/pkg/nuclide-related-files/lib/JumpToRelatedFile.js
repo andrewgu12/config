@@ -60,6 +60,7 @@ class JumpToRelatedFile {
           return;
         }
         const path = editor.getPath();
+        // flowlint-next-line sketchy-null-string:off
         if (path) {
           (0, (_nuclideAnalytics || _load_nuclideAnalytics()).trackTiming)('nuclide-related-files:switch-between-header-source', (0, _asyncToGenerator.default)(function* () {
             return _this._open((yield _this.getNextRelatedFile(path)));
@@ -72,6 +73,7 @@ class JumpToRelatedFile {
           return;
         }
         const path = editor.getPath();
+        // flowlint-next-line sketchy-null-string:off
         if (path) {
           (0, (_nuclideAnalytics || _load_nuclideAnalytics()).trackTiming)('nuclide-related-files:jump-to-next-related-file', (0, _asyncToGenerator.default)(function* () {
             return _this._open((yield _this.getNextRelatedFile(path)));
@@ -84,6 +86,7 @@ class JumpToRelatedFile {
           return;
         }
         const path = editor.getPath();
+        // flowlint-next-line sketchy-null-string:off
         if (path) {
           (0, (_nuclideAnalytics || _load_nuclideAnalytics()).trackTiming)('nuclide-related-files:jump-to-previous-related-file', (0, _asyncToGenerator.default)(function* () {
             return _this._open((yield _this.getPreviousRelatedFile(path)));

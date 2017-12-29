@@ -11,7 +11,7 @@ function _load_LoadingSpinner() {
   return _LoadingSpinner = require('nuclide-commons-ui/LoadingSpinner');
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _Button;
 
@@ -51,6 +51,8 @@ function _load_UniversalDisposable() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 const defaultTooltipOptions = {
   placement: 'bottom'
 }; /**
@@ -64,41 +66,41 @@ const defaultTooltipOptions = {
     * @format
     */
 
-const STEP_OVER_ICON = _react.default.createElement(
+const STEP_OVER_ICON = _react.createElement(
   'svg',
   { viewBox: '0 0 100 100' },
-  _react.default.createElement('circle', { cx: '46', cy: '63', r: '10' }),
-  _react.default.createElement('path', {
+  _react.createElement('circle', { cx: '46', cy: '63', r: '10' }),
+  _react.createElement('path', {
     d: 'M83.8,54.7c-6.5-16.6-20.7-28.1-37.2-28.1c-19.4,0-35.6,16-39.9,' + '37.3l11.6,2.9c3-16.2,14.5-28.2,28.2-28.2 c11,0,20.7,7.8,25.6,' + '19.3l-9.6,2.7l20.8,14.7L93.7,52L83.8,54.7z'
   })
 );
 
-const STEP_INTO_ICON = _react.default.createElement(
+const STEP_INTO_ICON = _react.createElement(
   'svg',
   { viewBox: '0 0 100 100' },
-  _react.default.createElement('circle', { cx: '50', cy: '75', r: '10' }),
-  _react.default.createElement('polygon', { points: '42,20 57,20 57,40 72,40 50,60 28,40 42,40' })
+  _react.createElement('circle', { cx: '50', cy: '75', r: '10' }),
+  _react.createElement('polygon', { points: '42,20 57,20 57,40 72,40 50,60 28,40 42,40' })
 );
 
-const STEP_OUT_ICON = _react.default.createElement(
+const STEP_OUT_ICON = _react.createElement(
   'svg',
   { viewBox: '0 0 100 100' },
-  _react.default.createElement('circle', { cx: '50', cy: '75', r: '10' }),
-  _react.default.createElement('polygon', {
+  _react.createElement('circle', { cx: '50', cy: '75', r: '10' }),
+  _react.createElement('polygon', {
     points: '42,20 57,20 57,40 72,40 50,60 28,40 42,40',
     transform: 'rotate(180, 50, 40)'
   })
 );
 
 function SVGButton(props) {
-  return _react.default.createElement(
+  return _react.createElement(
     (_Button || _load_Button()).Button,
     {
       className: 'nuclide-debugger-stepping-svg-button',
       onClick: props.onClick,
       disabled: props.disabled,
       tooltip: props.tooltip },
-    _react.default.createElement(
+    _react.createElement(
       'div',
       null,
       props.icon
@@ -106,7 +108,7 @@ function SVGButton(props) {
   );
 }
 
-class DebuggerSteppingComponent extends _react.default.Component {
+class DebuggerSteppingComponent extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -177,25 +179,25 @@ class DebuggerSteppingComponent extends _react.default.Component {
     const isPaused = debuggerMode === (_DebuggerStore || _load_DebuggerStore()).DebuggerMode.PAUSED;
     const isStopped = debuggerMode === (_DebuggerStore || _load_DebuggerStore()).DebuggerMode.STOPPED;
     const isPausing = debuggerMode === (_DebuggerStore || _load_DebuggerStore()).DebuggerMode.RUNNING && waitingForPause;
-    const playPauseIcon = isPausing ? null : _react.default.createElement('span', {
+    const playPauseIcon = isPausing ? null : _react.createElement('span', {
       className: isPaused ? 'icon-playback-play' : 'icon-playback-pause'
     });
 
-    const loadingIndicator = !isPausing ? null : _react.default.createElement((_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinner, {
+    const loadingIndicator = !isPausing ? null : _react.createElement((_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinner, {
       className: 'nuclide-debugger-stepping-playpause-button-loading',
       size: (_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinnerSizes.EXTRA_SMALL
     });
 
     // "Set Source Paths" is only available if the current debugger provides
     // this functionality.
-    const setSourcePathsButton = !this.props.debuggerStore.getCanSetSourcePaths() ? null : _react.default.createElement((_Button || _load_Button()).Button, {
+    const setSourcePathsButton = !this.props.debuggerStore.getCanSetSourcePaths() ? null : _react.createElement((_Button || _load_Button()).Button, {
       className: 'nuclide-debugger-set-source-path-button',
       icon: 'file-code',
       title: 'Configure source file paths',
       onClick: () => actions.configureSourcePaths()
     });
 
-    const restartDebuggerButton = !this.props.debuggerStore.getCanRestartDebugger() ? null : _react.default.createElement((_Button || _load_Button()).Button, {
+    const restartDebuggerButton = !this.props.debuggerStore.getCanRestartDebugger() ? null : _react.createElement((_Button || _load_Button()).Button, {
       icon: 'sync',
       className: 'nuclide-debugger-stepping-button-separated',
       disabled: isStopped,
@@ -206,7 +208,7 @@ class DebuggerSteppingComponent extends _react.default.Component {
       onClick: () => actions.restartDebugger()
     });
 
-    const DebuggerStepButton = props => _react.default.createElement(SVGButton, {
+    const DebuggerStepButton = props => _react.createElement(SVGButton, {
       icon: props.icon,
       disabled: props.disabled,
       tooltip: Object.assign({}, defaultTooltipOptions, {
@@ -216,14 +218,14 @@ class DebuggerSteppingComponent extends _react.default.Component {
       onClick: actions.triggerDebuggerAction.bind(actions, props.action)
     });
 
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'nuclide-debugger-stepping-component' },
-      _react.default.createElement(
+      _react.createElement(
         (_ButtonGroup || _load_ButtonGroup()).ButtonGroup,
         { className: 'nuclide-debugger-stepping-buttongroup' },
         restartDebuggerButton,
-        _react.default.createElement(
+        _react.createElement(
           (_Button || _load_Button()).Button,
           {
             disabled: isStopped || isPausing || isReadonlyTarget,
@@ -232,35 +234,35 @@ class DebuggerSteppingComponent extends _react.default.Component {
               keyBindingCommand: isPaused ? 'nuclide-debugger:continue-debugging' : undefined
             }),
             onClick: this._togglePauseState.bind(this) },
-          _react.default.createElement(
+          _react.createElement(
             'div',
             { className: 'nuclide-debugger-stepping-playpause-button' },
             playPauseIcon,
             loadingIndicator
           )
         ),
-        _react.default.createElement(DebuggerStepButton, {
+        _react.createElement(DebuggerStepButton, {
           icon: STEP_OVER_ICON,
           disabled: !isPaused || isReadonlyTarget,
           title: 'Step over',
           keyBindingCommand: 'nuclide-debugger:step-over',
           action: (_ChromeActionRegistryActions || _load_ChromeActionRegistryActions()).default.STEP_OVER
         }),
-        _react.default.createElement(DebuggerStepButton, {
+        _react.createElement(DebuggerStepButton, {
           icon: STEP_INTO_ICON,
           disabled: !isPaused || isReadonlyTarget,
           title: 'Step into',
           keyBindingCommand: 'nuclide-debugger:step-into',
           action: (_ChromeActionRegistryActions || _load_ChromeActionRegistryActions()).default.STEP_INTO
         }),
-        _react.default.createElement(DebuggerStepButton, {
+        _react.createElement(DebuggerStepButton, {
           icon: STEP_OUT_ICON,
           disabled: !isPaused || isReadonlyTarget,
           title: 'Step out',
           keyBindingCommand: 'nuclide-debugger:step-out',
           action: (_ChromeActionRegistryActions || _load_ChromeActionRegistryActions()).default.STEP_OUT
         }),
-        _react.default.createElement((_Button || _load_Button()).Button, {
+        _react.createElement((_Button || _load_Button()).Button, {
           icon: 'primitive-square',
           disabled: isStopped,
           tooltip: Object.assign({}, defaultTooltipOptions, {
@@ -271,22 +273,29 @@ class DebuggerSteppingComponent extends _react.default.Component {
         }),
         setSourcePathsButton
       ),
-      _react.default.createElement(
+      _react.createElement(
         (_ButtonGroup || _load_ButtonGroup()).ButtonGroup,
         { className: 'nuclide-debugger-stepping-buttongroup' },
-        customControlButtons.map((specification, i) => _react.default.createElement((_Button || _load_Button()).Button, Object.assign({}, specification, { key: i })))
+        customControlButtons.map((specification, i) => {
+          const buttonProps = Object.assign({}, specification, {
+            tooltip: {
+              title: specification.title
+            }
+          });
+          return _react.createElement((_Button || _load_Button()).Button, Object.assign({}, buttonProps, { key: i }));
+        })
       ),
-      _react.default.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
+      _react.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
         className: 'nuclide-debugger-exception-checkbox',
         onChange: () => actions.togglePauseOnException(!pauseOnException),
         checked: pauseOnException,
         disabled: isReadonlyTarget,
         label: pauseOnException ? 'Pause on' : 'Pause on exception'
       }),
-      pauseOnException ? [_react.default.createElement(
+      pauseOnException ? [_react.createElement(
         (_ButtonGroup || _load_ButtonGroup()).ButtonGroup,
         { key: 'first' },
-        _react.default.createElement(
+        _react.createElement(
           (_Button || _load_Button()).Button,
           {
             size: 'EXTRA_SMALL',
@@ -294,7 +303,7 @@ class DebuggerSteppingComponent extends _react.default.Component {
             onClick: () => actions.togglePauseOnCaughtException(false) },
           'uncaught'
         ),
-        _react.default.createElement(
+        _react.createElement(
           (_Button || _load_Button()).Button,
           {
             size: 'EXTRA_SMALL',
@@ -302,14 +311,14 @@ class DebuggerSteppingComponent extends _react.default.Component {
             onClick: () => actions.togglePauseOnCaughtException(true) },
           'any'
         )
-      ), _react.default.createElement(
+      ), _react.createElement(
         'span',
         {
           key: 'second',
           className: 'nuclide-debugger-exception-fragment' },
         ' exception'
       )] : null,
-      allowSingleThreadStepping ? _react.default.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
+      allowSingleThreadStepping ? _react.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
         disabled: isStopped || isReadonlyTarget,
         className: 'nuclide-debugger-exception-checkbox',
         onChange: () => actions.toggleSingleThreadStepping(!enableSingleThreadStepping),

@@ -1,5 +1,17 @@
 'use strict';
 
+var _babelTypes;
+
+function _load_babelTypes() {
+  return _babelTypes = _interopRequireWildcard(require('babel-types'));
+}
+
+var _babelGenerator;
+
+function _load_babelGenerator() {
+  return _babelGenerator = _interopRequireDefault(require('babel-generator'));
+}
+
 var _yargs;
 
 function _load_yargs() {
@@ -29,7 +41,7 @@ function _load_location() {
 var _proxyGenerator;
 
 function _load_proxyGenerator() {
-  return _proxyGenerator = require('./proxy-generator');
+  return _proxyGenerator = _interopRequireDefault(require('./proxy-generator'));
 }
 
 var _serviceParser;
@@ -39,6 +51,22 @@ function _load_serviceParser() {
 }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+// eslint-disable-next-line rulesdir/no-unresolved
+const { generateProxy } = (0, (_proxyGenerator || _load_proxyGenerator()).default)(_babelTypes || _load_babelTypes(), (_babelGenerator || _load_babelGenerator()).default); /**
+                                                                                                                                                                             * Copyright (c) 2015-present, Facebook, Inc.
+                                                                                                                                                                             * All rights reserved.
+                                                                                                                                                                             *
+                                                                                                                                                                             * This source code is licensed under the license found in the LICENSE file in
+                                                                                                                                                                             * the root directory of this source tree.
+                                                                                                                                                                             *
+                                                                                                                                                                             * 
+                                                                                                                                                                             * @format
+                                                                                                                                                                             */
+
+/* eslint-disable no-console */
 
 const argv = (_yargs || _load_yargs()).default.usage('Usage: $0 -d path/to/definition -n serviceName').options({
   definitionPath: {
@@ -87,18 +115,7 @@ const argv = (_yargs || _load_yargs()).default.usage('Usage: $0 -d path/to/defin
     describe: 'Validate the proxy by running it',
     type: 'boolean'
   }
-}).argv; /**
-          * Copyright (c) 2015-present, Facebook, Inc.
-          * All rights reserved.
-          *
-          * This source code is licensed under the license found in the LICENSE file in
-          * the root directory of this source tree.
-          *
-          * 
-          * @format
-          */
-
-/* eslint-disable no-console */
+}).argv;
 
 const definitionPath = (_nuclideUri || _load_nuclideUri()).default.resolve(argv.definitionPath);
 const preserveFunctionNames = argv.preserveFunctionNames;
@@ -113,7 +130,7 @@ const defs = (0, (_serviceParser || _load_serviceParser()).parseServiceDefinitio
 if (argv.useBasename) {
   (0, (_location || _load_location()).stripLocationsFileName)(defs);
 }
-const code = (0, (_proxyGenerator || _load_proxyGenerator()).generateProxy)(argv.serviceName, argv.preserveFunctionNames, defs);
+const code = generateProxy(argv.serviceName, argv.preserveFunctionNames, defs);
 
 if (argv.validate) {
   try {

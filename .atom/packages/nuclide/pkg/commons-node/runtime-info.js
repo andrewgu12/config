@@ -3,6 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.__DEV__ = undefined;
 exports.getRuntimeInformation = getRuntimeInformation;
 
 var _systemInfo;
@@ -22,7 +23,7 @@ function _load_uuid() {
 var _env;
 
 function _load_env() {
-  return _env = require('../nuclide-node-transpiler/lib/env');
+  return _env = require('nuclide-node-transpiler/lib/env');
 }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -41,6 +42,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 let cachedInformation = null;
 
 function getCacheableRuntimeInformation() {
+  // eslint-disable-next-line eqeqeq
   if (cachedInformation !== null) {
     return cachedInformation;
   }
@@ -50,9 +52,9 @@ function getCacheableRuntimeInformation() {
     user: _os.default.userInfo().username,
     osType: (0, (_systemInfo || _load_systemInfo()).getOsType)(),
     timestamp: 0,
-    isClient: (0, (_systemInfo || _load_systemInfo()).isRunningInClient)(),
+    isClient: !(0, (_systemInfo || _load_systemInfo()).isRunningInServer)(),
     isDevelopment: (_env || _load_env()).__DEV__,
-    atomVersion: (0, (_systemInfo || _load_systemInfo()).isRunningInClient)() ? (0, (_systemInfo || _load_systemInfo()).getAtomVersion)() : '',
+    atomVersion: typeof atom === 'object' ? (0, (_systemInfo || _load_systemInfo()).getAtomVersion)() : '',
     nuclideVersion: (0, (_systemInfo || _load_systemInfo()).getNuclideVersion)(),
     installerPackageVersion: 0,
     uptime: 0,
@@ -70,3 +72,5 @@ function getRuntimeInformation() {
   });
   return runtimeInformation;
 }
+
+exports.__DEV__ = (_env || _load_env()).__DEV__;

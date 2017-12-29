@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.AnimatedEllipsisExamples = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _Block;
 
@@ -21,14 +21,16 @@ function _load_AnimatedEllipsis() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const BasicExample = () => _react.default.createElement(
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+const BasicExample = () => _react.createElement(
   'div',
   null,
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
     'Still waiting',
-    _react.default.createElement((_AnimatedEllipsis || _load_AnimatedEllipsis()).default, null)
+    _react.createElement((_AnimatedEllipsis || _load_AnimatedEllipsis()).default, null)
   )
 ); /**
     * Copyright (c) 2015-present, Facebook, Inc.

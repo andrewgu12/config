@@ -6,23 +6,12 @@ Object.defineProperty(exports, "__esModule", {
 
 var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
 
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the license found in the LICENSE file in
- * the root directory of this source tree.
- *
- * 
- * @format
- */
-
 let createOCamlLanguageService = (() => {
   var _ref = (0, _asyncToGenerator.default)(function* (connection) {
     const service = (0, (_nuclideRemoteConnection || _load_nuclideRemoteConnection()).getVSCodeLanguageServiceByConnection)(connection);
     const [fileNotifier, host] = yield Promise.all([(0, (_nuclideOpenFiles || _load_nuclideOpenFiles()).getNotifierByConnection)(connection), (0, (_nuclideLanguageService || _load_nuclideLanguageService()).getHostServices)()]);
 
-    return service.createMultiLspLanguageService('ocaml', 'ocaml-language-server', ['--stdio'], {
+    const lspService = yield service.createMultiLspLanguageService('ocaml', 'ocaml-language-server', ['--stdio'], {
       logCategory: 'OcamlService',
       logLevel: 'INFO',
       fileNotifier,
@@ -35,6 +24,10 @@ let createOCamlLanguageService = (() => {
         },
         debounce: {
           linter: 500
+        },
+        diagnostics: {
+          merlinPerfLogging: true,
+          tools: ['merlin']
         },
         path: {
           ocamlfind: 'ocamlfind',
@@ -50,12 +43,22 @@ let createOCamlLanguageService = (() => {
         }
       }
     });
+    return lspService || new (_nuclideLanguageServiceRpc || _load_nuclideLanguageServiceRpc()).NullLanguageService();
   });
 
   return function createOCamlLanguageService(_x) {
     return _ref.apply(this, arguments);
   };
-})();
+})(); /**
+       * Copyright (c) 2015-present, Facebook, Inc.
+       * All rights reserved.
+       *
+       * This source code is licensed under the license found in the LICENSE file in
+       * the root directory of this source tree.
+       *
+       * 
+       * @format
+       */
 
 exports.createLanguageService = createLanguageService;
 
@@ -63,6 +66,12 @@ var _nuclideLanguageService;
 
 function _load_nuclideLanguageService() {
   return _nuclideLanguageService = require('../../nuclide-language-service');
+}
+
+var _nuclideLanguageServiceRpc;
+
+function _load_nuclideLanguageServiceRpc() {
+  return _nuclideLanguageServiceRpc = require('../../nuclide-language-service-rpc');
 }
 
 var _nuclideOpenFiles;
@@ -83,11 +92,6 @@ function createLanguageService() {
   const atomConfig = {
     name: 'OCaml',
     grammars: ['source.ocaml'],
-    highlight: {
-      version: '0.1.0',
-      priority: 1,
-      analyticsEventName: 'ocaml.codeHighlight'
-    },
     outline: {
       version: '0.1.0',
       priority: 1,

@@ -5,7 +5,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.StatusBarTileComponent = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _UnstyledButton;
+
+function _load_UnstyledButton() {
+  return _UnstyledButton = _interopRequireDefault(require('nuclide-commons-ui/UnstyledButton'));
+}
+
+var _react = _interopRequireWildcard(require('react'));
 
 var _Icon;
 
@@ -31,25 +37,25 @@ function _load_classnames() {
   return _classnames = _interopRequireDefault(require('classnames'));
 }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the license found in the LICENSE file in
- * the root directory of this source tree.
- *
- * 
- * @format
- */
+const REALLY_BAD_THRESHOLD = 50; /**
+                                  * Copyright (c) 2015-present, Facebook, Inc.
+                                  * All rights reserved.
+                                  *
+                                  * This source code is licensed under the license found in the LICENSE file in
+                                  * the root directory of this source tree.
+                                  *
+                                  * 
+                                  * @format
+                                  */
 
-const REALLY_BAD_THRESHOLD = 50;
 const NOT_GREAT_THRESHOLD = 80;
 const COLOR_DISPLAY_SETTING = 'nuclide-type-coverage.colorizeStatusBar';
 
-class StatusBarTileComponent extends _react.default.Component {
-
+class StatusBarTileComponent extends _react.Component {
   constructor(props) {
     super(props);
   }
@@ -68,15 +74,16 @@ class StatusBarTileComponent extends _react.default.Component {
         };
       }
       const classes = (0, (_classnames || _load_classnames()).default)(Object.assign({
+        'inline-block': true,
+        'nuclide-type-coverage-status-bar': true,
         'nuclide-type-coverage-status-bar-pending': this.props.pending,
         'nuclide-type-coverage-status-bar-ready': !this.props.pending
       }, colorClasses));
       const formattedPercentage = `${Math.floor(percentage)}%`;
       const tooltipString = getTooltipString(formattedPercentage, result.providerName);
-      return _react.default.createElement(
-        'div',
+      return _react.createElement(
+        (_UnstyledButton || _load_UnstyledButton()).default,
         {
-          style: { cursor: 'pointer' },
           onClick: this.props.onClick,
           className: classes,
           ref: (0, (_addTooltip || _load_addTooltip()).default)({
@@ -84,19 +91,16 @@ class StatusBarTileComponent extends _react.default.Component {
             delay: 0,
             placement: 'top'
           }) },
-        this._getIconElement(result.icon),
-        formattedPercentage
+        result.icon == null ? null : _react.createElement((_Icon || _load_Icon()).Icon, { icon: result.icon }),
+        _react.createElement(
+          'span',
+          { className: 'nuclide-type-coverage-status-bar-percentage' },
+          formattedPercentage
+        )
       );
     } else {
       return null;
     }
-  }
-
-  _getIconElement(icon) {
-    if (icon == null) {
-      return null;
-    }
-    return _react.default.createElement((_Icon || _load_Icon()).Icon, { icon: icon });
   }
 }
 

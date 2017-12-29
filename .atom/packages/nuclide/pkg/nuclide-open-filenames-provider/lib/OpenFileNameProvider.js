@@ -16,6 +16,7 @@ function _load_nuclideFuzzyNative() {
 function getOpenTabsMatching(query) {
   const matcher = new (_nuclideFuzzyNative || _load_nuclideFuzzyNative()).Matcher((0, (_collection || _load_collection()).arrayCompact)(atom.workspace.getTextEditors().map(editor => editor.getPath())));
   return matcher.match(query, { recordMatchIndexes: true }).map(result => ({
+    resultType: 'FILE',
     path: result.value,
     score: result.score,
     matchIndexes: result.matchIndexes
@@ -50,4 +51,5 @@ const OpenFileListProvider = {
   }
 };
 
+// eslint-disable-next-line rulesdir/no-commonjs
 module.exports = OpenFileListProvider;

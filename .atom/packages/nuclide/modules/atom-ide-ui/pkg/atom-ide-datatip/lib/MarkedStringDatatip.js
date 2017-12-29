@@ -10,13 +10,15 @@ function _load_marked() {
   return _marked = _interopRequireDefault(require('marked'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _MarkedStringSnippet;
 
 function _load_MarkedStringSnippet() {
   return _MarkedStringSnippet = _interopRequireDefault(require('./MarkedStringSnippet'));
 }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -32,26 +34,25 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @format
  */
 
-class MarkedStringDatatip extends _react.default.PureComponent {
-
+class MarkedStringDatatip extends _react.PureComponent {
   render() {
     const elements = this.props.markedStrings.map((chunk, i) => {
       if (chunk.type === 'markdown') {
-        return _react.default.createElement('div', {
-          className: 'nuclide-datatip-marked-container',
+        return _react.createElement('div', {
+          className: 'datatip-marked-container',
           dangerouslySetInnerHTML: {
             __html: (0, (_marked || _load_marked()).default)(chunk.value, { sanitize: true })
           },
           key: i
         });
       } else {
-        return _react.default.createElement((_MarkedStringSnippet || _load_MarkedStringSnippet()).default, Object.assign({ key: i }, chunk));
+        return _react.createElement((_MarkedStringSnippet || _load_MarkedStringSnippet()).default, Object.assign({ key: i }, chunk));
       }
     });
 
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
-      { className: 'nuclide-datatip-marked' },
+      { className: 'datatip-marked' },
       elements
     );
   }

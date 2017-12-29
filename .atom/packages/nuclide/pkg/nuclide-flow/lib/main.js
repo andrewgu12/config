@@ -43,10 +43,17 @@ let connectionToFlowService = (() => {
     const flowService = (0, (_nuclideRemoteConnection || _load_nuclideRemoteConnection()).getServiceByConnection)('FlowService', connection);
     const fileNotifier = yield (0, (_nuclideOpenFiles || _load_nuclideOpenFiles()).getNotifierByConnection)(connection);
     const host = yield (0, (_nuclideLanguageService || _load_nuclideLanguageService()).getHostServices)();
+    (0, (_log4js || _load_log4js()).getLogger)('nuclide-flow').info('Checking the nuclide_flow_lazy_mode_ide gk...');
+    const ideLazyMode = yield (0, (_passesGK || _load_passesGK()).default)('nuclide_flow_lazy_mode_ide', 15 * 1000 // 15 second timeout
+    );
+    (0, (_log4js || _load_log4js()).getLogger)('nuclide-flow').info('ideLazyMode: %s', ideLazyMode);
     const config = {
       functionSnippetShouldIncludeArguments: Boolean((_featureConfig || _load_featureConfig()).default.get('nuclide-flow.functionSnippetShouldIncludeArguments')),
       stopFlowOnExit: Boolean((_featureConfig || _load_featureConfig()).default.get('nuclide-flow.stopFlowOnExit')),
-      lazyServer: Boolean((_featureConfig || _load_featureConfig()).default.get('nuclide-flow.lazyServer'))
+      lazyServer: Boolean((_featureConfig || _load_featureConfig()).default.get('nuclide-flow.lazyServer')),
+      ideLazyMode,
+      canUseFlowBin: Boolean((_featureConfig || _load_featureConfig()).default.get('nuclide-flow.canUseFlowBin')),
+      pathToFlow: (_featureConfig || _load_featureConfig()).default.get('nuclide-flow.pathToFlow')
     };
     const languageService = yield flowService.initialize(fileNotifier, host, config);
 
@@ -80,9 +87,11 @@ let getLanguageServiceConfig = (() => {
     const excludeLowerPriority = Boolean((_featureConfig || _load_featureConfig()).default.get('nuclide-flow.excludeOtherAutocomplete'));
     const flowResultsFirst = Boolean((_featureConfig || _load_featureConfig()).default.get('nuclide-flow.flowAutocompleteResultsFirst'));
     const enableTypeHints = Boolean((_featureConfig || _load_featureConfig()).default.get('nuclide-flow.enableTypeHints'));
+    const enableFindRefs = Boolean((_featureConfig || _load_featureConfig()).default.get('nuclide-flow.enableFindReferences'));
     return {
       name: 'Flow',
       grammars: (_constants || _load_constants()).JS_GRAMMARS,
+      // flowlint-next-line sketchy-null-mixed:off
       highlight: enableHighlight ? {
         version: '0.1.0',
         priority: 1,
@@ -91,7 +100,10 @@ let getLanguageServiceConfig = (() => {
       outline: {
         version: '0.1.0',
         priority: 1,
-        analyticsEventName: 'flow.outline'
+        analyticsEventName: 'flow.outline',
+        // Disabled as it's responsible for many calls/spawns that:
+        // In aggregate degrades the performance siginificantly.
+        updateOnEdit: false
       },
       coverage: {
         version: '0.0.0',
@@ -138,7 +150,11 @@ let getLanguageServiceConfig = (() => {
         version: '0.0.0',
         analyticsEventName: 'flow.evaluationExpression',
         matcher: { kind: 'default' }
-      }
+      },
+      findReferences: enableFindRefs ? {
+        version: '0.1.0',
+        analyticsEventName: 'flow.find-references'
+      } : undefined
     };
   });
 
@@ -220,6 +236,12 @@ function _load_nuclideRemoteConnection() {
   return _nuclideRemoteConnection = require('../../nuclide-remote-connection');
 }
 
+var _observable;
+
+function _load_observable() {
+  return _observable = require('nuclide-commons/observable');
+}
+
 var _UniversalDisposable;
 
 function _load_UniversalDisposable() {
@@ -246,17 +268,18 @@ function _load_constants() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-let disposables; /**
-                  * Copyright (c) 2015-present, Facebook, Inc.
-                  * All rights reserved.
-                  *
-                  * This source code is licensed under the license found in the LICENSE file in
-                  * the root directory of this source tree.
-                  *
-                  * 
-                  * @format
-                  */
+/**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the license found in the LICENSE file in
+ * the root directory of this source tree.
+ *
+ * 
+ * @format
+ */
 
+let disposables;
 let connectionCache = null;
 
 function getConnectionCache() {
@@ -269,12 +292,10 @@ function getConnectionCache() {
 
 function serverStatusUpdatesToBusyMessages(statusUpdates, busySignal) {
   return statusUpdates.groupBy(({ pathToRoot }) => pathToRoot).mergeMap(messagesForRoot => {
-    return messagesForRoot
-    // Append a null sentinel to ensure that completion clears the busy signal.
-    .concat(_rxjsBundlesRxMinJs.Observable.of(null)).switchMap(nextStatus => {
+    return messagesForRoot.let((0, (_observable || _load_observable()).completingSwitchMap)(nextStatus => {
       // I would use constants here but the constant is in the flow-rpc package which we can't
       // load directly from this package. Casting to the appropriate type is just as safe.
-      if (nextStatus != null && (nextStatus.status === 'init' || nextStatus.status === 'busy')) {
+      if (nextStatus.status === 'init' || nextStatus.status === 'busy') {
         const readablePath = (_nuclideUri || _load_nuclideUri()).default.nuclideUriToDisplayString(nextStatus.pathToRoot);
         const readableStatus = nextStatus.status === 'init' ? 'initializing' : 'busy';
         // Use an observable to encapsulate clearing the message.
@@ -285,7 +306,7 @@ function serverStatusUpdatesToBusyMessages(statusUpdates, busySignal) {
         });
       }
       return _rxjsBundlesRxMinJs.Observable.empty();
-    });
+    }));
   }).subscribe();
 }
 
@@ -296,14 +317,8 @@ function consumeBusySignal(service) {
     return ls.getServerStatusUpdates().refCount();
   });
 
-  if (disposables != null) {
-    disposables.add(service);
-  }
   const subscription = serverStatusUpdatesToBusyMessages(serverStatusUpdates, service);
   return new (_UniversalDisposable || _load_UniversalDisposable()).default(() => {
-    if (disposables != null) {
-      disposables.remove(service);
-    }
     subscription.unsubscribe();
   });
 }

@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.OutlineViewSearchComponent = undefined;
 exports.updateSearchSet = updateSearchSet;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _AtomInput;
 
@@ -46,15 +46,33 @@ function _load_fuzzaldrinPlus() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-class OutlineViewSearchComponent extends _react.default.Component {
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+const SCORE_THRESHOLD = 0.1; /**
+                              * Copyright (c) 2017-present, Facebook, Inc.
+                              * All rights reserved.
+                              *
+                              * This source code is licensed under the BSD-style license found in the
+                              * LICENSE file in the root directory of this source tree. An additional grant
+                              * of patent rights can be found in the PATENTS file in the same directory.
+                              *
+                              * 
+                              * @format
+                              */
+
+class OutlineViewSearchComponent extends _react.Component {
 
   constructor(props) {
     super(props);
     // An element is considered visible if it is not in the Map or if it has a
     // Search result that has the visible property set to true. Therefore, all
     // elements are visible when the Map is empty.
-    this.SEARCH_PLACEHOLDER = 'Search Outline View';
+    this.SEARCH_PLACEHOLDER = 'Search Outline';
     this.DEBOUNCE_TIME = 100;
+
+    this._handleInputRef = element => {
+      this._inputRef = element;
+    };
 
     this._onConfirm = () => {
       const firstElement = this._findFirstResult(this.searchResults, this.props.outlineTrees);
@@ -65,10 +83,14 @@ class OutlineViewSearchComponent extends _react.default.Component {
       if (pane == null) {
         return;
       }
-      (_analytics || _load_analytics()).default.track('atom-ide-outline-view:search-enter');
+      (_analytics || _load_analytics()).default.track('outline-view:search-enter');
       pane.activate();
       pane.activateItem(this.props.editor);
-      (0, (_goToLocation || _load_goToLocation()).goToLocationInEditor)(this.props.editor, firstElement.startPosition.row, firstElement.startPosition.column);
+      const landingPosition = firstElement.landingPosition != null ? firstElement.landingPosition : firstElement.startPosition;
+      (0, (_goToLocation || _load_goToLocation()).goToLocationInEditor)(this.props.editor, {
+        line: landingPosition.row,
+        column: landingPosition.column
+      });
       this.setState({ currentQuery: '' });
     };
 
@@ -84,6 +106,12 @@ class OutlineViewSearchComponent extends _react.default.Component {
     this.state = {
       currentQuery: ''
     };
+  }
+
+  focus() {
+    if (this._inputRef != null) {
+      this._inputRef.focus();
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -120,43 +148,35 @@ class OutlineViewSearchComponent extends _react.default.Component {
   }
 
   render() {
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
-      { className: 'atom-ide-outline-view-search-bar' },
-      _react.default.createElement((_Icon || _load_Icon()).Icon, { icon: 'search', className: 'atom-ide-outline-view-search-icon' }),
-      _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
-        className: 'atom-ide-outline-view-search-pane',
+      { className: 'outline-view-search-bar' },
+      _react.createElement((_Icon || _load_Icon()).Icon, { icon: 'search', className: 'outline-view-search-icon' }),
+      _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+        className: 'outline-view-search-pane',
         onConfirm: this._onConfirm,
+        onCancel: this._onDidClear,
         onDidChange: this._onDidChange,
         placeholderText: this.state.currentQuery || this.SEARCH_PLACEHOLDER,
+        ref: this._handleInputRef,
         value: this.state.currentQuery,
         size: 'sm'
       }),
-      _react.default.createElement((_Icon || _load_Icon()).Icon, {
+      this.state.currentQuery.length > 0 ? _react.createElement((_Icon || _load_Icon()).Icon, {
         icon: 'x',
-        className: 'atom-ide-outline-view-search-clear',
+        className: 'outline-view-search-clear',
         onClick: this._onDidClear
-      })
+      }) : null
     );
   }
 }
 
 exports.OutlineViewSearchComponent = OutlineViewSearchComponent; /* Exported for testing */
-/**
- * Copyright (c) 2017-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * 
- * @format
- */
 
 function updateSearchSet(query, root, map, prevMap, prevQuery) {
   root.children.forEach(child => updateSearchSet(query, child, map, prevMap, prevQuery));
   // Optimization using results from previous query.
+  // flowlint-next-line sketchy-null-string:off
   if (prevQuery) {
     const previousResult = prevMap.get(root);
     if (previousResult && (query === prevQuery || query.startsWith(prevQuery) && !previousResult.visible)) {
@@ -164,14 +184,15 @@ function updateSearchSet(query, root, map, prevMap, prevQuery) {
       return;
     }
   }
-  const matches = query === '' || (_fuzzaldrinPlus || _load_fuzzaldrinPlus()).default.score(root.tokenizedText ? root.tokenizedText.map(e => e.value).join('') : root.plainText || '', query) > 0;
+  const text = root.tokenizedText ? root.tokenizedText.map(e => e.value).join('') : root.plainText || '';
+  const matches = query === '' || (_fuzzaldrinPlus || _load_fuzzaldrinPlus()).default.score(text, query) / (_fuzzaldrinPlus || _load_fuzzaldrinPlus()).default.score(query, query) > SCORE_THRESHOLD;
   const visible = matches || Boolean(root.children.find(child => {
     const childResult = map.get(child);
     return !childResult || childResult.visible;
   }));
   let matchingCharacters;
   if (matches) {
-    matchingCharacters = (_fuzzaldrinPlus || _load_fuzzaldrinPlus()).default.match(root.tokenizedText ? root.tokenizedText.map(e => e.value).join('') : root.plainText || '', query);
+    matchingCharacters = (_fuzzaldrinPlus || _load_fuzzaldrinPlus()).default.match(text, query);
   }
   map.set(root, { matches, visible, matchingCharacters });
 }

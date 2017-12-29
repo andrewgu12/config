@@ -24,7 +24,11 @@ function _load_constants() {
   return _constants = require('./constants');
 }
 
-var _atom = require('atom');
+var _UniversalDisposable;
+
+function _load_UniversalDisposable() {
+  return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
+}
 
 var _AnalyticsHelper;
 
@@ -36,12 +40,6 @@ var _DebuggerStore;
 
 function _load_DebuggerStore() {
   return _DebuggerStore = require('./DebuggerStore');
-}
-
-var _passesGK;
-
-function _load_passesGK() {
-  return _passesGK = _interopRequireDefault(require('../../commons-node/passesGK'));
 }
 
 var _nuclideAnalytics;
@@ -64,19 +62,22 @@ function _load_ChromeActionRegistryActions() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const logger = (0, (_log4js || _load_log4js()).getLogger)('nuclide-debugger'); /**
-                                                                                * Copyright (c) 2015-present, Facebook, Inc.
-                                                                                * All rights reserved.
-                                                                                *
-                                                                                * This source code is licensed under the license found in the LICENSE file in
-                                                                                * the root directory of this source tree.
-                                                                                *
-                                                                                * 
-                                                                                * @format
-                                                                                */
+/**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the license found in the LICENSE file in
+ * the root directory of this source tree.
+ *
+ * 
+ * @format
+ */
 
-const GK_DEBUGGER_REQUEST_WINDOW = 'nuclide_debugger_php_request_window';
-const GK_DEBUGGER_REQUEST_SENDER = 'nuclide_debugger_request_sender';
+const logger = (0, (_log4js || _load_log4js()).getLogger)('nuclide-debugger');
+
+
+// This must match URI defined in ../../nuclide-console/lib/ui/ConsoleContainer
+const CONSOLE_VIEW_URI = 'atom://nuclide/console';
 
 /**
  * Flux style action creator for actions that affect the debugger.
@@ -84,7 +85,7 @@ const GK_DEBUGGER_REQUEST_SENDER = 'nuclide_debugger_request_sender';
 class DebuggerActions {
 
   constructor(dispatcher, store) {
-    this._disposables = new _atom.CompositeDisposable();
+    this._disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default();
     this._dispatcher = dispatcher;
     this._store = store;
   }
@@ -103,13 +104,15 @@ class DebuggerActions {
       _this._handleDebugModeStart();
       _this.setDebuggerMode((_DebuggerStore || _load_DebuggerStore()).DebuggerMode.STARTING);
       _this.setDebugProcessInfo(processInfo);
+      atom.commands.dispatch(atom.views.getView(atom.workspace), 'nuclide-debugger:show');
+
       try {
         const debuggerCapabilities = processInfo.getDebuggerCapabilities();
         const debuggerProps = processInfo.getDebuggerProps();
         const debuggerInstance = yield processInfo.debug();
         yield _this._store.getBridge().setupNuclideChannel(debuggerInstance);
         _this._registerConsole();
-        const supportThreadsWindow = debuggerCapabilities.threads && (yield _this._allowThreadsForPhp(processInfo));
+        const supportThreadsWindow = debuggerCapabilities.threads;
         _this._store.getSettings().set('SupportThreadsWindow', supportThreadsWindow);
         if (supportThreadsWindow) {
           _this._store.getSettings().set('CustomThreadColumns', debuggerProps.threadColumns);
@@ -118,13 +121,12 @@ class DebuggerActions {
         const singleThreadStepping = debuggerCapabilities.singleThreadStepping;
         _this._store.getSettings().set('SingleThreadStepping', singleThreadStepping);
         _this.toggleSingleThreadStepping(singleThreadStepping);
-        if (processInfo.getServiceName() !== 'hhvm' || (yield (0, (_passesGK || _load_passesGK()).default)(GK_DEBUGGER_REQUEST_SENDER))) {
-          const customControlButtons = debuggerProps.customControlButtons;
-          if (customControlButtons.length > 0) {
-            _this.updateControlButtons(customControlButtons);
-          } else {
-            _this.updateControlButtons([]);
-          }
+
+        const customControlButtons = debuggerProps.customControlButtons;
+        if (customControlButtons.length > 0) {
+          _this.updateControlButtons(customControlButtons);
+        } else {
+          _this.updateControlButtons([]);
         }
 
         if (debuggerCapabilities.customSourcePaths) {
@@ -132,8 +134,6 @@ class DebuggerActions {
         } else {
           _this.updateConfigureSourcePathsCallback(null);
         }
-
-        atom.commands.dispatch(atom.views.getView(atom.workspace), 'nuclide-debugger:show');
 
         yield _this._waitForChromeConnection(debuggerInstance);
       } catch (err) {
@@ -144,15 +144,6 @@ class DebuggerActions {
         atom.notifications.addError(errorMessage);
         _this.stopDebugging();
       }
-    })();
-  }
-
-  _allowThreadsForPhp(processInfo) {
-    return (0, _asyncToGenerator.default)(function* () {
-      if (processInfo.getServiceName() === 'hhvm') {
-        return (0, (_passesGK || _load_passesGK()).default)(GK_DEBUGGER_REQUEST_WINDOW);
-      }
-      return true;
     })();
   }
 
@@ -178,12 +169,11 @@ class DebuggerActions {
         _this2._disposables.add(debuggerInstance.onSessionEnd(handler));
       }
 
-      const socketAddr = yield debuggerInstance.getWebsocketAddress();
       (0, (_AnalyticsHelper || _load_AnalyticsHelper()).endTimerTracking)();
 
       _this2._dispatcher.dispatch({
         actionType: (_DebuggerDispatcher || _load_DebuggerDispatcher()).ActionTypes.SET_PROCESS_SOCKET,
-        data: socketAddr
+        data: ''
       });
       // Debugger finished initializing and entered debug mode.
       _this2.setDebuggerMode((_DebuggerStore || _load_DebuggerStore()).DebuggerMode.RUNNING);
@@ -433,7 +423,7 @@ class DebuggerActions {
         (0, (_nuclideAnalytics || _load_nuclideAnalytics()).track)((_constants || _load_constants()).AnalyticsEvents.DEBUGGER_STEP_OUT);
         break;
       default:
-        logger.error('Unkown debugger action type', actionId);
+        logger.error('Unknown debugger action type', actionId);
         break;
     }
     this._dispatcher.dispatch({
@@ -676,10 +666,6 @@ class DebuggerActions {
     });
   }
 
-  openDevTools() {
-    this._dispatcher.dispatch({ actionType: (_DebuggerDispatcher || _load_DebuggerDispatcher()).ActionTypes.OPEN_DEV_TOOLS });
-  }
-
   receiveExpressionEvaluationResponse(id, response) {
     this._dispatcher.dispatch({
       actionType: (_DebuggerDispatcher || _load_DebuggerDispatcher()).ActionTypes.RECEIVED_EXPRESSION_EVALUATION_RESPONSE,
@@ -709,7 +695,8 @@ class DebuggerActions {
 
   _handleDebugModeStart() {
     // Open the console window if it's not already opened.
-    atom.commands.dispatch(atom.views.getView(atom.workspace), 'nuclide-console:toggle', { visible: true });
+    // eslint-disable-next-line rulesdir/atom-apis
+    atom.workspace.open(CONSOLE_VIEW_URI, { searchAllPanes: true });
   }
 }
 exports.default = DebuggerActions;

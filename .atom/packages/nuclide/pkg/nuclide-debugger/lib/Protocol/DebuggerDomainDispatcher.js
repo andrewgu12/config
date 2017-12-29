@@ -25,7 +25,7 @@ class DebuggerDomainDispatcher {
 
 
   setDebuggerSettings(settings) {
-    this._agent.setDebuggerSettings(settings.singleThreadStepping);
+    this._agent.setDebuggerSettings(settings.singleThreadStepping, settings.showDisassembly);
   }
 
   getSourceUriFromUri(fileUri) {
@@ -98,6 +98,14 @@ class DebuggerDomainDispatcher {
     undefined, // returnByValue
     undefined, // generatePreview
     callback);
+  }
+
+  setVariable(scopeObjectId, expression, newValue, callback) {
+    this._agent.setVariableValue(expression, newValue, scopeObjectId, callback);
+  }
+
+  completions(text, column, frameId, callback) {
+    this._agent.completions(text, column, frameId, callback);
   }
 
   selectThread(threadId) {
@@ -189,4 +197,4 @@ class DebuggerDomainDispatcher {
  * @format
  */
 
-module.exports = DebuggerDomainDispatcher;
+module.exports = DebuggerDomainDispatcher; // eslint-disable-line rulesdir/no-commonjs

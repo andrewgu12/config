@@ -57,7 +57,7 @@ function fileUrlOfFrame(frame) {
 function locationOfFrame(frame) {
   return {
     // TODO: columnNumber: from cmdbegin/end
-    lineNumber: Number(frame.$.lineno) - 1,
+    lineNumber: Number(frame.$.lineno),
     scriptId: fileOfFrame(frame)
   };
 }

@@ -8,6 +8,8 @@ function _load_log4js() {
   return _log4js = require('log4js');
 }
 
+var _atom = require('atom');
+
 var _analytics;
 
 function _load_analytics() {
@@ -24,6 +26,12 @@ var _featureConfig;
 
 function _load_featureConfig() {
   return _featureConfig = _interopRequireDefault(require('nuclide-commons-atom/feature-config'));
+}
+
+var _range;
+
+function _load_range() {
+  return _range = require('nuclide-commons-atom/range');
 }
 
 var _nuclideUri;
@@ -87,7 +95,9 @@ class Activation {
     this._triggerKeys = new Set();
 
     this._disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default((_featureConfig || _load_featureConfig()).default.observe(getPlatformKeys(process.platform), newValue => {
-      this._triggerKeys = new Set(newValue ? newValue.split(',') : null);
+      this._triggerKeys = new Set(
+      // flowlint-next-line sketchy-null-string:off
+      newValue ? newValue.split(',') : null);
     }));
   }
 
@@ -104,6 +114,12 @@ class Activation {
           // eslint-disable-next-line no-await-in-loop
           const result = yield provider.getDefinition(editor, position);
           if (result != null) {
+            if (result.queryRange == null) {
+              const match = (0, (_range || _load_range()).wordAtPosition)(editor, position, {
+                includeNonWordCharacters: false
+              });
+              result.queryRange = [match != null ? match.range : new _atom.Range(position, position)];
+            }
             return result;
           }
         } catch (err) {
@@ -126,35 +142,45 @@ class Activation {
         return null;
       }
 
-      const { definitions } = result;
+      const { queryRange, definitions } = result;
 
       if (!(definitions.length > 0)) {
         throw new Error('Invariant violation: "definitions.length > 0"');
       }
+      // queryRange might be null coming out of the provider, but the output
+      // of _getDefinition has ensured it's not null.
+
+
+      if (!(queryRange != null)) {
+        throw new Error('Invariant violation: "queryRange != null"');
+      }
 
       function createCallback(definition) {
         return () => {
-          (0, (_goToLocation || _load_goToLocation()).goToLocation)(definition.path, definition.position.row, definition.position.column);
+          (0, (_goToLocation || _load_goToLocation()).goToLocation)(definition.path, {
+            line: definition.position.row,
+            column: definition.position.column
+          });
         };
       }
 
       function createTitle(definition) {
-        if (!(definition.name != null)) {
-          throw new Error('must include name when returning multiple definitions');
-        }
-
         const filePath = definition.projectRoot == null ? definition.path : (_nuclideUri || _load_nuclideUri()).default.relative(definition.projectRoot, definition.path);
+        if (definition.name == null) {
+          // Fall back to just displaying the path:line.
+          return `${filePath}:${definition.position.row + 1}`;
+        }
         return `${definition.name} (${filePath})`;
       }
 
       if (definitions.length === 1) {
         return {
-          range: result.queryRange,
+          range: queryRange,
           callback: createCallback(definitions[0])
         };
       } else {
         return {
-          range: result.queryRange,
+          range: queryRange,
           callback: definitions.map(function (definition) {
             return {
               title: createTitle(definition),
@@ -182,10 +208,18 @@ class Activation {
       if (result == null) {
         return null;
       }
+      const queryRange = result.queryRange;
+      // queryRange might be null coming out of the provider, but the output
+      // of _getDefinition has ensured it's not null.
+
+      if (!(queryRange != null)) {
+        throw new Error('Invariant violation: "queryRange != null"');
+      }
 
       const grammar = editor.getGrammar();
-      const previewDatatip = (0, (_getPreviewDatatipFromDefinitionResult || _load_getPreviewDatatipFromDefinitionResult()).default)(result, _this3._definitionPreviewProvider, grammar);
+      const previewDatatip = (0, (_getPreviewDatatipFromDefinitionResult || _load_getPreviewDatatipFromDefinitionResult()).default)(queryRange[0], result.definitions, _this3._definitionPreviewProvider, grammar);
 
+      // flowlint-next-line sketchy-null-mixed:off
       if (previewDatatip != null && previewDatatip.markedStrings) {
         (_analytics || _load_analytics()).default.track('hyperclick-preview-popup', {
           grammar: grammar.name,

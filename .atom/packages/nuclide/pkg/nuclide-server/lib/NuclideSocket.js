@@ -39,6 +39,12 @@ function _load_QueuedTransport() {
   return _QueuedTransport = require('./QueuedTransport');
 }
 
+var _QueuedAckTransport;
+
+function _load_QueuedAckTransport() {
+  return _QueuedAckTransport = require('./QueuedAckTransport');
+}
+
 var _XhrConnectionHeartbeat;
 
 function _load_XhrConnectionHeartbeat() {
@@ -55,6 +61,12 @@ var _string;
 
 function _load_string() {
   return _string = require('nuclide-commons/string');
+}
+
+var _utils;
+
+function _load_utils() {
+  return _utils = require('./utils');
 }
 
 var _log4js;
@@ -93,7 +105,7 @@ const MAX_RECONNECT_TIME_MS = 5000;
 // Can be in one of the following states:
 //   - Connected - everything healthy
 //   - Disconnected - Was connected, but connection died. Will attempt to reconnect.
-//   - Closed - No longer connected. May not send/recieve messages. Cannot be resurected.
+//   - Closed - No longer connected. May not send/receive messages. Cannot be resurected.
 //
 // Publishes the following events:
 //   - status(boolean): on connect/disconnect
@@ -103,17 +115,24 @@ const MAX_RECONNECT_TIME_MS = 5000;
 //   - heartbeat: On receipt of successful heartbeat
 //   - heartbeat.error({code, originalCode, message}): On failure of heartbeat
 class NuclideSocket {
-
+  // ID from a setTimeout() call.
   constructor(serverUri, options) {
+    const useAck = options != null && options.useAck;
     this._emitter = new (_eventKit || _load_eventKit()).Emitter();
     this._serverUri = serverUri;
     this._options = options;
-    this.id = (_uuid || _load_uuid()).default.v4();
+    this.id = (useAck ? 'ACK' : 'NOACK') + (_uuid || _load_uuid()).default.v4();
     this._pingTimer = null;
     this._reconnectTime = INITIAL_RECONNECT_TIME_MS;
     this._reconnectTimer = null;
     this._previouslyConnected = false;
-    const transport = new (_QueuedTransport || _load_QueuedTransport()).QueuedTransport(this.id);
+    this._useProtocolLogger = useAck;
+    let transport;
+    if (useAck) {
+      transport = new (_QueuedAckTransport || _load_QueuedAckTransport()).QueuedAckTransport(this.id);
+    } else {
+      transport = new (_QueuedTransport || _load_QueuedTransport()).QueuedTransport(this.id);
+    }
     this._transport = transport;
     transport.onDisconnect(() => {
       if (this.isDisconnected()) {
@@ -135,8 +154,17 @@ class NuclideSocket {
     });
 
     this._reconnect();
-  } // ID from a setTimeout() call.
+  }
 
+  // This is intended to be temporary while we are collecting extra
+  // logging to debug QueuedAckTransport.
+  getProtocolLogger() {
+    if (this._useProtocolLogger) {
+      return (_utils || _load_utils()).protocolLogger;
+    } else {
+      return null;
+    }
+  }
 
   isConnected() {
     return this._transport != null && this._transport.getState() === 'open';
@@ -170,7 +198,7 @@ class NuclideSocket {
     // in uncaught exceptions. This is due to EventEmitter treating 'error'
     // events specially.
     const onSocketError = error => {
-      logger.error(`WebSocket Error while connecting... ${error.message}`);
+      logger.warn(`WebSocket Error while connecting... ${error.message}`);
       if (this.isDisconnected()) {
         logger.info('WebSocket reconnecting after error.');
         this._scheduleReconnect();
@@ -267,6 +295,7 @@ class NuclideSocket {
   }
 
   _scheduleReconnect() {
+    // flowlint-next-line sketchy-null-number:off
     if (this._reconnectTimer) {
       return;
     }
@@ -284,6 +313,7 @@ class NuclideSocket {
   }
 
   _clearReconnectTimer() {
+    // flowlint-next-line sketchy-null-number:off
     if (this._reconnectTimer) {
       clearTimeout(this._reconnectTimer);
       this._reconnectTimer = null;

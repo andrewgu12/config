@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.DecorationIcons = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactDom = _interopRequireDefault(require('react-dom'));
 
@@ -35,6 +35,8 @@ function _load_Icon() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; } /**
                                                                                                                                                                                                                               * Copyright (c) 2015-present, Facebook, Inc.
                                                                                                                                                                                                                               * All rights reserved.
@@ -47,10 +49,10 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
                                                                                                                                                                                                                               */
 
 function WarningIconWithShadow() {
-  return _react.default.createElement(
+  return _react.createElement(
     'div',
     null,
-    _react.default.createElement(
+    _react.createElement(
       'svg',
       {
         className: 'nuclide-ui-path-with-file-icon-warning-icon-background',
@@ -58,17 +60,17 @@ function WarningIconWithShadow() {
         height: '18',
         viewBox: '0 0 20 20',
         xmlns: 'http://www.w3.org/2000/svg' },
-      _react.default.createElement('polygon', { points: '10,2 0,18 20,18' })
+      _react.createElement('polygon', { points: '10,2 0,18 20,18' })
     ),
-    _react.default.createElement((_Icon || _load_Icon()).Icon, { className: 'text-warning', icon: 'alert' })
+    _react.createElement((_Icon || _load_Icon()).Icon, { className: 'text-warning', icon: 'alert' })
   );
 }
 
 function ErrorIconWithShadow() {
-  return _react.default.createElement(
+  return _react.createElement(
     'div',
     null,
-    _react.default.createElement(
+    _react.createElement(
       'svg',
       {
         className: 'nuclide-ui-path-with-file-icon-error-icon-background',
@@ -76,9 +78,9 @@ function ErrorIconWithShadow() {
         height: '16',
         viewBox: '0 0 16 16',
         xmlns: 'http://www.w3.org/2000/svg' },
-      _react.default.createElement('circle', { cx: '10', cy: '10', r: '8' })
+      _react.createElement('circle', { cx: '10', cy: '10', r: '8' })
     ),
-    _react.default.createElement((_Icon || _load_Icon()).Icon, { className: 'text-error', icon: 'stop' })
+    _react.createElement((_Icon || _load_Icon()).Icon, { className: 'text-error', icon: 'stop' })
   );
 }
 
@@ -89,7 +91,7 @@ const DecorationIcons = exports.DecorationIcons = Object.freeze({
   Error: ErrorIconWithShadow
 });
 
-class PathWithFileIcon extends _react.default.Component {
+class PathWithFileIcon extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -191,12 +193,12 @@ class PathWithFileIcon extends _react.default.Component {
     } = _props,
           rest = _objectWithoutProperties(_props, ['className', 'children', 'decorationIcon', 'isFolder', 'path']);
     const displayPath = children == null ? path : children;
-    const decoration = DecorationIcon == null ? null : _react.default.createElement(
+    const decoration = DecorationIcon == null ? null : _react.createElement(
       'div',
       { className: 'nuclide-ui-path-with-file-icon-decoration-icon' },
-      _react.default.createElement(DecorationIcon, null)
+      _react.createElement(DecorationIcon, null)
     );
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       Object.assign({
         className: this._getDefaultClassName(),

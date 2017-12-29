@@ -10,6 +10,7 @@ function _load_nuclideRemoteConnection() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+// eslint-disable-next-line rulesdir/no-commonjs
 module.exports = {
   getAutocompleteSuggestions(request) {
     return (0, _asyncToGenerator.default)(function* () {

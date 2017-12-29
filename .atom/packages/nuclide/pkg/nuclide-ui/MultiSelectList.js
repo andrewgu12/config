@@ -5,7 +5,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.MultiSelectList = undefined;
 
-var _atom = require('atom');
+var _UniversalDisposable;
+
+function _load_UniversalDisposable() {
+  return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
+}
 
 var _classnames;
 
@@ -13,9 +17,11 @@ function _load_classnames() {
   return _classnames = _interopRequireDefault(require('classnames'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactDom = _interopRequireDefault(require('react-dom'));
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -30,7 +36,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @format
  */
 
-class MultiSelectList extends _react.default.Component {
+class MultiSelectList extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -54,7 +60,7 @@ class MultiSelectList extends _react.default.Component {
       this._commandsDisposables.dispose();
     }
     const el = this.props.commandScope || _reactDom.default.findDOMNode(this);
-    this._commandsDisposables = new _atom.CompositeDisposable(atom.commands.add(
+    this._commandsDisposables = new (_UniversalDisposable || _load_UniversalDisposable()).default(atom.commands.add(
     // $FlowFixMe
     el, {
       'core:move-up': () => {
@@ -98,10 +104,10 @@ class MultiSelectList extends _react.default.Component {
   }
 
   render() {
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'nuclide-multi-select-list select-list block', tabIndex: '0' },
-      _react.default.createElement(
+      _react.createElement(
         'ol',
         { className: 'list-group mark-active' },
         this._renderOptions()
@@ -119,7 +125,7 @@ class MultiSelectList extends _react.default.Component {
         selected,
         active
       });
-      return _react.default.createElement(
+      return _react.createElement(
         'li',
         {
           key: index,
@@ -130,7 +136,7 @@ class MultiSelectList extends _react.default.Component {
           onClick: () => {
             this._toggleActive(option.value);
           } },
-        _react.default.createElement(OptionComponent, {
+        _react.createElement(OptionComponent, {
           option: option,
           active: active,
           selected: selected
@@ -150,7 +156,7 @@ MultiSelectList.defaultProps = {
 
 
 function DefaultOptionComponent(props) {
-  return _react.default.createElement(
+  return _react.createElement(
     'span',
     null,
     props.option.label

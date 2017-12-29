@@ -8,7 +8,10 @@ exports.formatCode = exports.getLocalReferences = exports.getOutline = exports.g
 var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
 
 let getClangService = (() => {
-  var _ref = (0, _asyncToGenerator.default)(function* (src, contents, requestSettings, defaultFlags, blocking) {
+  var _ref = (0, _asyncToGenerator.default)(function* (src, contents, requestSettings, defaultFlags, blocking, useRTags) {
+    if (useRTags) {
+      return rtagsManager.getService(src, contents, requestSettings, defaultFlags);
+    }
     const server = serverManager.getClangServer(src, contents, requestSettings, defaultFlags);
     if (!server.isReady()) {
       if (blocking) {
@@ -24,7 +27,7 @@ let getClangService = (() => {
     return server.getService();
   });
 
-  return function getClangService(_x, _x2, _x3, _x4, _x5) {
+  return function getClangService(_x, _x2, _x3, _x4, _x5, _x6) {
     return _ref.apply(this, arguments);
   };
 })();
@@ -37,27 +40,27 @@ let getClangService = (() => {
 
 
 let getCompletions = exports.getCompletions = (() => {
-  var _ref3 = (0, _asyncToGenerator.default)(function* (src, contents, line, column, tokenStartColumn, prefix, requestSettings, defaultFlags) {
-    const service = yield getClangService(src, contents, requestSettings, defaultFlags);
+  var _ref3 = (0, _asyncToGenerator.default)(function* (src, contents, line, column, tokenStartColumn, prefix, requestSettings, defaultFlags, useRTags) {
+    const service = yield getClangService(src, contents, requestSettings, defaultFlags, false, useRTags);
     if (service != null) {
       return service.get_completions(contents, line, column, tokenStartColumn, prefix);
     }
   });
 
-  return function getCompletions(_x6, _x7, _x8, _x9, _x10, _x11, _x12, _x13) {
+  return function getCompletions(_x7, _x8, _x9, _x10, _x11, _x12, _x13, _x14, _x15) {
     return _ref3.apply(this, arguments);
   };
 })();
 
 let getDeclaration = exports.getDeclaration = (() => {
   var _ref4 = (0, _asyncToGenerator.default)(function* (src, contents, line, column, requestSettings, defaultFlags) {
-    const service = yield getClangService(src, contents, requestSettings, defaultFlags);
+    const service = yield getClangService(src, contents, requestSettings, defaultFlags, false);
     if (service != null) {
       return service.get_declaration(contents, line, column);
     }
   });
 
-  return function getDeclaration(_x14, _x15, _x16, _x17, _x18, _x19) {
+  return function getDeclaration(_x16, _x17, _x18, _x19, _x20, _x21) {
     return _ref4.apply(this, arguments);
   };
 })();
@@ -69,23 +72,23 @@ let getDeclaration = exports.getDeclaration = (() => {
 
 let getDeclarationInfo = exports.getDeclarationInfo = (() => {
   var _ref5 = (0, _asyncToGenerator.default)(function* (src, contents, line, column, requestSettings, defaultFlags) {
-    const service = yield getClangService(src, contents, requestSettings, defaultFlags);
+    const service = yield getClangService(src, contents, requestSettings, defaultFlags, false);
     if (service != null) {
       return service.get_declaration_info(contents, line, column);
     }
   });
 
-  return function getDeclarationInfo(_x20, _x21, _x22, _x23, _x24, _x25) {
+  return function getDeclarationInfo(_x22, _x23, _x24, _x25, _x26, _x27) {
     return _ref5.apply(this, arguments);
   };
 })();
 
 let getRelatedSourceOrHeader = exports.getRelatedSourceOrHeader = (() => {
   var _ref6 = (0, _asyncToGenerator.default)(function* (src, requestSettings) {
-    return serverManager.getClangFlagsManager().getRelatedSrcFileForHeader(src, requestSettings || { compilationDatabase: null, projectRoot: null });
+    return serverManager.getClangFlagsManager().getRelatedSourceOrHeader(src, requestSettings || { compilationDatabase: null, projectRoot: null });
   });
 
-  return function getRelatedSourceOrHeader(_x26, _x27) {
+  return function getRelatedSourceOrHeader(_x28, _x29) {
     return _ref6.apply(this, arguments);
   };
 })();
@@ -98,7 +101,7 @@ let getOutline = exports.getOutline = (() => {
     }
   });
 
-  return function getOutline(_x28, _x29, _x30, _x31) {
+  return function getOutline(_x30, _x31, _x32, _x33) {
     return _ref7.apply(this, arguments);
   };
 })();
@@ -111,7 +114,7 @@ let getLocalReferences = exports.getLocalReferences = (() => {
     }
   });
 
-  return function getLocalReferences(_x32, _x33, _x34, _x35, _x36, _x37) {
+  return function getLocalReferences(_x34, _x35, _x36, _x37, _x38, _x39) {
     return _ref8.apply(this, arguments);
   };
 })();
@@ -125,7 +128,9 @@ let formatCode = exports.formatCode = (() => {
     if (length != null) {
       args.push(`-length=${length}`);
     }
-    const stdout = yield (0, (_process || _load_process()).runCommand)('clang-format', args, {
+    const binary = yield getArcanistClangFormatBinary(src);
+    const command = binary == null ? 'clang-format' : binary;
+    const stdout = yield (0, (_process || _load_process()).runCommand)(command, args, {
       input: contents
     }).toPromise();
 
@@ -137,8 +142,32 @@ let formatCode = exports.formatCode = (() => {
     };
   });
 
-  return function formatCode(_x38, _x39, _x40, _x41, _x42) {
+  return function formatCode(_x40, _x41, _x42, _x43, _x44) {
     return _ref9.apply(this, arguments);
+  };
+})();
+
+let getArcanistClangFormatBinary = (() => {
+  var _ref10 = (0, _asyncToGenerator.default)(function* (src) {
+    try {
+      // $FlowFB
+      const arcService = require('../../fb-arcanist-rpc/lib/ArcanistService');
+      const [arcConfigDirectory, arcConfig] = yield Promise.all([arcService.findArcConfigDirectory(src), arcService.readArcConfig(src)]);
+      if (arcConfigDirectory == null || arcConfig == null) {
+        return null;
+      }
+      const lintClangFormatBinary = arcConfig['lint.clang-format.binary'];
+      if (lintClangFormatBinary == null) {
+        return null;
+      }
+      return (_nuclideUri || _load_nuclideUri()).default.join((yield (_fsPromise || _load_fsPromise()).default.realpath(arcConfigDirectory)), lintClangFormatBinary);
+    } catch (err) {
+      return null;
+    }
+  });
+
+  return function getArcanistClangFormatBinary(_x45) {
+    return _ref10.apply(this, arguments);
   };
 })();
 
@@ -168,20 +197,38 @@ function _load_ClangServerManager() {
   return _ClangServerManager = _interopRequireDefault(require('./ClangServerManager'));
 }
 
+var _nuclideUri;
+
+function _load_nuclideUri() {
+  return _nuclideUri = _interopRequireDefault(require('nuclide-commons/nuclideUri'));
+}
+
+var _fsPromise;
+
+function _load_fsPromise() {
+  return _fsPromise = _interopRequireDefault(require('nuclide-commons/fsPromise'));
+}
+
+var _RTagsManager;
+
+function _load_RTagsManager() {
+  return _RTagsManager = _interopRequireDefault(require('./rtags/RTagsManager'));
+}
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the license found in the LICENSE file in
- * the root directory of this source tree.
- *
- * 
- * @format
- */
+const serverManager = new (_ClangServerManager || _load_ClangServerManager()).default(); /**
+                                                                                          * Copyright (c) 2015-present, Facebook, Inc.
+                                                                                          * All rights reserved.
+                                                                                          *
+                                                                                          * This source code is licensed under the license found in the LICENSE file in
+                                                                                          * the root directory of this source tree.
+                                                                                          *
+                                                                                          * 
+                                                                                          * @format
+                                                                                          */
 
-const serverManager = new (_ClangServerManager || _load_ClangServerManager()).default();
+const rtagsManager = new (_RTagsManager || _load_RTagsManager()).default(serverManager.getClangFlagsManager());
 
 // Maps clang's cursor types to the actual declaration types: for a full list see
 // https://github.com/llvm-mirror/clang/blob/master/include/clang/Basic/DeclNodes.td
@@ -234,7 +281,14 @@ const ClangCursorToDeclarationTypes = exports.ClangCursorToDeclarationTypes = Ob
 
 const ClangCursorTypes = exports.ClangCursorTypes = (0, (_collection || _load_collection()).keyMirror)(ClangCursorToDeclarationTypes);
 
-function compile(src, contents, requestSettings, defaultFlags) {
+function compile(src, contents, requestSettings, defaultFlags, useRTags) {
+  if (useRTags) {
+    return _rxjsBundlesRxMinJs.Observable.fromPromise(rtagsManager.getService(src, contents, requestSettings, defaultFlags).then(service => {
+      if (service) {
+        return service.compile(contents);
+      }
+    })).publish();
+  }
   const doCompile = (() => {
     var _ref2 = (0, _asyncToGenerator.default)(function* () {
       // Note: restarts the server if the flags changed.
@@ -261,6 +315,7 @@ function loadFlagsFromCompilationDatabaseAndCacheThem(requestSettings) {
  */
 function resetForSource(src) {
   serverManager.reset(src);
+  rtagsManager.reset(src);
 }
 
 /**
@@ -268,8 +323,10 @@ function resetForSource(src) {
  */
 function reset() {
   serverManager.reset();
+  rtagsManager.reset();
 }
 
 function dispose() {
   serverManager.dispose();
+  rtagsManager.reset();
 }

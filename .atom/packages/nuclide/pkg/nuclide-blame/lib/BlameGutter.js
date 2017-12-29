@@ -24,7 +24,11 @@ function _load_nuclideAnalytics() {
   return _nuclideAnalytics = require('../../nuclide-analytics');
 }
 
-var _atom = require('atom');
+var _UniversalDisposable;
+
+function _load_UniversalDisposable() {
+  return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
+}
 
 var _electron = require('electron');
 
@@ -34,7 +38,7 @@ function _load_nuclideVcsLog() {
   return _nuclideVcsLog = require('../../nuclide-vcs-log');
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactDom = _interopRequireDefault(require('react-dom'));
 
@@ -44,9 +48,11 @@ function _load_classnames() {
   return _classnames = _interopRequireDefault(require('classnames'));
 }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// eslint-disable-next-line nuclide-internal/no-cross-atom-imports
+// eslint-disable-next-line rulesdir/no-cross-atom-imports
 const BLAME_DECORATION_CLASS = 'blame-decoration'; /**
                                                     * Copyright (c) 2015-present, Facebook, Inc.
                                                     * All rights reserved.
@@ -90,7 +96,7 @@ class BlameGutter {
     this._isDestroyed = false;
     this._isEditorDestroyed = false;
 
-    this._subscriptions = new _atom.CompositeDisposable();
+    this._subscriptions = new (_UniversalDisposable || _load_UniversalDisposable()).default();
     this._editor = editor;
     this._blameProvider = blameProvider;
     this._bufferLineToDecoration = new Map();
@@ -117,6 +123,7 @@ class BlameGutter {
       }
 
       const url = yield blameProvider.getUrlForRevision(_this._editor, revision.hash);
+      // flowlint-next-line sketchy-null-string:off
       if (url) {
         // Note that 'shell' is not the public 'shell' package on npm but an Atom built-in.
         _electron.shell.openExternal(url);
@@ -277,7 +284,7 @@ class BlameGutter {
       this._onClick(blameInfo);
     });
 
-    _reactDom.default.render(_react.default.createElement(GutterElement, {
+    _reactDom.default.render(_react.createElement(GutterElement, {
       revision: blameInfo,
       isFirstLine: isFirstLine,
       isLastLine: isLastLine,
@@ -291,8 +298,7 @@ class BlameGutter {
 exports.default = BlameGutter;
 
 
-class GutterElement extends _react.default.Component {
-
+class GutterElement extends _react.Component {
   render() {
     const { oldest, newest, revision, isLastLine, isFirstLine } = this.props;
     const date = Number(revision.date);
@@ -308,32 +314,32 @@ class GutterElement extends _react.default.Component {
         placement: 'right'
       };
 
-      return _react.default.createElement(
+      return _react.createElement(
         'div',
         {
           className: 'nuclide-blame-row nuclide-blame-content',
           ref: (0, (_addTooltip || _load_addTooltip()).default)(tooltip) },
-        !isLastLine ? _react.default.createElement('div', { className: 'nuclide-blame-vertical-bar nuclide-blame-vertical-bar-first' }) : null,
-        Avatar ? _react.default.createElement(Avatar, { size: 16, unixname: unixname }) : unixname + ': ',
-        _react.default.createElement(
+        !isLastLine ? _react.createElement('div', { className: 'nuclide-blame-vertical-bar nuclide-blame-vertical-bar-first' }) : null,
+        Avatar ? _react.createElement(Avatar, { size: 16, unixname: unixname }) : unixname + ': ',
+        _react.createElement(
           'span',
           null,
           revision.title
         ),
-        _react.default.createElement('div', { style: { opacity }, className: 'nuclide-blame-border-age' })
+        _react.createElement('div', { style: { opacity }, className: 'nuclide-blame-border-age' })
       );
     }
 
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'nuclide-blame-row' },
-      _react.default.createElement('div', {
+      _react.createElement('div', {
         className: (0, (_classnames || _load_classnames()).default)('nuclide-blame-vertical-bar', {
           'nuclide-blame-vertical-bar-last': isLastLine,
           'nuclide-blame-vertical-bar-middle': !isLastLine
         })
       }),
-      _react.default.createElement('div', { style: { opacity }, className: 'nuclide-blame-border-age' })
+      _react.createElement('div', { style: { opacity }, className: 'nuclide-blame-border-age' })
     );
   }
 }

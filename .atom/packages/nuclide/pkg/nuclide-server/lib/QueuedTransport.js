@@ -49,15 +49,6 @@ const logger = (0, (_log4js || _load_log4js()).getLogger)('nuclide-server');
 // While disconnected, reconnect can be called to return to the open state.
 // close() closes the underlying transport and transitions to closed state.
 // Once closed, reconnect may not be called and no other events will be emitted.
-
-
-// An unreliable transport for sending JSON formatted messages
-//
-// onClose handlers are guaranteed to be called exactly once.
-// onMessage handlers are guaranteed to not be called after onClose has been called.
-// send(data) yields false if the message failed to send, true on success.
-// onClose handlers will be called before close() returns.
-// May not call send() after transport has closed..
 class QueuedTransport {
 
   constructor(clientId, transport) {
@@ -67,7 +58,6 @@ class QueuedTransport {
     this._messageQueue = [];
     this._messages = new _rxjsBundlesRxMinJs.Subject();
     this._emitter = new (_eventKit || _load_eventKit()).Emitter();
-    this._lastStateChangeTime = Date.now();
 
     if (transport != null) {
       this._connect(transport);
@@ -76,10 +66,6 @@ class QueuedTransport {
 
   getState() {
     return this._isClosed ? 'closed' : this._transport == null ? 'disconnected' : 'open';
-  }
-
-  getLastStateChangeTime() {
-    return this._lastStateChangeTime;
   }
 
   _connect(transport) {
@@ -94,7 +80,6 @@ class QueuedTransport {
     }
 
     this._transport = transport;
-    this._lastStateChangeTime = Date.now();
     transport.onMessage().subscribe(message => this._messages.next(message));
     transport.onClose(() => this._onClose(transport));
   }
@@ -115,7 +100,6 @@ class QueuedTransport {
     }
 
     this._transport = null;
-    this._lastStateChangeTime = Date.now();
     this._emitter.emit('disconnect', transport);
   }
 
@@ -204,7 +188,6 @@ class QueuedTransport {
     this._disconnect();
     if (!this._isClosed) {
       this._isClosed = true;
-      this._lastStateChangeTime = Date.now();
     }
   }
 

@@ -29,7 +29,7 @@ class NullLanguageService {
     return _rxjsBundlesRxMinJs.Observable.empty().publish();
   }
 
-  getAutocompleteSuggestions(fileVersion, position, activatedManually, prefix) {
+  getAutocompleteSuggestions(fileVersion, position, request) {
     return Promise.resolve(null);
   }
 
@@ -49,6 +49,14 @@ class NullLanguageService {
     return Promise.resolve(null);
   }
 
+  getAdditionalLogFiles(deadline) {
+    return Promise.resolve([]);
+  }
+
+  getCodeActions(fileVersion, range, diagnostics) {
+    return Promise.resolve([]);
+  }
+
   typeHint(fileVersion, position) {
     return Promise.resolve(null);
   }
@@ -57,15 +65,15 @@ class NullLanguageService {
     return Promise.resolve(null);
   }
 
-  formatSource(fileVersion, range) {
+  formatSource(fileVersion, range, options) {
     return Promise.resolve(null);
   }
 
-  formatEntireFile(fileVersion, range) {
+  formatEntireFile(fileVersion, range, options) {
     return Promise.resolve(null);
   }
 
-  formatAtPosition(fileVersion, position, triggerCharacter) {
+  formatAtPosition(fileVersion, position, triggerCharacter, options) {
     return Promise.resolve(null);
   }
 
@@ -89,6 +97,17 @@ class NullLanguageService {
     return Promise.resolve(false);
   }
 
+  getExpandedSelectionRange(fileVersion, currentSelection) {
+    return Promise.resolve(null);
+  }
+
+  getCollapsedSelectionRange(fileVersion, currentSelection, originalCursorPosition) {
+    return Promise.resolve(null);
+  }
+
   dispose() {}
 }
-exports.NullLanguageService = NullLanguageService;
+
+exports.NullLanguageService = NullLanguageService; // Assert that NullLanguageService satisifes the LanguageService interface:
+
+null;

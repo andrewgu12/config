@@ -40,7 +40,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @format
  */
 
-const defaultIDEConnectionFactory = proc => new (_FlowIDEConnection || _load_FlowIDEConnection()).FlowIDEConnection(proc);
+const defaultIDEConnectionFactory = (proc, fileCache) => new (_FlowIDEConnection || _load_FlowIDEConnection()).FlowIDEConnection(proc, fileCache);
 
 // ESLint thinks the comment at the end is whitespace and warns. Worse, the autofix removes the
 // entire comment as well as the whitespace.
@@ -60,10 +60,11 @@ const MAX_UNHEALTHY_CONNECTIONS = 20;
 // too many failures in a row.
 class FlowIDEConnectionWatcher {
 
-  constructor(processFactory, ideConnectionCallback,
+  constructor(processFactory, fileCache, ideConnectionCallback,
   // Can be injected for testing purposes
   ideConnectionFactory = defaultIDEConnectionFactory) {
     this._processFactory = processFactory;
+    this._fileCache = fileCache;
     this._ideConnectionFactory = ideConnectionFactory;
     this._ideConnectionCallback = ideConnectionCallback;
 
@@ -130,7 +131,7 @@ class FlowIDEConnectionWatcher {
         return;
       }
       const connectionStartTime = _this._getTimeMS();
-      const ideConnection = _this._ideConnectionFactory(proc);
+      const ideConnection = _this._ideConnectionFactory(proc, _this._fileCache);
       _this._ideConnectionCallback(ideConnection);
       _this._currentIDEConnectionSubscription = ideConnection.onWillDispose(function () {
         _this._ideConnectionCallback(null);

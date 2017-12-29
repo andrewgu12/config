@@ -5,17 +5,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.AtomInput = undefined;
 
+var _react = _interopRequireWildcard(require('react'));
+
 var _classnames;
 
 function _load_classnames() {
   return _classnames = _interopRequireDefault(require('classnames'));
 }
-
-var _atom = require('atom');
-
-var _react = _interopRequireDefault(require('react'));
-
-var _reactDom = _interopRequireDefault(require('react-dom'));
 
 var _string;
 
@@ -23,23 +19,74 @@ function _load_string() {
   return _string = require('nuclide-commons/string');
 }
 
+var _observable;
+
+function _load_observable() {
+  return _observable = require('nuclide-commons/observable');
+}
+
+var _debounce;
+
+function _load_debounce() {
+  return _debounce = _interopRequireDefault(require('nuclide-commons/debounce'));
+}
+
+var _UniversalDisposable;
+
+function _load_UniversalDisposable() {
+  return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
+}
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+/**
+ * Copyright (c) 2017-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * 
+ * @format
+ */
+
+const BLUR_FOCUS_DEBOUNCE_DELAY = 100;
 
 /**
  * An input field rendered as an <atom-text-editor mini />.
  */
-class AtomInput extends _react.default.Component {
+class AtomInput extends _react.Component {
 
   constructor(props) {
     super(props);
+
+    this._onEditorFocus = () => {
+      if (this.isFocussed() && !this._isFocussed) {
+        this._isFocussed = true;
+        this.props.onFocus && this.props.onFocus();
+      }
+    };
+
+    this._onEditorBlur = blurEvent => {
+      if (!this.isFocussed() && this._isFocussed) {
+        this._isFocussed = false;
+        this.props.onBlur && this.props.onBlur(blurEvent);
+      }
+    };
+
     const value = props.value == null ? props.initialValue : props.value;
     this.state = {
       value
     };
+    this._debouncedEditorFocus = (0, (_debounce || _load_debounce()).default)(this._onEditorFocus, BLUR_FOCUS_DEBOUNCE_DELAY);
+    this._debouncedEditorBlur = (0, (_debounce || _load_debounce()).default)(this._onEditorBlur, BLUR_FOCUS_DEBOUNCE_DELAY);
   }
 
   componentDidMount() {
-    const disposables = this._disposables = new _atom.CompositeDisposable();
+    const disposables = this._disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default();
 
     // There does not appear to be any sort of infinite loop where calling
     // setState({value}) in response to onDidChange() causes another change
@@ -49,23 +96,39 @@ class AtomInput extends _react.default.Component {
     if (this.props.autofocus) {
       this.focus();
     }
+
+    if (!!(this.props.startSelected && this.props.startSelectedRange != null)) {
+      throw new Error('cannot have both startSelected (all) and startSelectedRange');
+    }
+
     if (this.props.startSelected) {
       // For some reason, selectAll() has no effect if called right now.
-      process.nextTick(() => {
+      disposables.add((_observable || _load_observable()).microtask.subscribe(() => {
         if (!textEditor.isDestroyed()) {
           textEditor.selectAll();
         }
-      });
+      }));
     }
+
+    const startSelectedRange = this.props.startSelectedRange;
+    if (startSelectedRange != null) {
+      // For some reason, selectAll() has no effect if called right now.
+      disposables.add((_observable || _load_observable()).microtask.subscribe(() => {
+        if (!textEditor.isDestroyed()) {
+          textEditor.setSelectedBufferRange([[0, startSelectedRange[0]], [0, startSelectedRange[1]]]);
+        }
+      }));
+    }
+
     disposables.add(atom.commands.add(textEditorElement, {
-      'core:confirm': () => {
+      'core:confirm': event => {
         if (this.props.onConfirm != null) {
-          this.props.onConfirm();
+          this.props.onConfirm(event);
         }
       },
-      'core:cancel': () => {
+      'core:cancel': event => {
         if (this.props.onCancel != null) {
-          this.props.onCancel();
+          this.props.onCancel(event);
         }
       }
     }));
@@ -136,10 +199,15 @@ class AtomInput extends _react.default.Component {
     }
   }
 
+  isFocussed() {
+    return this._rootNode != null && this._rootNode.contains(document.activeElement);
+  }
+
   render() {
     const className = (0, (_classnames || _load_classnames()).default)(this.props.className, {
       'atom-text-editor-unstyled': this.props.unstyled,
-      [`atom-text-editor-${(0, (_string || _load_string()).maybeToString)(this.props.size)}`]: this.props.size != null
+      [`atom-text-editor-${(0, (_string || _load_string()).maybeToString)(this.props.size)}`]: this.props.size != null,
+      'atom-text-editor-invalid': this.props.invalid
     });
 
     return (
@@ -147,12 +215,14 @@ class AtomInput extends _react.default.Component {
       // component class when "Use Shadow DOM" is disabled, this element should never have children.
       // If an element has no children, React guarantees it will never re-render the element (which
       // would wipe out the web component's work in this case).
-      _react.default.createElement('atom-text-editor', {
+      _react.createElement('atom-text-editor', {
         'class': className,
         mini: true,
+        ref: rootNode => this._rootNode = rootNode,
         onClick: this.props.onClick,
-        onFocus: this.props.onFocus,
-        onBlur: this.props.onBlur
+        onFocus: this._debouncedEditorFocus,
+        onBlur: this._debouncedEditorBlur,
+        style: this.props.style
       })
     );
   }
@@ -170,12 +240,17 @@ class AtomInput extends _react.default.Component {
   }
 
   onDidChange(callback) {
-    return this.getTextEditor().onDidChange(callback);
+    return this.getTextEditor().getBuffer().onDidChangeText(callback);
   }
 
   getTextEditorElement() {
+    if (!(this._rootNode != null)) {
+      throw new Error('Invariant violation: "this._rootNode != null"');
+    }
     // $FlowFixMe
-    return _reactDom.default.findDOMNode(this);
+
+
+    return this._rootNode;
   }
 
   _updateWidth(prevWidth) {
@@ -190,18 +265,7 @@ class AtomInput extends _react.default.Component {
     this.getTextEditorElement().focus();
   }
 }
-exports.AtomInput = AtomInput; /**
-                                * Copyright (c) 2017-present, Facebook, Inc.
-                                * All rights reserved.
-                                *
-                                * This source code is licensed under the BSD-style license found in the
-                                * LICENSE file in the root directory of this source tree. An additional grant
-                                * of patent rights can be found in the PATENTS file in the same directory.
-                                *
-                                * 
-                                * @format
-                                */
-
+exports.AtomInput = AtomInput;
 AtomInput.defaultProps = {
   disabled: false,
   autofocus: false,
@@ -212,5 +276,6 @@ AtomInput.defaultProps = {
   onDidChange: text => {},
   onFocus: () => {},
   onBlur: () => {},
-  unstyled: false
+  unstyled: false,
+  style: null
 };

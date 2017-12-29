@@ -7,7 +7,7 @@ exports.TextInputExamples = undefined;
 
 var _atom = require('atom');
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _Block;
 
@@ -27,69 +27,69 @@ function _load_AtomTextEditor() {
   return _AtomTextEditor = require('./AtomTextEditor');
 }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-const AtomInputExample = () => _react.default.createElement(
+const AtomInputExample = () => _react.createElement(
   'div',
   null,
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+    _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
       disabled: false,
       initialValue: 'atom input',
       placeholderText: 'placeholder text'
     })
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+    _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
       disabled: true,
       initialValue: 'disabled atom input',
       placeholderText: 'placeholder text'
     })
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+    _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
       initialValue: 'xs atom input',
       placeholderText: 'placeholder text',
       size: 'xs'
     })
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+    _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
       initialValue: 'sm atom input',
       placeholderText: 'placeholder text',
       size: 'sm'
     })
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+    _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
       initialValue: 'lg atom input',
       placeholderText: 'placeholder text',
       size: 'lg'
     })
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+    _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
       initialValue: 'unstyled atom input',
       placeholderText: 'placeholder text',
       unstyled: true
     })
   ),
-  _react.default.createElement(
+  _react.createElement(
     (_Block || _load_Block()).Block,
     null,
-    _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+    _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
       initialValue: 'atom input with custom width',
       placeholderText: 'placeholder text',
       width: 200
@@ -120,13 +120,13 @@ const editorWrapperStyle = {
   boxShadow: '0 0 20px 0 rgba(0, 0, 0, 0.3)'
 };
 
-const AtomTextEditorExample = () => _react.default.createElement(
+const AtomTextEditorExample = () => _react.createElement(
   (_Block || _load_Block()).Block,
   null,
-  _react.default.createElement(
+  _react.createElement(
     'div',
     { style: editorWrapperStyle },
-    _react.default.createElement((_AtomTextEditor || _load_AtomTextEditor()).AtomTextEditor, {
+    _react.createElement((_AtomTextEditor || _load_AtomTextEditor()).AtomTextEditor, {
       gutterHidden: false,
       readOnly: false,
       syncTextContents: false,
@@ -135,10 +135,10 @@ const AtomTextEditorExample = () => _react.default.createElement(
       textBuffer: buffer1
     })
   ),
-  _react.default.createElement(
+  _react.createElement(
     'div',
     { style: Object.assign({}, editorWrapperStyle, { marginTop: '2em' }) },
-    _react.default.createElement((_AtomTextEditor || _load_AtomTextEditor()).AtomTextEditor, {
+    _react.createElement((_AtomTextEditor || _load_AtomTextEditor()).AtomTextEditor, {
       gutterHidden: true,
       readOnly: true,
       syncTextContents: false,

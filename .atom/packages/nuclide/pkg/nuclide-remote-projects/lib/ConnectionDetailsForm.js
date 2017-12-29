@@ -24,7 +24,11 @@ function _load_AtomInput() {
   return _AtomInput = require('nuclide-commons-ui/AtomInput');
 }
 
-var _atom = require('atom');
+var _UniversalDisposable;
+
+function _load_UniversalDisposable() {
+  return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
+}
 
 var _lookupPreferIpV;
 
@@ -35,10 +39,10 @@ function _load_lookupPreferIpV() {
 var _RadioGroup;
 
 function _load_RadioGroup() {
-  return _RadioGroup = _interopRequireDefault(require('../../nuclide-ui/RadioGroup'));
+  return _RadioGroup = _interopRequireDefault(require('nuclide-commons-ui/RadioGroup'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactDom = _interopRequireDefault(require('react-dom'));
 
@@ -47,6 +51,8 @@ var _nuclideRemoteConnection;
 function _load_nuclideRemoteConnection() {
   return _nuclideRemoteConnection = require('../../nuclide-remote-connection');
 }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -65,7 +71,7 @@ const { SupportedMethods } = (_nuclideRemoteConnection || _load_nuclideRemoteCon
 const authMethods = [SupportedMethods.PASSWORD, SupportedMethods.SSL_AGENT, SupportedMethods.PRIVATE_KEY];
 
 /** Component to prompt the user for connection details. */
-class ConnectionDetailsForm extends _react.default.Component {
+class ConnectionDetailsForm extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -176,20 +182,20 @@ class ConnectionDetailsForm extends _react.default.Component {
     const activeAuthMethod = authMethods[this.state.selectedAuthMethodIndex];
     // We need native-key-bindings so that delete works and we need
     // _onKeyPress so that escape and enter work
-    const passwordLabel = _react.default.createElement(
+    const passwordLabel = _react.createElement(
       'div',
       { className: 'nuclide-auth-method' },
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'nuclide-auth-method-label' },
         'Password:'
       ),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         {
           className: 'nuclide-auth-method-input nuclide-auth-method-password',
           onClick: this._handlePasswordInputClick },
-        _react.default.createElement('input', {
+        _react.createElement('input', {
           type: 'password',
           className: 'nuclide-password native-key-bindings',
           disabled: activeAuthMethod !== SupportedMethods.PASSWORD,
@@ -199,18 +205,18 @@ class ConnectionDetailsForm extends _react.default.Component {
         })
       )
     );
-    const privateKeyLabel = _react.default.createElement(
+    const privateKeyLabel = _react.createElement(
       'div',
       { className: 'nuclide-auth-method' },
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'nuclide-auth-method-label' },
         'Private Key File:'
       ),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'nuclide-auth-method-input nuclide-auth-method-privatekey' },
-        _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+        _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
           disabled: activeAuthMethod !== SupportedMethods.PRIVATE_KEY,
           initialValue: this.state.pathToPrivateKey,
           onClick: this._handleKeyFileInputClick,
@@ -221,14 +227,14 @@ class ConnectionDetailsForm extends _react.default.Component {
         })
       )
     );
-    const sshAgentLabel = _react.default.createElement(
+    const sshAgentLabel = _react.createElement(
       'div',
       { className: 'nuclide-auth-method' },
       'Use ssh-agent'
     );
     let toolTipWarning;
     if (this.state.shouldDisplayTooltipWarning) {
-      toolTipWarning = _react.default.createElement('span', {
+      toolTipWarning = _react.createElement('span', {
         style: { paddingLeft: 10 },
         className: 'icon icon-info pull-right nuclide-remote-projects-tooltip-warning',
         ref: (0, (_addTooltip || _load_addTooltip()).default)({
@@ -246,52 +252,52 @@ class ConnectionDetailsForm extends _react.default.Component {
       });
     }
 
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: className },
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'form-group' },
-        _react.default.createElement(
+        _react.createElement(
           'label',
           null,
           'Username:'
         ),
-        _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+        _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
           initialValue: this.state.username,
           onDidChange: this._handleInputDidChange,
           ref: 'username',
           unstyled: true
         })
       ),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'form-group nuclide-auth-server-group' },
-        _react.default.createElement(
+        _react.createElement(
           'div',
           { className: 'nuclide-auth-server' },
-          _react.default.createElement(
+          _react.createElement(
             'label',
             null,
             'Server:',
             toolTipWarning
           ),
-          _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+          _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
             initialValue: this.state.server,
             onDidChange: this._handleInputDidChangeForServer,
             ref: 'server',
             unstyled: true
           })
         ),
-        _react.default.createElement(
+        _react.createElement(
           'div',
           { className: 'col-xs-3' },
-          _react.default.createElement(
+          _react.createElement(
             'label',
             null,
             'SSH Port:'
           ),
-          _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+          _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
             initialValue: this.state.sshPort,
             onDidChange: this._handleInputDidChange,
             ref: 'sshPort',
@@ -299,44 +305,44 @@ class ConnectionDetailsForm extends _react.default.Component {
           })
         )
       ),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'form-group' },
-        _react.default.createElement(
+        _react.createElement(
           'label',
           null,
           'Initial Directory:'
         ),
-        _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+        _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
           initialValue: this.state.cwd,
           onDidChange: this._handleInputDidChange,
           ref: 'cwd',
           unstyled: true
         })
       ),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'form-group' },
-        _react.default.createElement(
+        _react.createElement(
           'label',
           null,
           'Authentication method:'
         ),
-        _react.default.createElement((_RadioGroup || _load_RadioGroup()).default, {
+        _react.createElement((_RadioGroup || _load_RadioGroup()).default, {
           optionLabels: [passwordLabel, sshAgentLabel, privateKeyLabel],
           onSelectedChange: this._handleAuthMethodChange,
           selectedIndex: this.state.selectedAuthMethodIndex
         })
       ),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'form-group' },
-        _react.default.createElement(
+        _react.createElement(
           'label',
           null,
           'Remote Server Command:'
         ),
-        _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+        _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
           initialValue: this.state.remoteServerCommand,
           onDidChange: this._handleInputDidChange,
           ref: 'remoteServerCommand',
@@ -347,7 +353,7 @@ class ConnectionDetailsForm extends _react.default.Component {
   }
 
   componentDidMount() {
-    const disposables = new _atom.CompositeDisposable();
+    const disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default();
     this._disposables = disposables;
     const root = _reactDom.default.findDOMNode(this);
 

@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.generateFixture = exports.copyBuildFixture = exports.generateHgRepo2Fixture = exports.generateHgRepo1Fixture = exports.copyFixture = undefined;
+exports.copyBuildFixture = exports.generateHgRepo2Fixture = exports.generateHgRepo1Fixture = exports.copyFixture = undefined;
 
 var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
 
@@ -25,6 +25,19 @@ var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
  * This should correspond to the spec/ directory with a fixtures/ subdirectory.
  * @returns the path to the temporary directory.
  */
+/**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the license found in the LICENSE file in
+ * the root directory of this source tree.
+ *
+ * 
+ * @format
+ */
+
+// This is in devDependencies. This file should only be used in tests.
+// eslint-disable-next-line rulesdir/no-unresolved
 let copyFixture = exports.copyFixture = (() => {
   var _ref = (0, _asyncToGenerator.default)(function* (fixtureName, startDir) {
     const fixturePath = (_nuclideUri || _load_nuclideUri()).default.join('fixtures', fixtureName);
@@ -69,21 +82,12 @@ let copyFixture = exports.copyFixture = (() => {
  *
  * @returns the path to the temporary directory that this function creates.
  */
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the license found in the LICENSE file in
- * the root directory of this source tree.
- *
- * 
- * @format
- */
+
 
 let generateHgRepo1Fixture = exports.generateHgRepo1Fixture = (() => {
   var _ref2 = (0, _asyncToGenerator.default)(function* () {
     const testTxt = 'this is a test file\nline 2\n\n  indented line\n';
-    const tempDir = yield generateFixture('hg_repo_1', new Map([['.watchmanconfig', '{}\n'], ['test.txt', testTxt]]));
+    const tempDir = yield (0, (_testHelpers || _load_testHelpers()).generateFixture)('hg_repo_1', new Map([['.watchmanconfig', '{}\n'], ['test.txt', testTxt]]));
     const repoPath = yield (_fsPromise || _load_fsPromise()).default.realpath(tempDir);
     yield (0, (_process || _load_process()).runCommand)('hg', ['init'], { cwd: repoPath }).toPromise();
     yield (_fsPromise || _load_fsPromise()).default.writeFile((_nuclideUri || _load_nuclideUri()).default.join(repoPath, '.hg', 'hgrc'), '[ui]\nusername = Test <test@mail.com>\n');
@@ -120,7 +124,7 @@ let generateHgRepo1Fixture = exports.generateHgRepo1Fixture = (() => {
 let generateHgRepo2Fixture = exports.generateHgRepo2Fixture = (() => {
   var _ref3 = (0, _asyncToGenerator.default)(function* () {
     const testTxt = 'this is a test file\nline 2\n\n  indented line\n';
-    const tempDir = yield generateFixture('hg_repo_2', new Map([['.watchmanconfig', '{}\n'], ['test.txt', testTxt]]));
+    const tempDir = yield (0, (_testHelpers || _load_testHelpers()).generateFixture)('hg_repo_2', new Map([['.watchmanconfig', '{}\n'], ['test.txt', testTxt]]));
     const repoPath = yield (_fsPromise || _load_fsPromise()).default.realpath(tempDir);
     yield (0, (_process || _load_process()).runCommand)('hg', ['init'], { cwd: repoPath }).toPromise();
     yield (_fsPromise || _load_fsPromise()).default.writeFile((_nuclideUri || _load_nuclideUri()).default.join(repoPath, '.hg', 'hgrc'), '[paths]\ndefault = .\n[ui]\nusername = Test <test@mail.com>\n');
@@ -189,7 +193,7 @@ let renameBuckFiles = (() => {
     yield Promise.all(renames.map(function (name) {
       const prevName = (_nuclideUri || _load_nuclideUri()).default.join(projectDir, name);
       const newName = prevName.replace(/-rename$/, '');
-      return (_fsPromise || _load_fsPromise()).default.rename(prevName, newName);
+      return (_fsPromise || _load_fsPromise()).default.mv(prevName, newName);
     }));
   });
 
@@ -197,77 +201,6 @@ let renameBuckFiles = (() => {
     return _ref6.apply(this, arguments);
   };
 })();
-
-/**
- * Takes of Map of file/file-content pairs, and creates a temp dir that matches
- * the file structure of the Map. Example:
- *
- * generateFixture('myfixture', new Map([
- *   ['foo.js'],
- *   ['bar/baz.txt', 'some text'],
- * ]));
- *
- * Creates:
- *
- * /tmp/myfixture_1/foo.js (empty file)
- * /tmp/myfixture_1/bar/baz.txt (with 'some text')
- */
-
-
-let generateFixture = exports.generateFixture = (() => {
-  var _ref7 = (0, _asyncToGenerator.default)(function* (fixtureName, files) {
-    (_temp || _load_temp()).default.track();
-
-    const MAX_CONCURRENT_FILE_OPS = 100;
-    const tempDir = yield (_fsPromise || _load_fsPromise()).default.tempdir(fixtureName);
-
-    if (files == null) {
-      return tempDir;
-    }
-
-    // Map -> Array with full paths
-    const fileTuples = Array.from(files, function (tuple) {
-      // It's our own array - it's ok to mutate it
-      tuple[0] = (_nuclideUri || _load_nuclideUri()).default.join(tempDir, tuple[0]);
-      return tuple;
-    });
-
-    // Dedupe the dirs that we have to make.
-    const dirsToMake = fileTuples.map(function ([filename]) {
-      return (_nuclideUri || _load_nuclideUri()).default.dirname(filename);
-    }).filter(function (dirname, i, arr) {
-      return arr.indexOf(dirname) === i;
-    });
-
-    yield (0, (_promise || _load_promise()).asyncLimit)(dirsToMake, MAX_CONCURRENT_FILE_OPS, function (dirname) {
-      return (_fsPromise || _load_fsPromise()).default.mkdirp(dirname);
-    });
-
-    yield (0, (_promise || _load_promise()).asyncLimit)(fileTuples, MAX_CONCURRENT_FILE_OPS, function ([filename, contents]) {
-      // We can't use fsPromise/fs-plus because it does too much extra work.
-      // They call `mkdirp` before `writeFile`. We know that the target dir
-      // exists, so we can optimize by going straight to `fs`. When you're
-      // making 10k files, this adds ~500ms.
-      return new Promise(function (resolve, reject) {
-        _fs.default.writeFile(filename, contents || '', function (err) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve();
-          }
-        });
-      });
-    });
-
-    return tempDir;
-  });
-
-  return function generateFixture(_x7, _x8) {
-    return _ref7.apply(this, arguments);
-  };
-})();
-
-var _fs = _interopRequireDefault(require('fs'));
 
 var _fsExtra;
 
@@ -293,16 +226,16 @@ function _load_nuclideUri() {
   return _nuclideUri = _interopRequireDefault(require('nuclide-commons/nuclideUri'));
 }
 
-var _promise;
-
-function _load_promise() {
-  return _promise = require('nuclide-commons/promise');
-}
-
 var _process;
 
 function _load_process() {
   return _process = require('nuclide-commons/process');
+}
+
+var _testHelpers;
+
+function _load_testHelpers() {
+  return _testHelpers = require('nuclide-commons/test-helpers');
 }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }

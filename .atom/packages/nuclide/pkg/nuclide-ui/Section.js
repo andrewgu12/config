@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Section = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _classnames;
 
@@ -14,6 +14,8 @@ function _load_classnames() {
 }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 /** A vertical divider with a title.
  * Specifying `collapsable` prop as true will add a clickable chevron icon that
@@ -31,8 +33,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @format
  */
 
-class Section extends _react.default.Component {
-
+class Section extends _react.Component {
   constructor(props) {
     super(props);
 
@@ -74,15 +75,15 @@ class Section extends _react.default.Component {
       conditionalProps.title = this.props.title;
     }
     const HeadlineComponent = getHeadlineComponent(this.props.size);
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: this.props.className },
-      _react.default.createElement(
+      _react.createElement(
         HeadlineComponent,
         Object.assign({ className: iconClass }, conditionalProps),
         this.props.headline
       ),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         {
           style: collapsed ? { display: 'none' } : {},

@@ -7,6 +7,12 @@ exports.TreeRootComponent = undefined;
 
 var _atom = require('atom');
 
+var _UniversalDisposable;
+
+function _load_UniversalDisposable() {
+  return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
+}
+
 var _LazyTreeNode;
 
 function _load_LazyTreeNode() {
@@ -25,9 +31,17 @@ function _load_treeNodeTraversals() {
   return _treeNodeTraversals = require('./tree-node-traversals');
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactDom = _interopRequireDefault(require('react-dom'));
+
+var _scrollIntoView;
+
+function _load_scrollIntoView() {
+  return _scrollIntoView = require('nuclide-commons-ui/scrollIntoView');
+}
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -66,12 +80,14 @@ function toggleSetHas(set, value, forceHas) {
    * @format
    */
 
+/* globals Element */
+
 const FIRST_SELECTED_DESCENDANT_REF = 'firstSelectedDescendant';
 
 /**
  * Generic tree component that operates on LazyTreeNodes.
  */
-class TreeRootComponent extends _react.default.Component {
+class TreeRootComponent extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -148,8 +164,10 @@ class TreeRootComponent extends _react.default.Component {
     if (!prevState || this.state.selectedKeys !== prevState.selectedKeys) {
       const firstSelectedDescendant = this.refs[FIRST_SELECTED_DESCENDANT_REF];
       if (firstSelectedDescendant !== undefined) {
-        // $FlowFixMe
-        _reactDom.default.findDOMNode(firstSelectedDescendant).scrollIntoViewIfNeeded(false);
+        const el = _reactDom.default.findDOMNode(firstSelectedDescendant);
+        if (el instanceof Element) {
+          (0, (_scrollIntoView || _load_scrollIntoView()).scrollIntoViewIfNeeded)(el, false);
+        }
       }
     }
 
@@ -259,7 +277,7 @@ class TreeRootComponent extends _react.default.Component {
           ref = FIRST_SELECTED_DESCENDANT_REF;
         }
 
-        const child = _react.default.createElement((_TreeNodeComponent || _load_TreeNodeComponent()).TreeNodeComponent, Object.assign({}, item, {
+        const child = _react.createElement((_TreeNodeComponent || _load_TreeNodeComponent()).TreeNodeComponent, Object.assign({}, item, {
           isContainer: node.isContainer(),
           isExpanded: this._isNodeExpanded(node),
           isLoading: !node.isCacheValid(),
@@ -315,7 +333,7 @@ class TreeRootComponent extends _react.default.Component {
 
     this._allKeys = allKeys;
     this._keyToNode = keyToNode;
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'nuclide-tree-root' },
       children
@@ -332,7 +350,7 @@ class TreeRootComponent extends _react.default.Component {
       keyToNode[rootKey] = root;
     });
 
-    const subscriptions = new _atom.CompositeDisposable();
+    const subscriptions = new (_UniversalDisposable || _load_UniversalDisposable()).default();
     subscriptions.add(atom.commands.add(this.props.eventHandlerSelector, {
       // Expand and collapse.
       'core:move-right': () => this._expandSelection(),
@@ -496,6 +514,7 @@ class TreeRootComponent extends _react.default.Component {
 
   _expandSelection() {
     const key = this._getFirstSelectedKey();
+    // flowlint-next-line sketchy-null-string:off
     if (key) {
       this.expandNodeKey(key);
     }
@@ -569,6 +588,7 @@ class TreeRootComponent extends _react.default.Component {
 
   _collapseSelection() {
     const key = this._getFirstSelectedKey();
+    // flowlint-next-line sketchy-null-string:off
     if (!key) {
       return;
     }
@@ -594,6 +614,7 @@ class TreeRootComponent extends _react.default.Component {
 
     let keyIndexToSelect = allKeys.length - 1;
     const key = this._getFirstSelectedKey();
+    // flowlint-next-line sketchy-null-string:off
     if (key) {
       keyIndexToSelect = allKeys.indexOf(key);
       if (keyIndexToSelect > 0) {
@@ -612,6 +633,7 @@ class TreeRootComponent extends _react.default.Component {
 
     let keyIndexToSelect = 0;
     const key = this._getFirstSelectedKey();
+    // flowlint-next-line sketchy-null-string:off
     if (key) {
       keyIndexToSelect = allKeys.indexOf(key);
       if (keyIndexToSelect !== -1 && keyIndexToSelect < allKeys.length - 1) {
@@ -624,6 +646,7 @@ class TreeRootComponent extends _react.default.Component {
 
   _confirmSelection() {
     const key = this._getFirstSelectedKey();
+    // flowlint-next-line sketchy-null-string:off
     if (key) {
       const node = this.getNodeForKey(key);
       if (node) {

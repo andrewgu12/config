@@ -6,25 +6,21 @@ module.exports = _client => {
   const remoteModule = {};
   remoteModule.FileNotifier = class {
     onFileEvent(arg0) {
-      return _client.marshalArguments(Array.from(arguments), [{
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "event",
         type: {
           kind: "named",
           name: "FileEvent"
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "rpc-types.js",
-            line: 50
-          },
-          name: "FileNotifier"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "onFileEvent", "promise", args);
-        });
-      }).then(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "rpc-types.js",
+          line: 60
+        },
+        name: "FileNotifier"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "onFileEvent", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "void"
         });
@@ -32,7 +28,7 @@ module.exports = _client => {
     }
 
     onDirectoriesChanged(arg0) {
-      return _client.marshalArguments(Array.from(arguments), [{
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "openDirectories",
         type: {
           kind: "set",
@@ -41,21 +37,71 @@ module.exports = _client => {
             name: "NuclideUri"
           }
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "rpc-types.js",
-            line: 50
-          },
-          name: "FileNotifier"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "onDirectoriesChanged", "promise", args);
-        });
-      }).then(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "rpc-types.js",
+          line: 60
+        },
+        name: "FileNotifier"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "onDirectoriesChanged", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "void"
+        });
+      });
+    }
+
+    getTotalBufferSize() {
+      return Promise.all([_client.marshalArguments(Array.from(arguments), []), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "rpc-types.js",
+          line: 60
+        },
+        name: "FileNotifier"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "getTotalBufferSize", "promise", args)).then(value => {
+        return _client.unmarshal(value, {
+          kind: "number"
+        });
+      });
+    }
+
+    dispose() {
+      return _client.disposeRemoteObject(this);
+    }
+
+  };
+  remoteModule.CodeAction = class {
+    apply() {
+      return Promise.all([_client.marshalArguments(Array.from(arguments), []), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "types.js",
+          line: 15
+        },
+        name: "CodeAction"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "apply", "promise", args)).then(value => {
+        return _client.unmarshal(value, {
+          kind: "void"
+        });
+      });
+    }
+
+    getTitle() {
+      return Promise.all([_client.marshalArguments(Array.from(arguments), []), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "types.js",
+          line: 15
+        },
+        name: "CodeAction"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "getTitle", "promise", args)).then(value => {
+        return _client.unmarshal(value, {
+          kind: "string"
         });
       });
     }
@@ -67,61 +113,50 @@ module.exports = _client => {
   };
   remoteModule.LanguageService = class {
     getDiagnostics(arg0) {
-      return _client.marshalArguments(Array.from(arguments), [{
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "fileVersion",
         type: {
           kind: "named",
           name: "FileVersion"
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "LanguageService.js",
-            line: 64
-          },
-          name: "LanguageService"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "getDiagnostics", "promise", args);
-        });
-      }).then(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "LanguageService.js",
+          line: 113
+        },
+        name: "LanguageService"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "getDiagnostics", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "nullable",
           type: {
             kind: "named",
-            name: "DiagnosticProviderUpdate"
+            name: "FileDiagnosticMap"
           }
         });
       });
     }
 
     observeDiagnostics() {
-      return Observable.fromPromise(_client.marshalArguments(Array.from(arguments), []).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "LanguageService.js",
-            line: 64
-          },
-          name: "LanguageService"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "observeDiagnostics", "observable", args);
-        });
-      })).concatMap(id => id).concatMap(value => {
+      return Observable.fromPromise(Promise.all([_client.marshalArguments(Array.from(arguments), []), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "LanguageService.js",
+          line: 113
+        },
+        name: "LanguageService"
+      })])).switchMap(([args, id]) => _client.callRemoteMethod(id, "observeDiagnostics", "observable", args)).concatMap(value => {
         return _client.unmarshal(value, {
-          kind: "array",
-          type: {
-            kind: "named",
-            name: "FileDiagnosticMessages"
-          }
+          kind: "named",
+          name: "FileDiagnosticMap"
         });
       }).publish();
     }
 
-    getAutocompleteSuggestions(arg0, arg1, arg2, arg3) {
-      return _client.marshalArguments(Array.from(arguments), [{
+    getAutocompleteSuggestions(arg0, arg1, arg2) {
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "fileVersion",
         type: {
           kind: "named",
@@ -134,28 +169,20 @@ module.exports = _client => {
           name: "atom$Point"
         }
       }, {
-        name: "activatedManually",
+        name: "request",
         type: {
-          kind: "boolean"
-        }
-      }, {
-        name: "prefix",
-        type: {
-          kind: "string"
-        }
-      }]).then(args => {
-        return _client.marshal(this, {
           kind: "named",
-          location: {
-            type: "source",
-            fileName: "LanguageService.js",
-            line: 64
-          },
-          name: "LanguageService"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "getAutocompleteSuggestions", "promise", args);
-        });
-      }).then(value => {
+          name: "AutocompleteRequest"
+        }
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "LanguageService.js",
+          line: 113
+        },
+        name: "LanguageService"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "getAutocompleteSuggestions", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "nullable",
           type: {
@@ -167,7 +194,7 @@ module.exports = _client => {
     }
 
     getDefinition(arg0, arg1) {
-      return _client.marshalArguments(Array.from(arguments), [{
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "fileVersion",
         type: {
           kind: "named",
@@ -179,19 +206,15 @@ module.exports = _client => {
           kind: "named",
           name: "atom$Point"
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "LanguageService.js",
-            line: 64
-          },
-          name: "LanguageService"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "getDefinition", "promise", args);
-        });
-      }).then(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "LanguageService.js",
+          line: 113
+        },
+        name: "LanguageService"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "getDefinition", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "nullable",
           type: {
@@ -203,7 +226,7 @@ module.exports = _client => {
     }
 
     findReferences(arg0, arg1) {
-      return _client.marshalArguments(Array.from(arguments), [{
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "fileVersion",
         type: {
           kind: "named",
@@ -215,19 +238,15 @@ module.exports = _client => {
           kind: "named",
           name: "atom$Point"
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "LanguageService.js",
-            line: 64
-          },
-          name: "LanguageService"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "findReferences", "promise", args);
-        });
-      }).then(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "LanguageService.js",
+          line: 113
+        },
+        name: "LanguageService"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "findReferences", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "nullable",
           type: {
@@ -239,25 +258,21 @@ module.exports = _client => {
     }
 
     getCoverage(arg0) {
-      return _client.marshalArguments(Array.from(arguments), [{
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "filePath",
         type: {
           kind: "named",
           name: "NuclideUri"
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "LanguageService.js",
-            line: 64
-          },
-          name: "LanguageService"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "getCoverage", "promise", args);
-        });
-      }).then(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "LanguageService.js",
+          line: 113
+        },
+        name: "LanguageService"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "getCoverage", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "nullable",
           type: {
@@ -269,25 +284,21 @@ module.exports = _client => {
     }
 
     getOutline(arg0) {
-      return _client.marshalArguments(Array.from(arguments), [{
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "fileVersion",
         type: {
           kind: "named",
           name: "FileVersion"
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "LanguageService.js",
-            line: 64
-          },
-          name: "LanguageService"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "getOutline", "promise", args);
-        });
-      }).then(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "LanguageService.js",
+          line: 113
+        },
+        name: "LanguageService"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "getOutline", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "nullable",
           type: {
@@ -298,8 +309,49 @@ module.exports = _client => {
       });
     }
 
+    getCodeActions(arg0, arg1, arg2) {
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
+        name: "fileVersion",
+        type: {
+          kind: "named",
+          name: "FileVersion"
+        }
+      }, {
+        name: "range",
+        type: {
+          kind: "named",
+          name: "atom$Range"
+        }
+      }, {
+        name: "diagnostics",
+        type: {
+          kind: "array",
+          type: {
+            kind: "named",
+            name: "FileDiagnosticMessage"
+          }
+        }
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "LanguageService.js",
+          line: 113
+        },
+        name: "LanguageService"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "getCodeActions", "promise", args)).then(value => {
+        return _client.unmarshal(value, {
+          kind: "array",
+          type: {
+            kind: "named",
+            name: "CodeAction"
+          }
+        });
+      });
+    }
+
     typeHint(arg0, arg1) {
-      return _client.marshalArguments(Array.from(arguments), [{
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "fileVersion",
         type: {
           kind: "named",
@@ -311,19 +363,15 @@ module.exports = _client => {
           kind: "named",
           name: "atom$Point"
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "LanguageService.js",
-            line: 64
-          },
-          name: "LanguageService"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "typeHint", "promise", args);
-        });
-      }).then(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "LanguageService.js",
+          line: 113
+        },
+        name: "LanguageService"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "typeHint", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "nullable",
           type: {
@@ -335,7 +383,7 @@ module.exports = _client => {
     }
 
     highlight(arg0, arg1) {
-      return _client.marshalArguments(Array.from(arguments), [{
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "fileVersion",
         type: {
           kind: "named",
@@ -347,19 +395,15 @@ module.exports = _client => {
           kind: "named",
           name: "atom$Point"
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "LanguageService.js",
-            line: 64
-          },
-          name: "LanguageService"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "highlight", "promise", args);
-        });
-      }).then(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "LanguageService.js",
+          line: 113
+        },
+        name: "LanguageService"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "highlight", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "nullable",
           type: {
@@ -373,8 +417,8 @@ module.exports = _client => {
       });
     }
 
-    formatSource(arg0, arg1) {
-      return _client.marshalArguments(Array.from(arguments), [{
+    formatSource(arg0, arg1, arg2) {
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "fileVersion",
         type: {
           kind: "named",
@@ -386,19 +430,21 @@ module.exports = _client => {
           kind: "named",
           name: "atom$Range"
         }
-      }]).then(args => {
-        return _client.marshal(this, {
+      }, {
+        name: "options",
+        type: {
           kind: "named",
-          location: {
-            type: "source",
-            fileName: "LanguageService.js",
-            line: 64
-          },
-          name: "LanguageService"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "formatSource", "promise", args);
-        });
-      }).then(value => {
+          name: "FormatOptions"
+        }
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "LanguageService.js",
+          line: 113
+        },
+        name: "LanguageService"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "formatSource", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "nullable",
           type: {
@@ -412,8 +458,8 @@ module.exports = _client => {
       });
     }
 
-    formatEntireFile(arg0, arg1) {
-      return _client.marshalArguments(Array.from(arguments), [{
+    formatEntireFile(arg0, arg1, arg2) {
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "fileVersion",
         type: {
           kind: "named",
@@ -425,19 +471,21 @@ module.exports = _client => {
           kind: "named",
           name: "atom$Range"
         }
-      }]).then(args => {
-        return _client.marshal(this, {
+      }, {
+        name: "options",
+        type: {
           kind: "named",
-          location: {
-            type: "source",
-            fileName: "LanguageService.js",
-            line: 64
-          },
-          name: "LanguageService"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "formatEntireFile", "promise", args);
-        });
-      }).then(value => {
+          name: "FormatOptions"
+        }
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "LanguageService.js",
+          line: 113
+        },
+        name: "LanguageService"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "formatEntireFile", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "nullable",
           type: {
@@ -460,8 +508,8 @@ module.exports = _client => {
       });
     }
 
-    formatAtPosition(arg0, arg1, arg2) {
-      return _client.marshalArguments(Array.from(arguments), [{
+    formatAtPosition(arg0, arg1, arg2, arg3) {
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "fileVersion",
         type: {
           kind: "named",
@@ -478,19 +526,21 @@ module.exports = _client => {
         type: {
           kind: "string"
         }
-      }]).then(args => {
-        return _client.marshal(this, {
+      }, {
+        name: "options",
+        type: {
           kind: "named",
-          location: {
-            type: "source",
-            fileName: "LanguageService.js",
-            line: 64
-          },
-          name: "LanguageService"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "formatAtPosition", "promise", args);
-        });
-      }).then(value => {
+          name: "FormatOptions"
+        }
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "LanguageService.js",
+          line: 113
+        },
+        name: "LanguageService"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "formatAtPosition", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "nullable",
           type: {
@@ -504,8 +554,34 @@ module.exports = _client => {
       });
     }
 
+    getAdditionalLogFiles(arg0) {
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
+        name: "deadline",
+        type: {
+          kind: "named",
+          name: "DeadlineRequest"
+        }
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "LanguageService.js",
+          line: 113
+        },
+        name: "LanguageService"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "getAdditionalLogFiles", "promise", args)).then(value => {
+        return _client.unmarshal(value, {
+          kind: "array",
+          type: {
+            kind: "named",
+            name: "AdditionalLogFile"
+          }
+        });
+      });
+    }
+
     getEvaluationExpression(arg0, arg1) {
-      return _client.marshalArguments(Array.from(arguments), [{
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "fileVersion",
         type: {
           kind: "named",
@@ -517,19 +593,15 @@ module.exports = _client => {
           kind: "named",
           name: "atom$Point"
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "LanguageService.js",
-            line: 64
-          },
-          name: "LanguageService"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "getEvaluationExpression", "promise", args);
-        });
-      }).then(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "LanguageService.js",
+          line: 113
+        },
+        name: "LanguageService"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "getEvaluationExpression", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "nullable",
           type: {
@@ -541,7 +613,7 @@ module.exports = _client => {
     }
 
     supportsSymbolSearch(arg0) {
-      return _client.marshalArguments(Array.from(arguments), [{
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "directories",
         type: {
           kind: "array",
@@ -550,19 +622,15 @@ module.exports = _client => {
             name: "NuclideUri"
           }
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "LanguageService.js",
-            line: 64
-          },
-          name: "LanguageService"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "supportsSymbolSearch", "promise", args);
-        });
-      }).then(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "LanguageService.js",
+          line: 113
+        },
+        name: "LanguageService"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "supportsSymbolSearch", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "boolean"
         });
@@ -570,7 +638,7 @@ module.exports = _client => {
     }
 
     symbolSearch(arg0, arg1) {
-      return _client.marshalArguments(Array.from(arguments), [{
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "query",
         type: {
           kind: "string"
@@ -584,19 +652,15 @@ module.exports = _client => {
             name: "NuclideUri"
           }
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "LanguageService.js",
-            line: 64
-          },
-          name: "LanguageService"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "symbolSearch", "promise", args);
-        });
-      }).then(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "LanguageService.js",
+          line: 113
+        },
+        name: "LanguageService"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "symbolSearch", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "nullable",
           type: {
@@ -611,25 +675,21 @@ module.exports = _client => {
     }
 
     getProjectRoot(arg0) {
-      return _client.marshalArguments(Array.from(arguments), [{
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "fileUri",
         type: {
           kind: "named",
           name: "NuclideUri"
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "LanguageService.js",
-            line: 64
-          },
-          name: "LanguageService"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "getProjectRoot", "promise", args);
-        });
-      }).then(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "LanguageService.js",
+          line: 113
+        },
+        name: "LanguageService"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "getProjectRoot", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "nullable",
           type: {
@@ -641,27 +701,93 @@ module.exports = _client => {
     }
 
     isFileInProject(arg0) {
-      return _client.marshalArguments(Array.from(arguments), [{
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
         name: "fileUri",
         type: {
           kind: "named",
           name: "NuclideUri"
         }
-      }]).then(args => {
-        return _client.marshal(this, {
-          kind: "named",
-          location: {
-            type: "source",
-            fileName: "LanguageService.js",
-            line: 64
-          },
-          name: "LanguageService"
-        }).then(id => {
-          return _client.callRemoteMethod(id, "isFileInProject", "promise", args);
-        });
-      }).then(value => {
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "LanguageService.js",
+          line: 113
+        },
+        name: "LanguageService"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "isFileInProject", "promise", args)).then(value => {
         return _client.unmarshal(value, {
           kind: "boolean"
+        });
+      });
+    }
+
+    getExpandedSelectionRange(arg0, arg1) {
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
+        name: "fileVersion",
+        type: {
+          kind: "named",
+          name: "FileVersion"
+        }
+      }, {
+        name: "currentSelection",
+        type: {
+          kind: "named",
+          name: "atom$Range"
+        }
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "LanguageService.js",
+          line: 113
+        },
+        name: "LanguageService"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "getExpandedSelectionRange", "promise", args)).then(value => {
+        return _client.unmarshal(value, {
+          kind: "nullable",
+          type: {
+            kind: "named",
+            name: "atom$Range"
+          }
+        });
+      });
+    }
+
+    getCollapsedSelectionRange(arg0, arg1, arg2) {
+      return Promise.all([_client.marshalArguments(Array.from(arguments), [{
+        name: "fileVersion",
+        type: {
+          kind: "named",
+          name: "FileVersion"
+        }
+      }, {
+        name: "currentSelection",
+        type: {
+          kind: "named",
+          name: "atom$Range"
+        }
+      }, {
+        name: "originalCursorPosition",
+        type: {
+          kind: "named",
+          name: "atom$Point"
+        }
+      }]), _client.marshal(this, {
+        kind: "named",
+        location: {
+          type: "source",
+          fileName: "LanguageService.js",
+          line: 113
+        },
+        name: "LanguageService"
+      })]).then(([args, id]) => _client.callRemoteMethod(id, "getCollapsedSelectionRange", "promise", args)).then(value => {
+        return _client.unmarshal(value, {
+          kind: "nullable",
+          type: {
+            kind: "named",
+            name: "atom$Range"
+          }
         });
       });
     }
@@ -829,7 +955,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "PythonService.js",
-        line: 44
+        line: 48
       },
       name: "PythonCompletion",
       definition: {
@@ -855,12 +981,15 @@ Object.defineProperty(module.exports, "defs", {
         }, {
           name: "params",
           type: {
-            kind: "array",
+            kind: "nullable",
             type: {
-              kind: "string"
+              kind: "array",
+              type: {
+                kind: "string"
+              }
             }
           },
-          optional: true
+          optional: false
         }]
       }
     },
@@ -869,7 +998,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "PythonService.js",
-        line: 51
+        line: 55
       },
       name: "PythonDefinition",
       definition: {
@@ -913,7 +1042,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "PythonService.js",
-        line: 59
+        line: 63
       },
       name: "PythonReference",
       definition: {
@@ -963,7 +1092,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "PythonService.js",
-        line: 68
+        line: 72
       },
       name: "Position",
       definition: {
@@ -988,7 +1117,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "PythonService.js",
-        line: 83
+        line: 87
       },
       name: "PythonClassItem",
       definition: {
@@ -1053,7 +1182,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "PythonService.js",
-        line: 94
+        line: 98
       },
       name: "PythonStatementItem",
       definition: {
@@ -1099,7 +1228,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "PythonService.js",
-        line: 102
+        line: 106
       },
       name: "PythonOutlineItem",
       definition: {
@@ -1259,7 +1388,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "PythonService.js",
-        line: 73
+        line: 77
       },
       name: "PythonFunctionItem",
       definition: {
@@ -1324,7 +1453,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "types.js",
-        line: 64
+        line: 67
       },
       name: "DiagnosticMessageType",
       definition: {
@@ -1346,7 +1475,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "PythonService.js",
-        line: 107
+        line: 111
       },
       name: "PythonDiagnostic",
       definition: {
@@ -1397,7 +1526,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "PythonService.js",
-        line: 116
+        line: 120
       },
       name: "PythonServiceConfig",
       definition: {
@@ -1423,12 +1552,34 @@ Object.defineProperty(module.exports, "defs", {
         }]
       }
     },
-    DiagnosticTrace: {
+    DiagnosticMessageKind: {
       kind: "alias",
       location: {
         type: "source",
         fileName: "types.js",
         line: 66
+      },
+      name: "DiagnosticMessageKind",
+      definition: {
+        kind: "union",
+        types: [{
+          kind: "string-literal",
+          value: "lint"
+        }, {
+          kind: "string-literal",
+          value: "review"
+        }, {
+          kind: "string-literal",
+          value: "action"
+        }]
+      }
+    },
+    DiagnosticTrace: {
+      kind: "alias",
+      location: {
+        type: "source",
+        fileName: "types.js",
+        line: 69
       },
       name: "DiagnosticTrace",
       definition: {
@@ -1474,7 +1625,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "text-edit.js",
-        line: 19
+        line: 21
       },
       name: "TextEdit",
       definition: {
@@ -1506,7 +1657,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "types.js",
-        line: 74
+        line: 78
       },
       name: "DiagnosticFix",
       definition: {
@@ -1571,19 +1722,19 @@ Object.defineProperty(module.exports, "defs", {
       kind: "alias",
       location: {
         type: "source",
-        fileName: "types.js",
-        line: 83
+        fileName: "LanguageService.js",
+        line: 94
       },
       name: "FileDiagnosticMessage",
       definition: {
         kind: "object",
         fields: [{
-          name: "scope",
+          name: "kind",
           type: {
-            kind: "string-literal",
-            value: "file"
+            kind: "named",
+            name: "DiagnosticMessageKind"
           },
-          optional: false
+          optional: true
         }, {
           name: "providerName",
           type: {
@@ -1641,71 +1792,9 @@ Object.defineProperty(module.exports, "defs", {
           },
           optional: true
         }, {
-          name: "stale",
+          name: "actions",
           type: {
-            kind: "boolean"
-          },
-          optional: true
-        }]
-      }
-    },
-    ProjectDiagnosticMessage: {
-      kind: "alias",
-      location: {
-        type: "source",
-        fileName: "types.js",
-        line: 98
-      },
-      name: "ProjectDiagnosticMessage",
-      definition: {
-        kind: "object",
-        fields: [{
-          name: "scope",
-          type: {
-            kind: "string-literal",
-            value: "project"
-          },
-          optional: false
-        }, {
-          name: "providerName",
-          type: {
-            kind: "string"
-          },
-          optional: false
-        }, {
-          name: "type",
-          type: {
-            kind: "named",
-            name: "DiagnosticMessageType"
-          },
-          optional: false
-        }, {
-          name: "text",
-          type: {
-            kind: "string"
-          },
-          optional: true
-        }, {
-          name: "html",
-          type: {
-            kind: "string"
-          },
-          optional: true
-        }, {
-          name: "range",
-          type: {
-            kind: "named",
-            name: "atom$Range"
-          },
-          optional: true
-        }, {
-          name: "trace",
-          type: {
-            kind: "array",
-            type: {
-              kind: "named",
-              name: "DiagnosticTrace"
-            }
+            kind: "void"
           },
           optional: true
         }, {
@@ -1717,44 +1806,27 @@ Object.defineProperty(module.exports, "defs", {
         }]
       }
     },
-    DiagnosticProviderUpdate: {
+    FileDiagnosticMap: {
       kind: "alias",
       location: {
         type: "source",
-        fileName: "types.js",
-        line: 59
+        fileName: "LanguageService.js",
+        line: 111
       },
-      name: "DiagnosticProviderUpdate",
+      name: "FileDiagnosticMap",
       definition: {
-        kind: "object",
-        fields: [{
-          name: "filePathToMessages",
+        kind: "map",
+        keyType: {
+          kind: "named",
+          name: "NuclideUri"
+        },
+        valueType: {
+          kind: "array",
           type: {
-            kind: "map",
-            keyType: {
-              kind: "named",
-              name: "NuclideUri"
-            },
-            valueType: {
-              kind: "array",
-              type: {
-                kind: "named",
-                name: "FileDiagnosticMessage"
-              }
-            }
-          },
-          optional: true
-        }, {
-          name: "projectMessages",
-          type: {
-            kind: "array",
-            type: {
-              kind: "named",
-              name: "ProjectDiagnosticMessage"
-            }
-          },
-          optional: true
-        }]
+            kind: "named",
+            name: "FileDiagnosticMessage"
+          }
+        }
       }
     },
     FileOpenEvent: {
@@ -1870,6 +1942,33 @@ Object.defineProperty(module.exports, "defs", {
         }]
       }
     },
+    FileSaveEvent: {
+      kind: "alias",
+      location: {
+        type: "source",
+        fileName: "rpc-types.js",
+        line: 41
+      },
+      name: "FileSaveEvent",
+      definition: {
+        kind: "object",
+        fields: [{
+          name: "kind",
+          type: {
+            kind: "string-literal",
+            value: "save"
+          },
+          optional: false
+        }, {
+          name: "fileVersion",
+          type: {
+            kind: "named",
+            name: "FileVersion"
+          },
+          optional: false
+        }]
+      }
+    },
     FileSyncEvent: {
       kind: "alias",
       location: {
@@ -1908,7 +2007,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "rpc-types.js",
-        line: 42
+        line: 47
       },
       name: "FileEvent",
       definition: {
@@ -2002,6 +2101,23 @@ Object.defineProperty(module.exports, "defs", {
             name: "kind",
             type: {
               kind: "string-literal",
+              value: "save"
+            },
+            optional: false
+          }, {
+            name: "fileVersion",
+            type: {
+              kind: "named",
+              name: "FileVersion"
+            },
+            optional: false
+          }]
+        }, {
+          kind: "object",
+          fields: [{
+            name: "kind",
+            type: {
+              kind: "string-literal",
               value: "sync"
             },
             optional: false
@@ -2029,7 +2145,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "rpc-types.js",
-        line: 50
+        line: 60
       },
       constructorArgs: null,
       staticMethods: {},
@@ -2038,7 +2154,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "rpc-types.js",
-            line: 51
+            line: 61
           },
           kind: "function",
           argumentTypes: [{
@@ -2059,7 +2175,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "rpc-types.js",
-            line: 52
+            line: 62
           },
           kind: "function",
           argumentTypes: [{
@@ -2079,11 +2195,26 @@ Object.defineProperty(module.exports, "defs", {
             }
           }
         },
+        getTotalBufferSize: {
+          location: {
+            type: "source",
+            fileName: "rpc-types.js",
+            line: 63
+          },
+          kind: "function",
+          argumentTypes: [],
+          returnType: {
+            kind: "promise",
+            type: {
+              kind: "number"
+            }
+          }
+        },
         dispose: {
           location: {
             type: "source",
             fileName: "rpc-types.js",
-            line: 53
+            line: 64
           },
           kind: "function",
           argumentTypes: [],
@@ -2098,7 +2229,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "rpc-types.js",
-        line: 56
+        line: 67
       },
       name: "FileVersion",
       definition: {
@@ -2126,42 +2257,12 @@ Object.defineProperty(module.exports, "defs", {
         }]
       }
     },
-    FileDiagnosticMessages: {
-      kind: "alias",
-      location: {
-        type: "source",
-        fileName: "types.js",
-        line: 109
-      },
-      name: "FileDiagnosticMessages",
-      definition: {
-        kind: "object",
-        fields: [{
-          name: "filePath",
-          type: {
-            kind: "named",
-            name: "NuclideUri"
-          },
-          optional: false
-        }, {
-          name: "messages",
-          type: {
-            kind: "array",
-            type: {
-              kind: "named",
-              name: "FileDiagnosticMessage"
-            }
-          },
-          optional: false
-        }]
-      }
-    },
     Completion: {
       kind: "alias",
       location: {
         type: "source",
         fileName: "LanguageService.js",
-        line: 28
+        line: 37
       },
       name: "Completion",
       definition: {
@@ -2272,9 +2373,31 @@ Object.defineProperty(module.exports, "defs", {
           },
           optional: true
         }, {
+          name: "filterText",
+          type: {
+            kind: "string"
+          },
+          optional: true
+        }, {
+          name: "sortText",
+          type: {
+            kind: "string"
+          },
+          optional: true
+        }, {
           name: "extraData",
           type: {
             kind: "mixed"
+          },
+          optional: true
+        }, {
+          name: "textEdits",
+          type: {
+            kind: "array",
+            type: {
+              kind: "named",
+              name: "TextEdit"
+            }
           },
           optional: true
         }]
@@ -2285,7 +2408,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "LanguageService.js",
-        line: 49
+        line: 67
       },
       name: "AutocompleteResult",
       definition: {
@@ -2309,12 +2432,46 @@ Object.defineProperty(module.exports, "defs", {
         }]
       }
     },
+    AutocompleteRequest: {
+      kind: "alias",
+      location: {
+        type: "source",
+        fileName: "LanguageService.js",
+        line: 79
+      },
+      name: "AutocompleteRequest",
+      definition: {
+        kind: "object",
+        fields: [{
+          name: "activatedManually",
+          type: {
+            kind: "boolean"
+          },
+          optional: false
+        }, {
+          name: "triggerCharacter",
+          type: {
+            kind: "nullable",
+            type: {
+              kind: "string"
+            }
+          },
+          optional: false
+        }, {
+          name: "prefix",
+          type: {
+            kind: "string"
+          },
+          optional: false
+        }]
+      }
+    },
     Definition: {
       kind: "alias",
       location: {
         type: "source",
         fileName: "types.js",
-        line: 25
+        line: 15
       },
       name: "Definition",
       definition: {
@@ -2341,15 +2498,16 @@ Object.defineProperty(module.exports, "defs", {
           },
           optional: true
         }, {
-          name: "id",
+          name: "name",
           type: {
             kind: "string"
           },
           optional: true
         }, {
-          name: "name",
+          name: "projectRoot",
           type: {
-            kind: "string"
+            kind: "named",
+            name: "NuclideUri"
           },
           optional: true
         }, {
@@ -2358,13 +2516,6 @@ Object.defineProperty(module.exports, "defs", {
             kind: "string"
           },
           optional: false
-        }, {
-          name: "projectRoot",
-          type: {
-            kind: "named",
-            name: "NuclideUri"
-          },
-          optional: true
         }]
       }
     },
@@ -2373,7 +2524,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "types.js",
-        line: 38
+        line: 36
       },
       name: "DefinitionQueryResult",
       definition: {
@@ -2381,10 +2532,13 @@ Object.defineProperty(module.exports, "defs", {
         fields: [{
           name: "queryRange",
           type: {
-            kind: "array",
+            kind: "nullable",
             type: {
-              kind: "named",
-              name: "atom$Range"
+              kind: "array",
+              type: {
+                kind: "named",
+                name: "atom$Range"
+              }
             }
           },
           optional: false
@@ -2629,7 +2783,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "types.js",
-        line: 46
+        line: 49
       },
       name: "OutlineTreeKind",
       definition: {
@@ -2830,6 +2984,13 @@ Object.defineProperty(module.exports, "defs", {
           },
           optional: true
         }, {
+          name: "landingPosition",
+          type: {
+            kind: "named",
+            name: "atom$Point"
+          },
+          optional: true
+        }, {
           name: "children",
           type: {
             kind: "array",
@@ -2847,7 +3008,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "types.js",
-        line: 41
+        line: 44
       },
       name: "Outline",
       definition: {
@@ -2863,6 +3024,61 @@ Object.defineProperty(module.exports, "defs", {
           },
           optional: false
         }]
+      }
+    },
+    CodeAction: {
+      kind: "interface",
+      name: "CodeAction",
+      location: {
+        type: "source",
+        fileName: "types.js",
+        line: 15
+      },
+      constructorArgs: null,
+      staticMethods: {},
+      instanceMethods: {
+        apply: {
+          location: {
+            type: "source",
+            fileName: "types.js",
+            line: 16
+          },
+          kind: "function",
+          argumentTypes: [],
+          returnType: {
+            kind: "promise",
+            type: {
+              kind: "void"
+            }
+          }
+        },
+        getTitle: {
+          location: {
+            type: "source",
+            fileName: "types.js",
+            line: 17
+          },
+          kind: "function",
+          argumentTypes: [],
+          returnType: {
+            kind: "promise",
+            type: {
+              kind: "string"
+            }
+          }
+        },
+        dispose: {
+          location: {
+            type: "source",
+            fileName: "types.js",
+            line: 18
+          },
+          kind: "function",
+          argumentTypes: [],
+          returnType: {
+            kind: "void"
+          }
+        }
       }
     },
     TypeHint: {
@@ -2889,6 +3105,68 @@ Object.defineProperty(module.exports, "defs", {
           },
           optional: false
         }]
+      }
+    },
+    FormatOptions: {
+      kind: "alias",
+      location: {
+        type: "source",
+        fileName: "LanguageService.js",
+        line: 72
+      },
+      name: "FormatOptions",
+      definition: {
+        kind: "object",
+        fields: [{
+          name: "tabSize",
+          type: {
+            kind: "number"
+          },
+          optional: false
+        }, {
+          name: "insertSpaces",
+          type: {
+            kind: "boolean"
+          },
+          optional: false
+        }]
+      }
+    },
+    AdditionalLogFile: {
+      kind: "alias",
+      location: {
+        type: "source",
+        fileName: "rpc-types.js",
+        line: 31
+      },
+      name: "AdditionalLogFile",
+      definition: {
+        kind: "object",
+        fields: [{
+          name: "title",
+          type: {
+            kind: "string"
+          },
+          optional: false
+        }, {
+          name: "data",
+          type: {
+            kind: "string"
+          },
+          optional: false
+        }]
+      }
+    },
+    DeadlineRequest: {
+      kind: "alias",
+      location: {
+        type: "source",
+        fileName: "promise.js",
+        line: 210
+      },
+      name: "DeadlineRequest",
+      definition: {
+        kind: "number"
       }
     },
     NuclideEvaluationExpression: {
@@ -2921,13 +3199,20 @@ Object.defineProperty(module.exports, "defs", {
       kind: "alias",
       location: {
         type: "source",
-        fileName: "LanguageService.js",
-        line: 54
+        fileName: "types.js",
+        line: 21
       },
       name: "SymbolResult",
       definition: {
         kind: "object",
         fields: [{
+          name: "resultType",
+          type: {
+            kind: "string-literal",
+            value: "SYMBOL"
+          },
+          optional: false
+        }, {
           name: "path",
           type: {
             kind: "named",
@@ -2988,7 +3273,7 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "LanguageService.js",
-        line: 64
+        line: 113
       },
       constructorArgs: null,
       staticMethods: {},
@@ -2997,7 +3282,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "LanguageService.js",
-            line: 65
+            line: 114
           },
           kind: "function",
           argumentTypes: [{
@@ -3013,7 +3298,7 @@ Object.defineProperty(module.exports, "defs", {
               kind: "nullable",
               type: {
                 kind: "named",
-                name: "DiagnosticProviderUpdate"
+                name: "FileDiagnosticMap"
               }
             }
           }
@@ -3022,18 +3307,15 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "LanguageService.js",
-            line: 67
+            line: 116
           },
           kind: "function",
           argumentTypes: [],
           returnType: {
             kind: "observable",
             type: {
-              kind: "array",
-              type: {
-                kind: "named",
-                name: "FileDiagnosticMessages"
-              }
+              kind: "named",
+              name: "FileDiagnosticMap"
             }
           }
         },
@@ -3041,7 +3323,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "LanguageService.js",
-            line: 69
+            line: 118
           },
           kind: "function",
           argumentTypes: [{
@@ -3057,14 +3339,10 @@ Object.defineProperty(module.exports, "defs", {
               name: "atom$Point"
             }
           }, {
-            name: "activatedManually",
+            name: "request",
             type: {
-              kind: "boolean"
-            }
-          }, {
-            name: "prefix",
-            type: {
-              kind: "string"
+              kind: "named",
+              name: "AutocompleteRequest"
             }
           }],
           returnType: {
@@ -3082,7 +3360,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "LanguageService.js",
-            line: 76
+            line: 124
           },
           kind: "function",
           argumentTypes: [{
@@ -3113,7 +3391,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "LanguageService.js",
-            line: 81
+            line: 129
           },
           kind: "function",
           argumentTypes: [{
@@ -3144,7 +3422,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "LanguageService.js",
-            line: 86
+            line: 134
           },
           kind: "function",
           argumentTypes: [{
@@ -3169,7 +3447,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "LanguageService.js",
-            line: 88
+            line: 136
           },
           kind: "function",
           argumentTypes: [{
@@ -3190,11 +3468,51 @@ Object.defineProperty(module.exports, "defs", {
             }
           }
         },
+        getCodeActions: {
+          location: {
+            type: "source",
+            fileName: "LanguageService.js",
+            line: 146
+          },
+          kind: "function",
+          argumentTypes: [{
+            name: "fileVersion",
+            type: {
+              kind: "named",
+              name: "FileVersion"
+            }
+          }, {
+            name: "range",
+            type: {
+              kind: "named",
+              name: "atom$Range"
+            }
+          }, {
+            name: "diagnostics",
+            type: {
+              kind: "array",
+              type: {
+                kind: "named",
+                name: "FileDiagnosticMessage"
+              }
+            }
+          }],
+          returnType: {
+            kind: "promise",
+            type: {
+              kind: "array",
+              type: {
+                kind: "named",
+                name: "CodeAction"
+              }
+            }
+          }
+        },
         typeHint: {
           location: {
             type: "source",
             fileName: "LanguageService.js",
-            line: 90
+            line: 152
           },
           kind: "function",
           argumentTypes: [{
@@ -3225,7 +3543,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "LanguageService.js",
-            line: 92
+            line: 154
           },
           kind: "function",
           argumentTypes: [{
@@ -3259,7 +3577,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "LanguageService.js",
-            line: 97
+            line: 159
           },
           kind: "function",
           argumentTypes: [{
@@ -3273,6 +3591,12 @@ Object.defineProperty(module.exports, "defs", {
             type: {
               kind: "named",
               name: "atom$Range"
+            }
+          }, {
+            name: "options",
+            type: {
+              kind: "named",
+              name: "FormatOptions"
             }
           }],
           returnType: {
@@ -3293,7 +3617,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "LanguageService.js",
-            line: 102
+            line: 165
           },
           kind: "function",
           argumentTypes: [{
@@ -3307,6 +3631,12 @@ Object.defineProperty(module.exports, "defs", {
             type: {
               kind: "named",
               name: "atom$Range"
+            }
+          }, {
+            name: "options",
+            type: {
+              kind: "named",
+              name: "FormatOptions"
             }
           }],
           returnType: {
@@ -3336,7 +3666,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "LanguageService.js",
-            line: 110
+            line: 174
           },
           kind: "function",
           argumentTypes: [{
@@ -3356,6 +3686,12 @@ Object.defineProperty(module.exports, "defs", {
             type: {
               kind: "string"
             }
+          }, {
+            name: "options",
+            type: {
+              kind: "named",
+              name: "FormatOptions"
+            }
           }],
           returnType: {
             kind: "promise",
@@ -3371,11 +3707,36 @@ Object.defineProperty(module.exports, "defs", {
             }
           }
         },
+        getAdditionalLogFiles: {
+          location: {
+            type: "source",
+            fileName: "LanguageService.js",
+            line: 181
+          },
+          kind: "function",
+          argumentTypes: [{
+            name: "deadline",
+            type: {
+              kind: "named",
+              name: "DeadlineRequest"
+            }
+          }],
+          returnType: {
+            kind: "promise",
+            type: {
+              kind: "array",
+              type: {
+                kind: "named",
+                name: "AdditionalLogFile"
+              }
+            }
+          }
+        },
         getEvaluationExpression: {
           location: {
             type: "source",
             fileName: "LanguageService.js",
-            line: 116
+            line: 185
           },
           kind: "function",
           argumentTypes: [{
@@ -3406,7 +3767,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "LanguageService.js",
-            line: 121
+            line: 190
           },
           kind: "function",
           argumentTypes: [{
@@ -3430,7 +3791,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "LanguageService.js",
-            line: 123
+            line: 192
           },
           kind: "function",
           argumentTypes: [{
@@ -3466,7 +3827,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "LanguageService.js",
-            line: 128
+            line: 197
           },
           kind: "function",
           argumentTypes: [{
@@ -3491,7 +3852,7 @@ Object.defineProperty(module.exports, "defs", {
           location: {
             type: "source",
             fileName: "LanguageService.js",
-            line: 130
+            line: 199
           },
           kind: "function",
           argumentTypes: [{
@@ -3508,11 +3869,79 @@ Object.defineProperty(module.exports, "defs", {
             }
           }
         },
+        getExpandedSelectionRange: {
+          location: {
+            type: "source",
+            fileName: "LanguageService.js",
+            line: 201
+          },
+          kind: "function",
+          argumentTypes: [{
+            name: "fileVersion",
+            type: {
+              kind: "named",
+              name: "FileVersion"
+            }
+          }, {
+            name: "currentSelection",
+            type: {
+              kind: "named",
+              name: "atom$Range"
+            }
+          }],
+          returnType: {
+            kind: "promise",
+            type: {
+              kind: "nullable",
+              type: {
+                kind: "named",
+                name: "atom$Range"
+              }
+            }
+          }
+        },
+        getCollapsedSelectionRange: {
+          location: {
+            type: "source",
+            fileName: "LanguageService.js",
+            line: 206
+          },
+          kind: "function",
+          argumentTypes: [{
+            name: "fileVersion",
+            type: {
+              kind: "named",
+              name: "FileVersion"
+            }
+          }, {
+            name: "currentSelection",
+            type: {
+              kind: "named",
+              name: "atom$Range"
+            }
+          }, {
+            name: "originalCursorPosition",
+            type: {
+              kind: "named",
+              name: "atom$Point"
+            }
+          }],
+          returnType: {
+            kind: "promise",
+            type: {
+              kind: "nullable",
+              type: {
+                kind: "named",
+                name: "atom$Range"
+              }
+            }
+          }
+        },
         dispose: {
           location: {
             type: "source",
             fileName: "LanguageService.js",
-            line: 132
+            line: 212
           },
           kind: "function",
           argumentTypes: [],
@@ -3528,13 +3957,13 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "PythonService.js",
-        line: 124
+        line: 128
       },
       type: {
         location: {
           type: "source",
           fileName: "PythonService.js",
-          line: 124
+          line: 128
         },
         kind: "function",
         argumentTypes: [{
@@ -3565,13 +3994,13 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "PythonService.js",
-        line: 362
+        line: 379
       },
       type: {
         location: {
           type: "source",
           fileName: "PythonService.js",
-          line: 362
+          line: 379
         },
         kind: "function",
         argumentTypes: [{
@@ -3617,13 +4046,13 @@ Object.defineProperty(module.exports, "defs", {
       location: {
         type: "source",
         fileName: "PythonService.js",
-        line: 375
+        line: 392
       },
       type: {
         location: {
           type: "source",
           fileName: "PythonService.js",
-          line: 375
+          line: 392
         },
         kind: "function",
         argumentTypes: [{

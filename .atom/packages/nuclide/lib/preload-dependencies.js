@@ -11,6 +11,8 @@
  * @format
  */
 
+/* eslint-disable rulesdir/no-commonjs */
+
 /**
  * Load expensive dependencies before packages import them so they don't skew
  * profiling. These dependencies are unavoidable and shared by many packages

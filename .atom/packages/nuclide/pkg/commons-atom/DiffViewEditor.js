@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _atom = require('atom');
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactDom = _interopRequireDefault(require('react-dom'));
 
@@ -24,6 +24,8 @@ function _load_blockDecorations() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
  * All rights reserved.
@@ -36,21 +38,21 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  */
 
 function renderLineOffset(lineCount, lineHeight) {
-  return _react.default.createElement('div', {
+  return _react.createElement('div', {
     className: 'nuclide-diff-view-block-offset',
     style: { minHeight: lineCount * lineHeight }
   });
 }
 
 function renderInlineOffset(offsetElement) {
-  return _react.default.createElement(
+  return _react.createElement(
     'div',
     { style: { position: 'relative', width: '100%' } },
-    _react.default.createElement('div', {
+    _react.createElement('div', {
       className: 'nuclide-diff-view-block-offset',
       style: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }
     }),
-    _react.default.createElement(
+    _react.createElement(
       'div',
       { style: { visibility: 'hidden', pointerEvents: 'none' } },
       offsetElement

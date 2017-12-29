@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", {
 
 var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
 
+var _rxjsBundlesRxMinJs = require('rxjs/bundles/Rx.min.js');
+
 var _nuclideUri;
 
 function _load_nuclideUri() {
@@ -17,8 +19,6 @@ var _string;
 function _load_string() {
   return _string = require('nuclide-commons/string');
 }
-
-var _rxjsBundlesRxMinJs = require('rxjs/bundles/Rx.min.js');
 
 var _nuclideAnalytics;
 
@@ -56,6 +56,12 @@ function _load_utils() {
   return _utils = require('./utils');
 }
 
+var _RelatedFileFinder;
+
+function _load_RelatedFileFinder() {
+  return _RelatedFileFinder = require('./RelatedFileFinder');
+}
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const logger = (0, (_log4js || _load_log4js()).getLogger)('nuclide-clang-rpc'); /**
@@ -69,10 +75,9 @@ const logger = (0, (_log4js || _load_log4js()).getLogger)('nuclide-clang-rpc'); 
                                                                                  * @format
                                                                                  */
 
+const INCLUDE_SEARCH_TIMEOUT = 15000;
 const COMPILATION_DATABASE_FILE = 'compile_commands.json';
 const PROJECT_CLANG_FLAGS_FILE = '.nuclide_clang_config.json';
-
-const INCLUDE_SEARCH_TIMEOUT = 15000;
 
 let _customFlags;
 function getCustomFlags() {
@@ -110,6 +115,7 @@ class ClangFlagsManager {
     this._pathToFlags = new (_cache || _load_cache()).Cache({
       keyFactory: ([src, requestSettings]) => JSON.stringify([src, getCacheKeyForDb(requestSettings.compilationDatabase)])
     });
+    this._pathToDatabase = new (_cache || _load_cache()).Cache();
 
     this._realpathCache = {};
     this._clangProjectFlags = new Map();
@@ -117,13 +123,14 @@ class ClangFlagsManager {
 
   reset() {
     this._pathToFlags.clear();
+    this._pathToDatabase.clear();
     this._compilationDatabases.clear();
     this._realpathCache = {};
     this._clangProjectFlags.clear();
   }
 
   /**
-   * @return a space-delimited string of flags or null if nothing is known
+   * @return a list of flag strings or null if nothing is known
    *     about the src file. For example, null will be returned if src is not
    *     under the project root.
    */
@@ -148,6 +155,32 @@ class ClangFlagsManager {
     })();
   }
 
+  /**
+   * @return a path to the compilation database that contains the compile
+   *         command for src file if we know of such a compilation database.
+   */
+  getDatabaseForSrc(src) {
+    var _this2 = this;
+
+    return this._pathToDatabase.getOrCreate(src, (0, _asyncToGenerator.default)(function* () {
+      const parsedDBs = yield Promise.all(Array.from(_this2._compilationDatabases.store.entries()).map(function ([db, filesPromise]) {
+        return filesPromise.then(function (fileFlags) {
+          return {
+            db,
+            files: fileFlags.keys()
+          };
+        });
+      }));
+      for (const _ref2 of parsedDBs) {
+        const { db, files } = _ref2;
+
+        if (new Set(files).has(src)) {
+          return db;
+        }
+      }
+    }));
+  }
+
   _getFlagsForSrcCached(src, requestSettings) {
     return this._pathToFlags.getOrCreate([src, requestSettings], () => this._getFlagsForSrcImpl(src, requestSettings));
   }
@@ -157,11 +190,11 @@ class ClangFlagsManager {
   }
 
   _findSourceFileForHeaderFromCompilationDatabase(header, dbFlags) {
-    const basename = ClangFlagsManager._getFileBasename(header);
+    const basename = (0, (_utils || _load_utils()).getFileBasename)(header);
     const srcWithSameBasename = [];
     const otherSrcs = [];
     for (const path of dbFlags.keys()) {
-      if (ClangFlagsManager._getFileBasename(path) === basename && (0, (_utils || _load_utils()).isSourceFile)(path)) {
+      if ((0, (_utils || _load_utils()).getFileBasename)(path) === basename && (0, (_utils || _load_utils()).isSourceFile)(path)) {
         srcWithSameBasename.push({
           score: (0, (_utils || _load_utils()).commonPrefix)(path, header),
           path
@@ -197,14 +230,14 @@ class ClangFlagsManager {
   }
 
   _getFlagsFromSourceFileForHeader(sourceFile, requestSettings) {
-    var _this2 = this;
+    var _this3 = this;
 
     return (0, _asyncToGenerator.default)(function* () {
-      const data = yield _this2._getFlagsForSrcCached(sourceFile, requestSettings);
+      const data = yield _this3._getFlagsForSrcCached(sourceFile, requestSettings);
       if (data != null) {
         const { rawData } = data;
         if (rawData != null) {
-          const xFlag = _this2._getXFlagForSourceFile(sourceFile);
+          const xFlag = _this3._getXFlagForSourceFile(sourceFile);
           let { command } = rawData;
           if (!command.includes('-x ')) {
             command += ` -x ${xFlag}`;
@@ -222,7 +255,7 @@ class ClangFlagsManager {
   }
 
   _getModifiedFlags(src, rawData) {
-    var _this3 = this;
+    var _this4 = this;
 
     return (0, _asyncToGenerator.default)(function* () {
       const originalFlags = rawData.arguments !== undefined ? rawData.arguments : (0, (_string || _load_string()).shellParse)(rawData.command);
@@ -232,7 +265,7 @@ class ClangFlagsManager {
         return originalFlags;
       }
       const projectFlagsFile = (_nuclideUri || _load_nuclideUri()).default.join(projectFlagsDir, PROJECT_CLANG_FLAGS_FILE);
-      const projectFlags = yield _this3._loadProjectCompilerFlags(projectFlagsFile);
+      const projectFlags = yield _this4._loadProjectCompilerFlags(projectFlagsFile);
       if (projectFlags == null) {
         return originalFlags;
       }
@@ -244,7 +277,7 @@ class ClangFlagsManager {
   }
 
   _getDBFlagsAndDirForSrc(src, requestSettings) {
-    var _this4 = this;
+    var _this5 = this;
 
     return (0, _asyncToGenerator.default)(function* () {
       let dbFlags = null;
@@ -253,7 +286,7 @@ class ClangFlagsManager {
       if (compilationDB != null && compilationDB.file != null) {
         // Look for a compilation database provided by the client.
         dbDir = (_nuclideUri || _load_nuclideUri()).default.dirname(compilationDB.file);
-        dbFlags = yield _this4.loadFlagsFromCompilationDatabase(requestSettings);
+        dbFlags = yield _this5.loadFlagsFromCompilationDatabase(requestSettings);
       } else {
         // Look for a manually provided compilation database.
         dbDir = yield (_fsPromise || _load_fsPromise()).default.findNearestFile(COMPILATION_DATABASE_FILE, (_nuclideUri || _load_nuclideUri()).default.dirname(src));
@@ -264,7 +297,7 @@ class ClangFlagsManager {
             flagsFile: null,
             libclangPath: null
           };
-          dbFlags = yield _this4.loadFlagsFromCompilationDatabase({
+          dbFlags = yield _this5.loadFlagsFromCompilationDatabase({
             compilationDatabase,
             projectRoot: requestSettings.projectRoot
           });
@@ -274,38 +307,51 @@ class ClangFlagsManager {
     })();
   }
 
-  _getRelatedSrcFileForHeader(src, dbFlags, projectRoot) {
-    var _this5 = this;
+  _getRelatedSrcFileForHeader(header, dbFlags, projectRoot) {
+    var _this6 = this;
 
     return (0, _asyncToGenerator.default)(function* () {
+      const source = yield (0, (_RelatedFileFinder || _load_RelatedFileFinder()).getRelatedSourceForHeader)(header);
+      if (source != null) {
+        return source;
+      }
       if (dbFlags != null) {
-        const sourceFile = _this5._findSourceFileForHeaderFromCompilationDatabase(src, dbFlags);
+        const sourceFile = _this6._findSourceFileForHeaderFromCompilationDatabase(header, dbFlags);
         if (sourceFile != null) {
           return sourceFile;
         }
       }
       if (projectRoot != null) {
-        return ClangFlagsManager._findSourceFileForHeader(src, projectRoot);
+        // Try searching all subdirectories for source files that include this header.
+        // Give up after INCLUDE_SEARCH_TIMEOUT.
+        return (0, (_RelatedFileFinder || _load_RelatedFileFinder()).findIncludingSourceFile)(header, projectRoot).timeout(INCLUDE_SEARCH_TIMEOUT).catch(function () {
+          return _rxjsBundlesRxMinJs.Observable.of(null);
+        }).toPromise();
       }
       return null;
     })();
   }
 
-  getRelatedSrcFileForHeader(src, requestSettings) {
-    var _this6 = this;
-
-    return (0, _asyncToGenerator.default)(function* () {
-      const { dbFlags, dbDir } = yield _this6._getDBFlagsAndDirForSrc(src, requestSettings);
-      const projectRoot = requestSettings == null ? null : requestSettings.projectRoot;
-      return _this6._getRelatedSrcFileForHeader(src, dbFlags, projectRoot || dbDir);
-    })();
-  }
-
-  __getFlagsForSrcImpl(src, requestSettings) {
+  getRelatedSourceOrHeader(src, requestSettings) {
     var _this7 = this;
 
     return (0, _asyncToGenerator.default)(function* () {
       const { dbFlags, dbDir } = yield _this7._getDBFlagsAndDirForSrc(src, requestSettings);
+      const projectRoot = requestSettings == null ? null : requestSettings.projectRoot;
+      if ((0, (_utils || _load_utils()).isHeaderFile)(src)) {
+        return _this7._getRelatedSrcFileForHeader(src, dbFlags,
+        // flowlint-next-line sketchy-null-string:off
+        projectRoot || dbDir);
+      }
+      return (0, (_RelatedFileFinder || _load_RelatedFileFinder()).getRelatedHeaderForSource)(src);
+    })();
+  }
+
+  __getFlagsForSrcImpl(src, requestSettings) {
+    var _this8 = this;
+
+    return (0, _asyncToGenerator.default)(function* () {
+      const { dbFlags, dbDir } = yield _this8._getDBFlagsAndDirForSrc(src, requestSettings);
       if (dbFlags != null) {
         const flags = dbFlags.get(src);
         if (flags != null) {
@@ -314,9 +360,11 @@ class ClangFlagsManager {
       }
 
       if ((0, (_utils || _load_utils()).isHeaderFile)(src)) {
-        const sourceFile = yield _this7._getRelatedSrcFileForHeader(src, dbFlags, requestSettings.projectRoot || dbDir);
+        const sourceFile = yield _this8._getRelatedSrcFileForHeader(src, dbFlags,
+        // flowlint-next-line sketchy-null-string:off
+        requestSettings.projectRoot || dbDir);
         if (sourceFile != null) {
-          return _this7._getFlagsFromSourceFileForHeader(sourceFile, requestSettings);
+          return _this8._getFlagsFromSourceFileForHeader(sourceFile, requestSettings);
         }
       }
 
@@ -335,13 +383,13 @@ class ClangFlagsManager {
   }
 
   _loadProjectCompilerFlags(flagsFile) {
-    var _this8 = this;
+    var _this9 = this;
 
     return (0, _asyncToGenerator.default)(function* () {
-      let cached = _this8._clangProjectFlags.get(flagsFile);
+      let cached = _this9._clangProjectFlags.get(flagsFile);
       if (cached == null) {
-        cached = _this8._loadProjectCompilerFlagsImpl(flagsFile);
-        _this8._clangProjectFlags.set(flagsFile, cached);
+        cached = _this9._loadProjectCompilerFlagsImpl(flagsFile);
+        _this9._clangProjectFlags.set(flagsFile, cached);
       }
       return cached;
     })();
@@ -382,7 +430,7 @@ class ClangFlagsManager {
   }
 
   _loadFlagsFromCompilationDatabase(dbFile, flagsFile, requestSettings) {
-    var _this9 = this;
+    var _this10 = this;
 
     return (0, _asyncToGenerator.default)(function* () {
       const flags = new Map();
@@ -391,15 +439,15 @@ class ClangFlagsManager {
         const data = JSON.parse(contents);
         const dbDir = (_nuclideUri || _load_nuclideUri()).default.dirname(dbFile);
         yield Promise.all(data.map((() => {
-          var _ref = (0, _asyncToGenerator.default)(function* (entry) {
+          var _ref3 = (0, _asyncToGenerator.default)(function* (entry) {
             const { command, file } = entry;
             const directory = yield (_fsPromise || _load_fsPromise()).default.realpath(
             // Relative directories aren't part of the spec, but resolving them
             // relative to the compile_commands.json location seems reasonable.
-            (_nuclideUri || _load_nuclideUri()).default.resolve(dbDir, entry.directory), _this9._realpathCache);
+            (_nuclideUri || _load_nuclideUri()).default.resolve(dbDir, entry.directory), _this10._realpathCache);
             const filename = (_nuclideUri || _load_nuclideUri()).default.resolve(directory, file);
             if (yield (_fsPromise || _load_fsPromise()).default.exists(filename)) {
-              const realpath = yield (_fsPromise || _load_fsPromise()).default.realpath(filename, _this9._realpathCache);
+              const realpath = yield (_fsPromise || _load_fsPromise()).default.realpath(filename, _this10._realpathCache);
               const result = {
                 rawData: {
                   command,
@@ -407,20 +455,23 @@ class ClangFlagsManager {
                   directory,
                   arguments: entry.arguments
                 },
+                // flowlint-next-line sketchy-null-string:off
                 flagsFile: flagsFile || dbFile
               };
               flags.set(realpath, result);
-              _this9._pathToFlags.set([realpath, requestSettings], Promise.resolve(result));
+              _this10._pathToFlags.set([realpath, requestSettings], Promise.resolve(result));
             }
           });
 
           return function (_x) {
-            return _ref.apply(this, arguments);
+            return _ref3.apply(this, arguments);
           };
         })()));
       } catch (e) {
         logger.error(`Error reading compilation flags from ${dbFile}`, e);
       }
+      // Loading another compilation database invalidates this cache.
+      _this10._pathToDatabase.clear();
       return flags;
     })();
   }
@@ -462,37 +513,6 @@ class ClangFlagsManager {
     }
 
     return args;
-  }
-
-  static _findSourceFileForHeader(header, projectRoot) {
-    return (0, _asyncToGenerator.default)(function* () {
-      // Basic implementation: look at files in the same directory for paths
-      // with matching file names.
-      const dir = (_nuclideUri || _load_nuclideUri()).default.dirname(header);
-      const files = yield (_fsPromise || _load_fsPromise()).default.readdir(dir);
-      const basename = ClangFlagsManager._getFileBasename(header);
-      for (const file of files) {
-        if ((0, (_utils || _load_utils()).isSourceFile)(file) && ClangFlagsManager._getFileBasename(file) === basename) {
-          return (_nuclideUri || _load_nuclideUri()).default.join(dir, file);
-        }
-      }
-
-      // Try searching all subdirectories for source files that include this header.
-      // Give up after INCLUDE_SEARCH_TIMEOUT.
-      return (0, (_utils || _load_utils()).findIncludingSourceFile)(header, projectRoot).timeout(INCLUDE_SEARCH_TIMEOUT).catch(function () {
-        return _rxjsBundlesRxMinJs.Observable.of(null);
-      }).toPromise();
-    })();
-  }
-
-  // Strip off the extension and conventional suffixes like "Internal" and "-inl".
-  static _getFileBasename(file) {
-    let basename = (_nuclideUri || _load_nuclideUri()).default.basename(file);
-    const ext = basename.lastIndexOf('.');
-    if (ext !== -1) {
-      basename = basename.substr(0, ext);
-    }
-    return basename.replace(/(Internal|-inl)$/, '');
   }
 }
 exports.default = ClangFlagsManager;

@@ -11,7 +11,7 @@ function _load_classnames() {
   return _classnames = _interopRequireDefault(require('classnames'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactDom = _interopRequireDefault(require('react-dom'));
 
@@ -26,6 +26,8 @@ var _addTooltip;
 function _load_addTooltip() {
   return _addTooltip = _interopRequireDefault(require('./addTooltip'));
 }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -72,8 +74,7 @@ const ButtonTypeClassnames = Object.freeze({
 /**
  * Generic Button wrapper.
  */
-class Button extends _react.default.Component {
-
+class Button extends _react.Component {
   focus() {
     const node = _reactDom.default.findDOMNode(this);
     if (node == null) {
@@ -98,7 +99,8 @@ class Button extends _react.default.Component {
           remainingProps = _objectWithoutProperties(_props, ['icon', 'buttonType', 'selected', 'size', 'children', 'className', 'wrapperElement', 'tooltip']);
     const sizeClassname = size == null ? '' : ButtonSizeClassnames[size] || '';
     const buttonTypeClassname = buttonType == null ? '' : ButtonTypeClassnames[buttonType] || '';
-    const ref = tooltip ? (0, (_addTooltip || _load_addTooltip()).default)(tooltip) : null;
+    const ref = tooltip && !this.props.disabled ? (0, (_addTooltip || _load_addTooltip()).default)(tooltip) : null;
+    const titleToolTip = tooltip && this.props.disabled ? tooltip.title : null;
     const newClassName = (0, (_classnames || _load_classnames()).default)(className, 'btn', {
       [`icon icon-${(0, (_string || _load_string()).maybeToString)(icon)}`]: icon != null,
       [sizeClassname]: size != null,
@@ -106,10 +108,17 @@ class Button extends _react.default.Component {
       [buttonTypeClassname]: buttonType != null
     });
     const Wrapper = wrapperElement == null ? 'button' : wrapperElement;
-    return _react.default.createElement(
-      Wrapper,
-      Object.assign({ className: newClassName, ref: ref }, remainingProps),
-      children
+    return (
+      // $FlowFixMe(>=0.53.0) Flow suppress
+      _react.createElement(
+        Wrapper,
+        Object.assign({
+          className: newClassName,
+          ref: ref
+        }, remainingProps, {
+          title: titleToolTip }),
+        children
+      )
     );
   }
 }

@@ -31,7 +31,9 @@ function _load_DefinitionPreviewView() {
   return _DefinitionPreviewView = require('./DefinitionPreviewView');
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -52,8 +54,9 @@ const PROVIDER_TITLE = 'Definition Preview';
 class Activation {
 
   constructor() {
+    // $FlowFixMe(>=0.53.0) Flow suppress
     this.provider = {
-      getElementFactory: () => _react.default.createFactory((_DefinitionPreviewView || _load_DefinitionPreviewView()).DefinitionPreviewView),
+      getElementFactory: () => _react.createFactory((_DefinitionPreviewView || _load_DefinitionPreviewView()).DefinitionPreviewView),
       id: PROVIDER_ID,
       title: PROVIDER_TITLE
     };

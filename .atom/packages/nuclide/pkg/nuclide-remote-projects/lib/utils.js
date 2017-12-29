@@ -3,13 +3,22 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.NUCLIDE_PROTOCOL_PREFIX_WIN = exports.NUCLIDE_PROTOCOL_PREFIX = undefined;
 exports.sanitizeNuclideUri = sanitizeNuclideUri;
 exports.getOpenFileEditorForRemoteProject = getOpenFileEditorForRemoteProject;
+
+var _atom = require('atom');
 
 var _nuclideUri;
 
 function _load_nuclideUri() {
   return _nuclideUri = _interopRequireDefault(require('nuclide-commons/nuclideUri'));
+}
+
+var _RemoteTextEditorPlaceholder;
+
+function _load_RemoteTextEditorPlaceholder() {
+  return _RemoteTextEditorPlaceholder = require('./RemoteTextEditorPlaceholder');
 }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -25,8 +34,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @format
  */
 
-const NUCLIDE_PROTOCOL_PREFIX = 'nuclide:/';
-const NUCLIDE_PROTOCOL_PREFIX_WIN = 'nuclide:\\';
+const NUCLIDE_PROTOCOL_PREFIX = exports.NUCLIDE_PROTOCOL_PREFIX = 'nuclide:/';
+const NUCLIDE_PROTOCOL_PREFIX_WIN = exports.NUCLIDE_PROTOCOL_PREFIX_WIN = 'nuclide_\\';
 const NUCLIDE_PROTOCOL_PREFIX_LENGTH = NUCLIDE_PROTOCOL_PREFIX.length;
 
 /**
@@ -61,14 +70,15 @@ function* getOpenFileEditorForRemoteProject(connectionConfig) {
     const paneItems = pane.getItems();
     for (const paneItem of paneItems) {
       // Here, we're explicitly looking for broken nuclide:/ editors.
-      // eslint-disable-next-line nuclide-internal/atom-apis
-      if (!atom.workspace.isTextEditor(paneItem) || !paneItem.getURI()) {
+      // eslint-disable-next-line rulesdir/atom-apis
+      if (!(paneItem instanceof _atom.TextEditor || paneItem instanceof (_RemoteTextEditorPlaceholder || _load_RemoteTextEditorPlaceholder()).RemoteTextEditorPlaceholder) || !paneItem.getURI()) {
         // Ignore non-text editors and new editors with empty uris / paths.
         continue;
       }
-      const uri = sanitizeNuclideUri(paneItem.getURI());
+      const uri = sanitizeNuclideUri(paneItem.getPath());
       const { hostname: fileHostname, path: filePath } = (_nuclideUri || _load_nuclideUri()).default.parse(uri);
       if (fileHostname === connectionConfig.host) {
+        // flowlint-next-line sketchy-null-string:off
         if (!fileHostname) {
           throw new Error('Invariant violation: "fileHostname"');
         }

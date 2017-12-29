@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _projects;
 
@@ -32,9 +32,9 @@ function _load_ResizableFlexContainer() {
   return _ResizableFlexContainer = require('../../nuclide-ui/ResizableFlexContainer');
 }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-class VcsLogComponent extends _react.default.Component {
+class VcsLogComponent extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -48,7 +48,8 @@ class VcsLogComponent extends _react.default.Component {
 
     this.state = {
       showDiffContainer: false,
-      diffIndex: -1
+      baseDiffIndex: null,
+      targetDiffIndex: null
     };
   }
 
@@ -74,128 +75,54 @@ class VcsLogComponent extends _react.default.Component {
       }
 
       const rows = logEntries.map((logEntry, index) => {
-        let differentialCell;
-        if (showDifferentialRevision) {
-          const url = differentialUrls[index];
-          let revision;
-          let onClick;
-          if (url != null) {
-            revision = url.substring(url.lastIndexOf('/') + 1);
-            onClick = () => _electron.shell.openExternal(url);
-          } else {
-            revision = null;
-            onClick = null;
-          }
-          differentialCell = _react.default.createElement(
-            'td',
-            { className: 'nuclide-vcs-log-differential-cell' },
-            _react.default.createElement(
-              'span',
-              {
-                className: 'nuclide-vcs-log-differential-cell-text',
-                onClick: onClick },
-              revision
-            )
-          );
-        } else {
-          differentialCell = null;
-        }
-
-        let showDiffCell = null;
-        if (this.props.files.length === 1) {
-          const newContentNode = logEntries[index] ? logEntries[index].node : '';
-          const oldContentNode = logEntries[index + 1] ? logEntries[index + 1].node : '';
-          showDiffCell = _react.default.createElement('input', {
-            className: 'input-radio',
-            type: 'radio',
-            checked: index === this.state.diffIndex,
-            onChange: () => {
-              this.setState({
-                showDiffContainer: true,
-                diffIndex: index
-              });
-              this.props.onDiffClick(oldContentNode, newContentNode);
-            }
-          });
-        }
-
-        return _react.default.createElement(
-          'tr',
-          { key: logEntry.node },
-          _react.default.createElement(
-            'td',
-            { className: 'nuclide-vcs-log-date-cell' },
-            this._toDateString(logEntry.date[0])
-          ),
-          _react.default.createElement(
-            'td',
-            { className: 'nuclide-vcs-log-id-cell' },
-            logEntry.node.substring(0, 8)
-          ),
-          differentialCell,
-          _react.default.createElement(
-            'td',
-            { className: 'nuclide-vcs-log-author-cell' },
-            (0, (_util || _load_util()).shortNameForAuthor)(logEntry.user)
-          ),
-          _react.default.createElement(
-            'td',
-            { className: 'nuclide-vcs-log-summary-cell', title: logEntry.desc },
-            parseFirstLine(logEntry.desc)
-          ),
-          _react.default.createElement(
-            'td',
-            { className: 'nuclide-vcs-log-show-diff-cell' },
-            showDiffCell
-          )
-        );
+        return this._renderRow(logEntries, index, differentialUrls);
       });
 
       // Note that we use the native-key-bindings/tabIndex=-1 trick to make it possible to
       // copy/paste text from the pane. This has to be applied on a child element of
       // nuclide-vcs-log-scroll-container, or else the native-key-bindings/tabIndex=-1 will
       // interfere with scrolling.
-      const logTable = _react.default.createElement(
+      const logTable = _react.createElement(
         'div',
         { className: 'nuclide-vcs-log-scroll-container' },
-        _react.default.createElement(
+        _react.createElement(
           'div',
           { className: 'native-key-bindings', tabIndex: '-1' },
-          _react.default.createElement(
+          _react.createElement(
             'table',
             null,
-            _react.default.createElement(
+            _react.createElement(
               'tbody',
               null,
-              _react.default.createElement(
+              _react.createElement(
                 'tr',
                 null,
-                _react.default.createElement(
+                _react.createElement(
                   'th',
                   { className: 'nuclide-vcs-log-header-cell' },
                   'Date'
                 ),
-                _react.default.createElement(
+                _react.createElement(
                   'th',
                   { className: 'nuclide-vcs-log-header-cell' },
                   'ID'
                 ),
-                showDifferentialRevision ? _react.default.createElement(
+                showDifferentialRevision ? _react.createElement(
                   'th',
                   { className: 'nuclide-vcs-log-header-cell' },
                   'Revision'
                 ) : null,
-                _react.default.createElement(
+                _react.createElement(
                   'th',
                   { className: 'nuclide-vcs-log-header-cell' },
                   'Author'
                 ),
-                _react.default.createElement(
+                _react.createElement(
                   'th',
                   { className: 'nuclide-vcs-log-header-cell' },
                   'Summary'
                 ),
-                _react.default.createElement(
+                _react.createElement(
                   'th',
                   { className: 'nuclide-vcs-log-header-cell' },
                   'Show diff'
@@ -213,46 +140,151 @@ class VcsLogComponent extends _react.default.Component {
         const filePath = this.props.files[0];
         const { oldContent, newContent } = this.props;
         const props = { filePath, oldContent, newContent };
-        return _react.default.createElement(
-          (_ResizableFlexContainer || _load_ResizableFlexContainer()).ResizableFlexContainer,
-          {
-            direction: (_ResizableFlexContainer || _load_ResizableFlexContainer()).FlexDirections.VERTICAL,
-            className: 'nuclide-vcs-log-container' },
-          _react.default.createElement(
-            (_ResizableFlexContainer || _load_ResizableFlexContainer()).ResizableFlexItem,
-            { initialFlexScale: 3 },
-            _react.default.createElement((_ShowDiff || _load_ShowDiff()).ShowDiff, props)
-          ),
-          _react.default.createElement(
-            (_ResizableFlexContainer || _load_ResizableFlexContainer()).ResizableFlexItem,
+        return (
+          // $FlowFixMe(>=0.53.0) Flow suppress
+          _react.createElement(
+            (_ResizableFlexContainer || _load_ResizableFlexContainer()).ResizableFlexContainer,
             {
-              initialFlexScale: 1,
-              className: 'nuclide-vcs-log-entries-container' },
-            logTable
+              direction: (_ResizableFlexContainer || _load_ResizableFlexContainer()).FlexDirections.VERTICAL,
+              className: 'nuclide-vcs-log-container' },
+            _react.createElement(
+              (_ResizableFlexContainer || _load_ResizableFlexContainer()).ResizableFlexItem,
+              { initialFlexScale: 3 },
+              _react.createElement((_ShowDiff || _load_ShowDiff()).ShowDiff, props)
+            ),
+            _react.createElement(
+              (_ResizableFlexContainer || _load_ResizableFlexContainer()).ResizableFlexItem,
+              {
+                initialFlexScale: 1,
+                className: 'nuclide-vcs-log-entries-container' },
+              logTable
+            )
           )
         );
       }
     } else {
-      return _react.default.createElement(
+      return _react.createElement(
         'div',
         null,
-        _react.default.createElement(
+        _react.createElement(
           'div',
           null,
-          _react.default.createElement(
+          _react.createElement(
             'em',
             null,
             'Loading hg log ',
             this._files.join(' ')
           )
         ),
-        _react.default.createElement(
+        _react.createElement(
           'div',
           { className: 'nuclide-vcs-log-spinner' },
-          _react.default.createElement('div', { className: 'loading-spinner-large inline-block' })
+          _react.createElement('div', { className: 'loading-spinner-large inline-block' })
         )
       );
     }
+  }
+
+  _renderRow(logEntries, index, differentialUrls) {
+    const showDifferentialRevision = this.props.showDifferentialRevision && differentialUrls.length > 0;
+    let differentialCell;
+    if (showDifferentialRevision) {
+      const url = differentialUrls[index];
+      let revision;
+      let onClick;
+      if (url != null) {
+        revision = url.substring(url.lastIndexOf('/') + 1);
+        onClick = () => _electron.shell.openExternal(url);
+      } else {
+        revision = null;
+        onClick = null;
+      }
+      differentialCell = _react.createElement(
+        'td',
+        { className: 'nuclide-vcs-log-differential-cell' },
+        _react.createElement(
+          'span',
+          {
+            className: 'nuclide-vcs-log-differential-cell-text',
+            onClick: onClick },
+          revision
+        )
+      );
+    } else {
+      differentialCell = null;
+    }
+
+    const nodeAtIndex = nodeIndex => logEntries[nodeIndex] ? logEntries[nodeIndex].node : '';
+    const { baseDiffIndex, targetDiffIndex } = this.state;
+    let showDiffCell = null;
+    if (this.props.files.length === 1) {
+      showDiffCell = _react.createElement(
+        'span',
+        { className: 'input-radio-container' },
+        index !== 0 ? _react.createElement('input', {
+          className: 'input-radio',
+          type: 'radio',
+          checked: index === baseDiffIndex,
+          disabled: targetDiffIndex != null && index <= targetDiffIndex,
+          onChange: () => {
+            const newTargetDiffIndex = targetDiffIndex != null ? targetDiffIndex : index - 1;
+            this.setState({
+              showDiffContainer: true,
+              baseDiffIndex: index,
+              targetDiffIndex: newTargetDiffIndex
+            });
+            this.props.onDiffClick(nodeAtIndex(index), nodeAtIndex(newTargetDiffIndex));
+          }
+        }) : null,
+        index !== logEntries.length - 1 || index === 0 ? _react.createElement('input', {
+          className: 'input-radio right-align',
+          type: 'radio',
+          checked: index === targetDiffIndex,
+          disabled: baseDiffIndex != null && index >= baseDiffIndex,
+          onChange: () => {
+            const newBaseDiffIndex = baseDiffIndex != null ? baseDiffIndex : index + 1;
+            this.setState({
+              showDiffContainer: true,
+              baseDiffIndex: newBaseDiffIndex,
+              targetDiffIndex: index
+            });
+            this.props.onDiffClick(nodeAtIndex(newBaseDiffIndex), nodeAtIndex(index));
+          }
+        }) : null
+      );
+    }
+
+    const logEntry = logEntries[index];
+    return _react.createElement(
+      'tr',
+      { key: logEntry.node },
+      _react.createElement(
+        'td',
+        { className: 'nuclide-vcs-log-date-cell' },
+        this._toDateString(logEntry.date[0])
+      ),
+      _react.createElement(
+        'td',
+        { className: 'nuclide-vcs-log-id-cell' },
+        logEntry.node.substring(0, 8)
+      ),
+      differentialCell,
+      _react.createElement(
+        'td',
+        { className: 'nuclide-vcs-log-author-cell' },
+        (0, (_util || _load_util()).shortNameForAuthor)(logEntry.user)
+      ),
+      _react.createElement(
+        'td',
+        { className: 'nuclide-vcs-log-summary-cell', title: logEntry.desc },
+        parseFirstLine(logEntry.desc)
+      ),
+      _react.createElement(
+        'td',
+        { className: 'nuclide-vcs-log-show-diff-cell' },
+        showDiffCell
+      )
+    );
   }
 
   _toDateString(secondsSince1970) {

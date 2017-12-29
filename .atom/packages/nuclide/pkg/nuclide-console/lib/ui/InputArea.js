@@ -4,7 +4,13 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _react = _interopRequireDefault(require('react'));
+var _UniversalDisposable;
+
+function _load_UniversalDisposable() {
+  return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
+}
+
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactDom = _interopRequireDefault(require('react-dom'));
 
@@ -15,6 +21,8 @@ function _load_AtomTextEditor() {
 }
 
 var _rxjsBundlesRxMinJs = require('rxjs/bundles/Rx.min.js');
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -33,10 +41,36 @@ const ENTER_KEY_CODE = 13;
 const UP_KEY_CODE = 38;
 const DOWN_KEY_CODE = 40;
 
-class OutputTable extends _react.default.Component {
+class InputArea extends _react.Component {
 
   constructor(props) {
     super(props);
+
+    this._submit = () => {
+      // Clear the text and trigger the `onSubmit` callback
+      const editor = this._textEditorModel;
+      if (editor == null) {
+        return;
+      }
+
+      const text = editor.getText();
+      if (text === '') {
+        return;
+      }
+
+      editor.setText(''); // Clear the text field.
+      this.props.onSubmit(text);
+      this.setState({ historyIndex: -1 });
+    };
+
+    this._attachLabel = editor => {
+      const { watchEditor } = this.props;
+      const disposable = new (_UniversalDisposable || _load_UniversalDisposable()).default();
+      if (watchEditor) {
+        disposable.add(watchEditor(editor, ['nuclide-console']));
+      }
+      return disposable;
+    };
 
     this._handleTextEditor = component => {
       if (this._keySubscription) {
@@ -52,6 +86,8 @@ class OutputTable extends _react.default.Component {
 
     this._handleKeyDown = event => {
       const editor = this._textEditorModel;
+      // Detect AutocompletePlus menu element: https://git.io/vddLi
+      const isAutocompleteOpen = document.querySelector('autocomplete-suggestion-list') != null;
       if (editor == null) {
         return;
       }
@@ -64,18 +100,9 @@ class OutputTable extends _react.default.Component {
           return;
         }
 
-        // Clear the text and trigger the `onSubmit` callback
-        const text = editor.getText();
-
-        if (text === '') {
-          return;
-        }
-
-        editor.setText(''); // Clear the text field.
-        this.props.onSubmit(text);
-        this.setState({ historyIndex: -1 });
+        this._submit();
       } else if (event.which === UP_KEY_CODE) {
-        if (this.props.history.length === 0) {
+        if (this.props.history.length === 0 || isAutocompleteOpen) {
           return;
         }
         event.preventDefault();
@@ -88,7 +115,7 @@ class OutputTable extends _react.default.Component {
         }
         editor.setText(this.props.history[this.props.history.length - historyIndex - 1]);
       } else if (event.which === DOWN_KEY_CODE) {
-        if (this.props.history.length === 0) {
+        if (this.props.history.length === 0 || isAutocompleteOpen) {
           return;
         }
         event.preventDefault();
@@ -111,17 +138,19 @@ class OutputTable extends _react.default.Component {
 
   render() {
     const grammar = this.props.scopeName == null ? null : atom.grammars.grammarForScopeName(this.props.scopeName);
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'nuclide-console-input-wrapper' },
-      _react.default.createElement((_AtomTextEditor || _load_AtomTextEditor()).AtomTextEditor, {
+      _react.createElement((_AtomTextEditor || _load_AtomTextEditor()).AtomTextEditor, {
         ref: this._handleTextEditor,
         grammar: grammar,
         gutterHidden: true,
         autoGrow: true,
-        lineNumberGutterVisible: false
+        lineNumberGutterVisible: false,
+        onConfirm: this._submit,
+        onInitialized: this._attachLabel
       })
     );
   }
 }
-exports.default = OutputTable;
+exports.default = InputArea;

@@ -7,6 +7,7 @@ exports.default = typeof requestIdleCallback !== 'undefined' ? // Using Browser 
 // Is guaranteed to resolve after `timeout` milliseconds.
 function scheduleIdleCallback(callback_, options = {}) {
   const afterRemainingTime = options.afterRemainingTime || 49;
+  // flowlint-next-line sketchy-null-number:off
   const timeout = options.timeout || 500;
   let callback = callback_;
   let id;

@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.fetchActiveBookmark = undefined;
+exports.fetchBookmarks = exports.fetchActiveBookmark = undefined;
 
 var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
 
@@ -34,6 +34,39 @@ let fetchActiveBookmark = exports.fetchActiveBookmark = (() => {
   };
 })();
 
+let fetchBookmarks = exports.fetchBookmarks = (() => {
+  var _ref2 = (0, _asyncToGenerator.default)(function* (repoPath) {
+    const bookmarkFile = (_nuclideUri || _load_nuclideUri()).default.join(repoPath, 'bookmarks');
+    let result;
+    try {
+      const bookmarks = yield (_fsPromise || _load_fsPromise()).default.readFile(bookmarkFile, 'utf-8');
+      const activeBookmark = yield fetchActiveBookmark(repoPath);
+      result = bookmarks.split('\n').filter(function (bookmark) {
+        return bookmark.length > 0;
+      }).map(function (bookmarkEntry) {
+        const [node, bookmark] = bookmarkEntry.split(' ');
+        return {
+          node,
+          bookmark,
+          active: activeBookmark === bookmark
+        };
+      });
+    } catch (e) {
+      if (!(e.code === 'ENOENT')) {
+        // We expect an error if the bookmark file doesn't exist. Otherwise, the
+        // error is unexpected, so log it.
+        logger.error(e);
+      }
+      result = [];
+    }
+    return result;
+  });
+
+  return function fetchBookmarks(_x2) {
+    return _ref2.apply(this, arguments);
+  };
+})();
+
 var _fsPromise;
 
 function _load_fsPromise() {
@@ -54,13 +87,15 @@ function _load_log4js() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const logger = (0, (_log4js || _load_log4js()).getLogger)('nuclide-hg-rpc'); /**
-                                                                              * Copyright (c) 2015-present, Facebook, Inc.
-                                                                              * All rights reserved.
-                                                                              *
-                                                                              * This source code is licensed under the license found in the LICENSE file in
-                                                                              * the root directory of this source tree.
-                                                                              *
-                                                                              * 
-                                                                              * @format
-                                                                              */
+/**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the license found in the LICENSE file in
+ * the root directory of this source tree.
+ *
+ * 
+ * @format
+ */
+
+const logger = (0, (_log4js || _load_log4js()).getLogger)('nuclide-hg-rpc');

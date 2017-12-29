@@ -17,7 +17,7 @@ function _load_DebuggerActions() {
   return _DebuggerActions = _interopRequireDefault(require('./DebuggerActions'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _Button;
 
@@ -67,6 +67,8 @@ function _load_nuclideAnalytics() {
   return _nuclideAnalytics = require('../../nuclide-analytics');
 }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
@@ -80,7 +82,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @format
  */
 
-class BreakpointConfigComponent extends _react.default.Component {
+class BreakpointConfigComponent extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -129,21 +131,21 @@ class BreakpointConfigComponent extends _react.default.Component {
   }
 
   render() {
-    return _react.default.createElement(
+    return _react.createElement(
       (_Modal || _load_Modal()).Modal,
       { onDismiss: () => this.props.onDismiss() },
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'padded nuclide-debugger-bp-dialog' },
-        _react.default.createElement(
+        _react.createElement(
           'h1',
           { className: 'nuclide-debugger-bp-config-header' },
           'Edit breakpoint'
         ),
-        _react.default.createElement(
+        _react.createElement(
           'div',
           { className: 'block' },
-          _react.default.createElement(
+          _react.createElement(
             'label',
             null,
             'Breakpoint at ',
@@ -152,19 +154,19 @@ class BreakpointConfigComponent extends _react.default.Component {
             this.state.breakpoint.line
           )
         ),
-        _react.default.createElement(
+        _react.createElement(
           'div',
           { className: 'block' },
-          _react.default.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
+          _react.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
             onChange: isChecked => this.props.actions.updateBreakpointEnabled(this.state.breakpoint.id, isChecked),
             checked: this.state.breakpoint.enabled,
             label: 'Enable breakpoint'
           })
         ),
-        _react.default.createElement(
+        _react.createElement(
           'div',
           { className: 'block' },
-          _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+          _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
             placeholderText: 'Breakpoint hit condition...',
             value: this.state.breakpoint.condition,
             size: 'sm',
@@ -172,23 +174,23 @@ class BreakpointConfigComponent extends _react.default.Component {
             autofocus: true
           })
         ),
-        _react.default.createElement(
+        _react.createElement(
           'label',
           null,
           'This expression will be evaluated each time the corresponding line is hit, but the debugger will only break execution if the expression evaluates to true.'
         ),
-        _react.default.createElement(
+        _react.createElement(
           'div',
           { className: 'nuclide-debugger-bp-config-actions' },
-          _react.default.createElement(
+          _react.createElement(
             (_ButtonGroup || _load_ButtonGroup()).ButtonGroup,
             null,
-            _react.default.createElement(
+            _react.createElement(
               (_Button || _load_Button()).Button,
               { onClick: this.props.onDismiss },
               'Cancel'
             ),
-            _react.default.createElement(
+            _react.createElement(
               (_Button || _load_Button()).Button,
               {
                 buttonType: (_Button || _load_Button()).ButtonTypes.PRIMARY,

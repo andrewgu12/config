@@ -7,8 +7,6 @@ exports.EvaluationExpressionProvider = undefined;
 
 var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
 
-exports.getEvaluationExpressionFromRegexp = getEvaluationExpressionFromRegexp;
-
 var _nuclideAnalytics;
 
 function _load_nuclideAnalytics() {
@@ -27,12 +25,6 @@ function _load_nuclideOpenFiles() {
   return _nuclideOpenFiles = require('../../nuclide-open-files');
 }
 
-var _range;
-
-function _load_range() {
-  return _range = require('nuclide-commons-atom/range');
-}
-
 var _nuclideDebuggerBase;
 
 function _load_nuclideDebuggerBase() {
@@ -40,6 +32,17 @@ function _load_nuclideDebuggerBase() {
 }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the license found in the LICENSE file in
+ * the root directory of this source tree.
+ *
+ * 
+ * @format
+ */
 
 class EvaluationExpressionProvider {
 
@@ -77,24 +80,4 @@ class EvaluationExpressionProvider {
     }));
   }
 }
-
-exports.EvaluationExpressionProvider = EvaluationExpressionProvider; /**
-                                                                      * Copyright (c) 2015-present, Facebook, Inc.
-                                                                      * All rights reserved.
-                                                                      *
-                                                                      * This source code is licensed under the license found in the LICENSE file in
-                                                                      * the root directory of this source tree.
-                                                                      *
-                                                                      * 
-                                                                      * @format
-                                                                      */
-
-function getEvaluationExpressionFromRegexp(editor, position, regexp) {
-  const extractedIdentifier = (0, (_range || _load_range()).wordAtPosition)(editor, position, regexp);
-  if (extractedIdentifier == null) {
-    return null;
-  }
-  const { range, wordMatch } = extractedIdentifier;
-  const [expression] = wordMatch;
-  return expression == null ? null : { expression, range };
-}
+exports.EvaluationExpressionProvider = EvaluationExpressionProvider;

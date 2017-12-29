@@ -16,3 +16,5 @@ try {
    * 
    * @format
    */
+
+/* eslint-disable rulesdir/no-commonjs */

@@ -50,10 +50,6 @@ class Processes {
     this._db = db;
   }
 
-  getProcesses() {
-    return this._db.runShortCommand('shell', 'ps').map(stdout => stdout.split(/\n/));
-  }
-
   _getGlobalProcessStat() {
     return this._db.runShortCommand('shell', 'cat', '/proc/stat').map(stdout => stdout.split(/\n/)[0].trim());
   }
@@ -64,12 +60,12 @@ class Processes {
     });
   }
 
-  fetch() {
-    return _rxjsBundlesRxMinJs.Observable.forkJoin(this.getProcesses().catch(() => _rxjsBundlesRxMinJs.Observable.of([])), this._db.getDebuggableProcesses().catch(() => _rxjsBundlesRxMinJs.Observable.of([])), this._getProcessAndMemoryUsage().catch(() => _rxjsBundlesRxMinJs.Observable.of(new Map()))).map(([processes, javaProcesses, cpuAndMemUsage]) => {
+  fetch(timeout) {
+    const internalTimeout = timeout * 2 / 3;
+    return _rxjsBundlesRxMinJs.Observable.forkJoin(this._db.getProcesses().timeout(internalTimeout).catch(() => _rxjsBundlesRxMinJs.Observable.of([])), this._db.getDebuggableProcesses().timeout(internalTimeout).catch(() => _rxjsBundlesRxMinJs.Observable.of([])), this._getProcessAndMemoryUsage().timeout(internalTimeout).catch(() => _rxjsBundlesRxMinJs.Observable.of(new Map()))).map(([processes, javaProcesses, cpuAndMemUsage]) => {
       const javaPids = new Set(javaProcesses.map(javaProc => Number(javaProc.pid)));
-      return (0, (_collection || _load_collection()).arrayCompact)(processes.map(x => {
-        const info = x.trim().split(/\s+/);
-        const pid = parseInt(info[1], 10);
+      return (0, (_collection || _load_collection()).arrayCompact)(processes.map(simpleProcess => {
+        const pid = parseInt(simpleProcess.pid, 10);
         if (!Number.isInteger(pid)) {
           return null;
         }
@@ -82,18 +78,19 @@ class Processes {
         }
         const isJava = javaPids.has(pid);
         return {
-          user: info[0],
+          user: simpleProcess.user,
           pid,
-          name: info[info.length - 1],
+          name: simpleProcess.name,
           cpuUsage: cpu,
           memUsage: mem,
-          isJava };
+          isJava // TODO(wallace) rename this to debuggable or make this a list of possible debugger types
+        };
       }));
     });
   }
 
   _getProcessAndMemoryUsage() {
-    return _rxjsBundlesRxMinJs.Observable.interval(500).startWith(0).switchMap(() => {
+    return _rxjsBundlesRxMinJs.Observable.interval(2000).startWith(0).switchMap(() => {
       return _rxjsBundlesRxMinJs.Observable.forkJoin(this._getProcessesTime(), this._getGlobalCPUTime());
     }).take(2).toArray().map(times => {
       const [procTimePrev, cpuTimePrev] = times[0];
@@ -127,7 +124,8 @@ class Processes {
         const info = line.trim().split(/\s/);
         return [parseInt(info[0], 10), [parseInt(info[12], 10) + parseInt(info[13], 10), // stime + utime
         parseInt(info[23], 10)]];
-      }));
+      } // RSS
+      ));
     });
   }
 

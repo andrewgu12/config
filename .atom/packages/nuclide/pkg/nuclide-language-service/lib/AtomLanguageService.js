@@ -21,6 +21,12 @@ function _load_UniversalDisposable() {
   return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
 }
 
+var _AdditionalLogFileProvider;
+
+function _load_AdditionalLogFileProvider() {
+  return _AdditionalLogFileProvider = require('./AdditionalLogFileProvider');
+}
+
 var _CodeHighlightProvider;
 
 function _load_CodeHighlightProvider() {
@@ -81,6 +87,18 @@ function _load_DiagnosticsProvider() {
   return _DiagnosticsProvider = require('./DiagnosticsProvider');
 }
 
+var _CodeActionProvider;
+
+function _load_CodeActionProvider() {
+  return _CodeActionProvider = require('./CodeActionProvider');
+}
+
+var _SyntacticSelectionProvider;
+
+function _load_SyntacticSelectionProvider() {
+  return _SyntacticSelectionProvider = require('./SyntacticSelectionProvider');
+}
+
 var _log4js;
 
 function _load_log4js() {
@@ -88,17 +106,6 @@ function _load_log4js() {
 }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the license found in the LICENSE file in
- * the root directory of this source tree.
- *
- * 
- * @format
- */
 
 class AtomLanguageService {
 
@@ -164,7 +171,7 @@ class AtomLanguageService {
 
     const codeFormatConfig = this._config.codeFormat;
     if (codeFormatConfig != null) {
-      this._subscriptions.add((_CodeFormatProvider || _load_CodeFormatProvider()).CodeFormatProvider.register(this._config.name, this._config.grammars, codeFormatConfig, this._connectionToLanguageService, busySignalProvider));
+      this._subscriptions.add((_CodeFormatProvider || _load_CodeFormatProvider()).CodeFormatProvider.register(this._config.name, this._config.grammars, codeFormatConfig, this._connectionToLanguageService));
     }
 
     const findReferencesConfig = this._config.findReferences;
@@ -186,6 +193,18 @@ class AtomLanguageService {
     if (diagnosticsConfig != null) {
       this._subscriptions.add((0, (_DiagnosticsProvider || _load_DiagnosticsProvider()).registerDiagnostics)(this._config.name, this._config.grammars, diagnosticsConfig, this._logger, this._connectionToLanguageService, busySignalProvider));
     }
+
+    const codeActionConfig = this._config.codeAction;
+    if (codeActionConfig != null) {
+      this._subscriptions.add((_CodeActionProvider || _load_CodeActionProvider()).CodeActionProvider.register(this._config.name, this._config.grammars, codeActionConfig, this._connectionToLanguageService));
+    }
+
+    const syntacticSelection = this._config.syntacticSelection;
+    if (syntacticSelection != null) {
+      this._subscriptions.add((_SyntacticSelectionProvider || _load_SyntacticSelectionProvider()).SyntacticSelectionProvider.register(this._config.name, this._config.grammars, syntacticSelection, this._connectionToLanguageService));
+    }
+
+    this._subscriptions.add((_AdditionalLogFileProvider || _load_AdditionalLogFileProvider()).LanguageAdditionalLogFilesProvider.register(this._config.name, this._connectionToLanguageService));
   }
 
   getLanguageServiceForUri(fileUri) {
@@ -228,4 +247,13 @@ class AtomLanguageService {
     this._subscriptions.dispose();
   }
 }
-exports.AtomLanguageService = AtomLanguageService;
+exports.AtomLanguageService = AtomLanguageService; /**
+                                                    * Copyright (c) 2015-present, Facebook, Inc.
+                                                    * All rights reserved.
+                                                    *
+                                                    * This source code is licensed under the license found in the LICENSE file in
+                                                    * the root directory of this source tree.
+                                                    *
+                                                    * 
+                                                    * @format
+                                                    */

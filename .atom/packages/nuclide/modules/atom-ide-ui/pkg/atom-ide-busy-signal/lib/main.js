@@ -12,10 +12,10 @@ function _load_UniversalDisposable() {
   return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
 }
 
-var _BusySignalInstance;
+var _BusySignalSingleton;
 
-function _load_BusySignalInstance() {
-  return _BusySignalInstance = _interopRequireDefault(require('./BusySignalInstance'));
+function _load_BusySignalSingleton() {
+  return _BusySignalSingleton = _interopRequireDefault(require('./BusySignalSingleton'));
 }
 
 var _MessageStore;
@@ -48,6 +48,7 @@ class Activation {
 
   constructor() {
     this._messageStore = new (_MessageStore || _load_MessageStore()).MessageStore();
+    this._service = new (_BusySignalSingleton || _load_BusySignalSingleton()).default(this._messageStore);
     this._disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default(this._messageStore);
   }
 
@@ -57,13 +58,13 @@ class Activation {
 
   consumeStatusBar(statusBar) {
     // Avoid retaining StatusBarTile by wrapping it.
-    const disposable = new (_UniversalDisposable || _load_UniversalDisposable()).default(new (_StatusBarTile || _load_StatusBarTile()).default(statusBar, this._messageStore.getMessageStream(), this._messageStore.getTargetStream()));
+    const disposable = new (_UniversalDisposable || _load_UniversalDisposable()).default(new (_StatusBarTile || _load_StatusBarTile()).default(statusBar, this._messageStore.getMessageStream()));
     this._disposables.add(disposable);
     return disposable;
   }
 
   provideBusySignal() {
-    return new (_BusySignalInstance || _load_BusySignalInstance()).default(this._messageStore);
+    return this._service;
   }
 }
 

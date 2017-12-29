@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _Button;
 
@@ -12,7 +12,7 @@ function _load_Button() {
   return _Button = require('nuclide-commons-ui/Button');
 }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
@@ -25,7 +25,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @format
  */
 
-class HomeFeatureComponent extends _react.default.Component {
+class HomeFeatureComponent extends _react.Component {
   constructor(...args) {
     var _temp;
 
@@ -49,15 +49,16 @@ class HomeFeatureComponent extends _react.default.Component {
 
   render() {
     const { title, command } = this.props;
-    return _react.default.createElement(
+    return _react.createElement(
       'details',
       { className: 'nuclide-home-card' },
-      _react.default.createElement(
+      _react.createElement(
         'summary',
         {
           className: `nuclide-home-summary icon icon-${this.props.icon}` },
         title,
-        command ? _react.default.createElement(
+        // flowlint-next-line sketchy-null-string:off
+        command ? _react.createElement(
           (_Button || _load_Button()).Button,
           {
             className: 'pull-right nuclide-home-tryit',
@@ -66,7 +67,7 @@ class HomeFeatureComponent extends _react.default.Component {
           'Try it'
         ) : null
       ),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'nuclide-home-detail' },
         this.props.description

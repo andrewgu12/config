@@ -11,9 +11,9 @@ function _load_AtomInput() {
   return _AtomInput = require('./AtomInput');
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 /**
  * Copyright (c) 2017-present, Facebook, Inc.
@@ -27,8 +27,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @format
  */
 
-class CodeSnippet extends _react.default.Component {
-
+class CodeSnippet extends _react.Component {
   componentDidMount() {
     const editor = this.refs.editor.getTextEditor();
     const { grammar, highlights, startLine } = this.props;
@@ -56,7 +55,7 @@ class CodeSnippet extends _react.default.Component {
   render() {
     const lineNumbers = [];
     for (let i = this.props.startLine; i <= this.props.endLine; i++) {
-      lineNumbers.push(_react.default.createElement(
+      lineNumbers.push(_react.createElement(
         'div',
         {
           key: i,
@@ -65,15 +64,15 @@ class CodeSnippet extends _react.default.Component {
         i + 1
       ));
     }
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'nuclide-ui-code-snippet' },
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'nuclide-ui-code-snippet-line-number-column' },
         lineNumbers
       ),
-      _react.default.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
+      _react.createElement((_AtomInput || _load_AtomInput()).AtomInput, {
         ref: 'editor',
         initialValue: this.props.text,
         disabled: true,

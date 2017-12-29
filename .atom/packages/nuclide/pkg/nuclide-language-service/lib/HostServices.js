@@ -35,10 +35,22 @@ function _load_log4js() {
 
 var _rxjsBundlesRxMinJs = require('rxjs/bundles/Rx.min.js');
 
+var _UniversalDisposable;
+
+function _load_UniversalDisposable() {
+  return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
+}
+
 var _HostServicesAggregator;
 
 function _load_HostServicesAggregator() {
   return _HostServicesAggregator = require('../../nuclide-language-service-rpc/lib/HostServicesAggregator');
+}
+
+var _textEdit;
+
+function _load_textEdit() {
+  return _textEdit = require('nuclide-commons-atom/text-edit');
 }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -60,10 +72,21 @@ null;
 
 class RootHostServices {
   constructor() {
+    this._nullProgressMessage = {
+      setTitle: s => {},
+      dispose: () => {}
+    };
     this._consoleSubjects = new Map();
+    this._progressWrappers = new Map();
   }
 
   // lazily created map from source, to how we'll push messages from that source
+
+
+  // _progressWrappers is a hack to work around message loss in nuclide-rpc.
+  // We wouldn't need this field, nor wrappers at all, if we could depend on it.
+  // See also a field of the same name in HostServicesAggregator.js
+
 
   consoleNotification(source, level, text) {
     let subjectPromise = this._consoleSubjects.get(source);
@@ -128,6 +151,87 @@ class RootHostServices {
     }).publish();
   }
 
+  applyTextEditsForMultipleFiles(changes) {
+    return (0, _asyncToGenerator.default)(function* () {
+      return (0, (_textEdit || _load_textEdit()).applyTextEditsForMultipleFiles)(changes);
+    })();
+  }
+
+  _getBusySignalService() {
+    // TODO(ljw): if the busy-signal-package has been disabled before this
+    // this function is called, we'll return a promise that never completes.
+    if (this._busySignalServicePromise == null) {
+      this._busySignalServicePromise = new Promise((resolve, reject) => {
+        atom.packages.serviceHub.consume('atom-ide-busy-signal', '0.1.0', service => {
+          // When the package is provided to us, resolve the promise
+          resolve(service);
+          // When the package becomes unavailable to us, put in a null promise
+          return new (_UniversalDisposable || _load_UniversalDisposable()).default(() => {
+            this._busySignalServicePromise = Promise.resolve(null);
+          });
+        });
+      });
+    }
+    return this._busySignalServicePromise;
+  }
+
+  showProgress(title, options) {
+    var _this = this;
+
+    return (0, _asyncToGenerator.default)(function* () {
+      const service = yield _this._getBusySignalService();
+      let busyMessage = service == null ? _this._nullProgressMessage : service.reportBusy(title, Object.assign({}, options));
+      // The BusyMessage type from atom-ide-busy-signal happens to satisfy the
+      // nuclide-rpc-able interface 'Progress': thus, we can return it directly.
+      // return (busyMessage: Progress);
+      // Except: we're not going to, because we have to work around a bug in
+      // nuclide-rpc and construct wrappers:
+      const wrapper = {
+        setTitle: function (title2) {
+          if (busyMessage != null) {
+            busyMessage.setTitle(title2);
+          }
+        },
+        dispose: function () {
+          if (busyMessage != null) {
+            _this._progressWrappers.delete(wrapper);
+            busyMessage.dispose();
+            busyMessage = null;
+          }
+        }
+      };
+      _this._progressWrappers.set(wrapper, busyMessage);
+      return wrapper;
+    })();
+  }
+
+  syncProgress(expected) {
+    // This function's goal is to compensate for flakey message loss.
+    for (const [wrapper] of this._progressWrappers) {
+      if (!expected.has(wrapper)) {
+        wrapper.dispose();
+      }
+    }
+  }
+
+  showActionRequired(title, options) {
+    return _rxjsBundlesRxMinJs.Observable.defer(() => this._getBusySignalService()).switchMap(service => {
+      return _rxjsBundlesRxMinJs.Observable.create(observer => {
+        let onDidClick;
+        if (options != null && options.clickable) {
+          onDidClick = () => {
+            observer.next();
+          };
+        }
+        const busyMessage = service == null ? this._nullProgressMessage : service.reportBusy(title, {
+          waitingFor: 'user',
+          onDidClick
+        });
+        return () => busyMessage.dispose();
+      });
+    }).publish();
+  }
+
   dispose() {
     // No one can ever call this function because RootHostServices and
     // RootAggregator are private to this module, and we don't call dispose.
@@ -137,10 +241,10 @@ class RootHostServices {
   }
 
   childRegister(child) {
-    var _this = this;
+    var _this2 = this;
 
     return (0, _asyncToGenerator.default)(function* () {
-      return _this;
+      return _this2;
       // Root only ever has exactly one child, the RootAggregator,
       // so we don't bother with registration: when the aggregator relays
       // commands, it will relay them straight to root services.

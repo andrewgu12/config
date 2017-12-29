@@ -16,6 +16,7 @@ let getIPsForHosts = exports.getIPsForHosts = (() => {
       return (0, (_lookupPreferIpV || _load_lookupPreferIpV()).default)(host).catch(function () {});
     });
     const values = yield Promise.all(promise_array);
+    // $FlowFixMe(>=0.55.0) Flow suppress
     return (0, (_collection || _load_collection()).arrayCompact)(values);
   });
 
@@ -111,6 +112,7 @@ function getDefaultConnectionProfile(options) {
   if (options != null) {
     dialogSettings.cwd = options.initialCwd;
     dialogSettings.server = options.initialServer;
+    // flowlint-next-line sketchy-null-string:off
     if (options.initialRemoteServerCommand) {
       dialogSettings.remoteServerCommand = options.initialRemoteServerCommand;
     }

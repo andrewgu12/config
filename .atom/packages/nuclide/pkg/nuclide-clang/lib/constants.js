@@ -20,3 +20,5 @@ const GRAMMAR_SET = exports.GRAMMAR_SET = new Set(GRAMMARS);
 const PACKAGE_NAME = exports.PACKAGE_NAME = 'nuclide-clang';
 
 const IDENTIFIER_REGEXP = exports.IDENTIFIER_REGEXP = /([a-zA-Z_][a-zA-Z0-9_]*)/g;
+
+const DEFAULT_FLAGS_WARNING = exports.DEFAULT_FLAGS_WARNING = 'Diagnostics are disabled due to lack of compilation flags. ' + 'Build this file with Buck, create a compile_commands.json file, or try "Clean and Rebuild".';

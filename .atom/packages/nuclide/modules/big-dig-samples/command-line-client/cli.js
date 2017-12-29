@@ -73,15 +73,16 @@ function parseArgsAndRunMain() {
 
   return new Promise((resolve, reject) => {
     const sshHandshake = new (_SshHandshake || _load_SshHandshake()).SshHandshake({
-      onKeyboardInteractive(name, instructions, instructionsLang, prompts, finish) {
-        if (!(prompts.length > 0)) {
-          throw new Error('Invariant violation: "prompts.length > 0"');
-        }
+      onKeyboardInteractive(name, instructions, instructionsLang, prompts) {
+        return (0, _asyncToGenerator.default)(function* () {
+          if (!(prompts.length > 0)) {
+            throw new Error('Invariant violation: "prompts.length > 0"');
+          }
 
-        const { prompt, echo } = prompts[0];
-        (0, (_readline || _load_readline()).question)(prompt, !echo).then(answer => {
-          finish([answer]);
-        });
+          const { prompt, echo } = prompts[0];
+          const answer = yield (0, (_readline || _load_readline()).question)(prompt, !echo);
+          return [answer];
+        })();
       },
 
       onWillConnect() {
@@ -95,7 +96,7 @@ function parseArgsAndRunMain() {
           // with logging output. Maybe a simpler send/response would be a better
           // first sample and there could be a more complex example that uses more
           // of the Observable API.
-          connection.onMessage().subscribe(function (x) {
+          connection.onMessage('raw-data').subscribe(function (x) {
             return (0, (_log4js || _load_log4js()).getLogger)().info(x);
           });
 
@@ -119,9 +120,10 @@ function parseArgsAndRunMain() {
       username: (0, (_username || _load_username()).getUsername)(),
       pathToPrivateKey: privateKey,
       authMethod: 'PRIVATE_KEY',
-      remoteServerCommand,
+      remoteServer: { command: remoteServerCommand },
       remoteServerCustomParams: {},
-      password: '' });
+      password: '' // Should probably be nullable because of the authMethod.
+    });
   });
 }
 
@@ -140,11 +142,11 @@ class QuestionClient {
       /* hideInput */false);
 
       if (data !== 'exit') {
-        _this.connection_.send(data);
+        _this.connection_.sendMessage('raw-data', data);
         yield _this.run();
       } else {
         _this.exit_();
-        _this.connection_.close();
+        _this.connection_.dispose();
       }
     })();
   }

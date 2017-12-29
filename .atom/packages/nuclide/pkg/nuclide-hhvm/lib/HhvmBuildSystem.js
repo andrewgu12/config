@@ -54,7 +54,9 @@ function _load_ProjectStore() {
   return _ProjectStore = _interopRequireDefault(require('./ProjectStore'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -84,17 +86,19 @@ class HhvmBuildSystem {
   }
 
   getIcon() {
-    return () => _react.default.createElement((_Icon || _load_Icon()).Icon, { icon: 'nuclicon-hhvm', className: 'nuclide-hhvm-task-runner-icon' });
+    return () => _react.createElement((_Icon || _load_Icon()).Icon, { icon: 'nuclicon-hhvm', className: 'nuclide-hhvm-task-runner-icon' });
   }
 
   runTask(taskName) {
-    return (0, (_tasks || _load_tasks()).taskFromObservable)(_rxjsBundlesRxMinJs.Observable.fromPromise((0, (_HhvmDebug || _load_HhvmDebug()).debug)(this._projectStore.getDebugMode(), this._projectStore.getProjectRoot(), this._projectStore.getDebugTarget())).ignoreElements());
+    return (0, (_tasks || _load_tasks()).taskFromObservable)(_rxjsBundlesRxMinJs.Observable.fromPromise((0, (_HhvmDebug || _load_HhvmDebug()).debug)(this._projectStore.getDebugMode(), this._projectStore.getProjectRoot(), this._projectStore.getDebugTarget(), this._projectStore.getUseTerminal(), this._projectStore.getScriptArguments())).ignoreElements());
   }
 
   setProjectRoot(projectRoot, callback) {
     const path = projectRoot == null ? null : projectRoot.getPath();
 
-    const enabledObservable = (0, (_event || _load_event()).observableFromSubscribeFunction)(this._projectStore.onChange.bind(this._projectStore)).map(() => this._projectStore).filter(store => store.getProjectRoot() === path && store.isHHVMProject() !== null).map(store => store.isHHVMProject() === true).distinctUntilChanged();
+    const enabledObservable = (0, (_event || _load_event()).observableFromSubscribeFunction)(this._projectStore.onChange.bind(this._projectStore)).map(() => this._projectStore).filter(store =>
+    // eslint-disable-next-line eqeqeq
+    store.getProjectRoot() === path && store.isHHVMProject() !== null).map(store => store.isHHVMProject() === true).distinctUntilChanged();
 
     const tasksObservable = _rxjsBundlesRxMinJs.Observable.of([{
       type: 'debug',

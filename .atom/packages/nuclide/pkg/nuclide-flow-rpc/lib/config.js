@@ -19,7 +19,11 @@ exports.setConfig = setConfig;
 const config = {
   functionSnippetShouldIncludeArguments: true,
   stopFlowOnExit: true,
-  lazyServer: false
+  lazyServer: false,
+  ideLazyMode: false,
+  canUseFlowBin: false,
+  // This can be a full path or just a command to run.
+  pathToFlow: 'flow'
 };
 
 function getConfig(key) {

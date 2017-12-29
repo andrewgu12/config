@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _atom = require('atom');
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactDom = _interopRequireDefault(require('react-dom'));
 
@@ -48,10 +48,10 @@ function _load_LoadingSpinner() {
   return _LoadingSpinner = require('nuclide-commons-ui/LoadingSpinner');
 }
 
-var _FileTree;
+var _VirtualizedFileTree;
 
-function _load_FileTree() {
-  return _FileTree = require('./FileTree');
+function _load_VirtualizedFileTree() {
+  return _VirtualizedFileTree = require('./VirtualizedFileTree');
 }
 
 var _Icon;
@@ -106,6 +106,12 @@ var _PanelComponentScroller;
 
 function _load_PanelComponentScroller() {
   return _PanelComponentScroller = require('nuclide-commons-ui/PanelComponentScroller');
+}
+
+var _observableDom;
+
+function _load_observableDom() {
+  return _observableDom = require('nuclide-commons-ui/observable-dom');
 }
 
 var _observable;
@@ -166,10 +172,32 @@ function _load_contextMenu() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-class FileTreeSidebarComponent extends _react.default.Component {
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+class FileTreeSidebarComponent extends _react.Component {
 
   constructor() {
     super();
+
+    this._setScrollerRef = node => {
+      this._scrollerRef = node;
+      if (node == null) {
+        this._scrollerElements.next(null);
+        return;
+      }
+
+      const scroller = _reactDom.default.findDOMNode(node);
+      if (scroller == null) {
+        this._scrollerElements.next(null);
+        return;
+      }
+
+      if (!(scroller instanceof HTMLElement)) {
+        throw new Error('Invariant violation: "scroller instanceof HTMLElement"');
+      }
+
+      this._scrollerElements.next(scroller);
+    };
 
     this._handleFocus = event => {
       if (event.target === _reactDom.default.findDOMNode(this)) {
@@ -188,31 +216,35 @@ class FileTreeSidebarComponent extends _react.default.Component {
     this._processExternalUpdate = () => {
       const shouldRenderToolbar = !this._store.roots.isEmpty();
       const openFilesUris = this._store.getOpenFilesWorkingSet().getUris();
-
-      if (shouldRenderToolbar !== this.state.shouldRenderToolbar || openFilesUris !== this.state.openFilesUris) {
-        this.setState({ shouldRenderToolbar, openFilesUris });
-      } else {
-        // Note: It's safe to call forceUpdate here because the change events are de-bounced.
-        this.forceUpdate();
-      }
-
       const uncommittedFileChanges = this._store.getFileChanges();
       const isCalculatingChanges = this._store.getIsCalculatingChanges();
-
-      this.setState({
-        uncommittedFileChanges,
-        isCalculatingChanges
-      });
-
       const title = this.getTitle();
       const path = this.getPath();
+      const workingSetsStore = this._store.getWorkingSetsStore();
+      const filter = this._store.getFilter();
+      const filterFound = this._store.getFilterFound();
+      const foldersExpanded = this._store.foldersExpanded;
+      const uncommittedChangesExpanded = this._store.uncommittedChangesExpanded;
+      const openFilesExpanded = this._store.openFilesExpanded;
+
+      this.setState({
+        shouldRenderToolbar,
+        openFilesUris,
+        uncommittedFileChanges,
+        isCalculatingChanges,
+        title,
+        path,
+        workingSetsStore,
+        filter,
+        filterFound,
+        foldersExpanded,
+        uncommittedChangesExpanded,
+        openFilesExpanded
+      });
+
       if (title !== this.state.title || path !== this.state.path) {
-        this.setState({
-          title,
-          path
-        });
-        this._emitter.emit('did-change-title', this.getTitle());
-        this._emitter.emit('did-change-path', this.getPath());
+        this._emitter.emit('did-change-title', title);
+        this._emitter.emit('did-change-path', path);
       }
     };
 
@@ -255,57 +287,9 @@ class FileTreeSidebarComponent extends _react.default.Component {
       event.stopPropagation();
     };
 
-    this._getScrollerHeight = () => {
-      const component = this.refs.scroller;
-      if (component == null) {
-        return null;
-      }
-      const el = _reactDom.default.findDOMNode(component);
-      if (el == null) {
-        return null;
-      }
-      // $FlowFixMe
-      return el.clientHeight;
-    };
-
-    this._handleScroll = () => {
-      if (!this._scrollWasTriggeredProgrammatically) {
-        this._actions.clearTrackedNode();
-      }
-      this._scrollWasTriggeredProgrammatically = false;
-      const node = _reactDom.default.findDOMNode(this.refs.scroller);
-      // $FlowFixMe
-      const { scrollTop } = node;
-      if (scrollTop !== this.state.scrollerScrollTop) {
-        this.setState({ scrollerScrollTop: scrollTop });
-      }
-    };
-
-    this._scrollToPosition = (top, height, approximate) => {
-      const node = _reactDom.default.findDOMNode(this.refs.scroller);
-      if (node == null) {
-        return;
-      }
-
-      if (!approximate) {
-        this._actions.clearTrackedNodeIfNotLoading();
-      }
-      const requestedBottom = top + height;
-      const currentBottom = this.state.scrollerScrollTop + this.state.scrollerHeight;
-      if (top > this.state.scrollerScrollTop && requestedBottom <= currentBottom) {
-        return; // Already in the view
-      }
-
-      const newTop = Math.max(top + height / 2 - this.state.scrollerHeight / 2, 0);
-      setImmediate(() => {
-        try {
-          // For the rather unlikely chance that the node is already gone from the DOM
-          this._scrollWasTriggeredProgrammatically = true;
-          // $FlowFixMe
-          node.scrollTop = newTop;
-          this.setState({ scrollerScrollTop: newTop });
-        } catch (e) {}
-      });
+    this._handleScroll = scrollTop => {
+      // Do not store in state to not cause extra rendering loops on update
+      this._scrollerScrollTop = scrollTop;
     };
 
     this._actions = (_FileTreeActions || _load_FileTreeActions()).default.getInstance();
@@ -315,7 +299,7 @@ class FileTreeSidebarComponent extends _react.default.Component {
       hidden: false,
       shouldRenderToolbar: false,
       scrollerHeight: window.innerHeight,
-      scrollerScrollTop: 0,
+      scrollerWidth: this.getPreferredWidth(),
       showOpenFiles: true,
       showUncommittedChanges: true,
       showUncommittedChangesKind: 'Uncommitted changes',
@@ -324,29 +308,40 @@ class FileTreeSidebarComponent extends _react.default.Component {
       activeUri: null,
       uncommittedFileChanges: new Map(),
       isCalculatingChanges: false,
-      areStackChangesEnabled: false,
       path: 'No Current Working Directory',
       title: 'File Tree',
-      isFileTreeHovered: false
+      isFileTreeHovered: false,
+      workingSetsStore: this._store.getWorkingSetsStore(),
+      filter: this._store.getFilter(),
+      filterFound: this._store.getFilterFound(),
+      foldersExpanded: this._store.foldersExpanded,
+      uncommittedChangesExpanded: this._store.uncommittedChangesExpanded,
+      openFilesExpanded: this._store.openFilesExpanded
     };
     this._showOpenConfigValues = (0, (_observable || _load_observable()).cacheWhileSubscribed)((_featureConfig || _load_featureConfig()).default.observeAsStream((_Constants || _load_Constants()).SHOW_OPEN_FILE_CONFIG_KEY));
     this._showUncommittedConfigValue = (0, (_observable || _load_observable()).cacheWhileSubscribed)((_featureConfig || _load_featureConfig()).default.observeAsStream((_Constants || _load_Constants()).SHOW_UNCOMMITTED_CHANGES_CONFIG_KEY));
     this._showUncommittedKindConfigValue = (_FileTreeHelpers || _load_FileTreeHelpers()).default.observeUncommittedChangesKindConfigKey();
 
-    this._disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default(this._emitter);
-    this._scrollWasTriggeredProgrammatically = false;
+    this._scrollerElements = new _rxjsBundlesRxMinJs.Subject();
+    this._scrollerScrollTop = 0;
+    this._scrollerRef = null;
+    this._disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default(this._emitter, this._subscribeToResizeEvents());
   }
+  // $FlowFixMe flow does not recognize VirtualizedFileTree as React component
+
 
   componentDidMount() {
+    const componentDOMNode = _reactDom.default.findDOMNode(this);
+
+    if (!(componentDOMNode instanceof HTMLElement)) {
+      throw new Error('Invariant violation: "componentDOMNode instanceof HTMLElement"');
+    }
+
     this._processExternalUpdate();
 
-    const remeasureEvents = _rxjsBundlesRxMinJs.Observable.merge(_rxjsBundlesRxMinJs.Observable.of(null), _rxjsBundlesRxMinJs.Observable.fromEvent(window, 'resize'), (0, (_event || _load_event()).observableFromSubscribeFunction)(atom.commands.onDidDispatch.bind(atom.commands)).filter(event => event.type === 'nuclide-file-tree:toggle'), _rxjsBundlesRxMinJs.Observable.interval(2000));
-
-    this._disposables.add(this._store.subscribe(this._processExternalUpdate), atom.project.onDidChangePaths(this._processExternalUpdate), (0, (_observable || _load_observable()).toggle)(observeAllModifiedStatusChanges(), this._showOpenConfigValues).subscribe(() => this._setModifiedUris()), this._monitorActiveUri(), _rxjsBundlesRxMinJs.Observable.fromPromise((_FileTreeHelpers || _load_FileTreeHelpers()).default.areStackChangesEnabled()).subscribe(areStackChangesEnabled => this.setState({ areStackChangesEnabled })), this._showOpenConfigValues.subscribe(showOpenFiles => this.setState({ showOpenFiles })), this._showUncommittedConfigValue.subscribe(showUncommittedChanges => this.setState({ showUncommittedChanges })), this._showUncommittedKindConfigValue.subscribe(showUncommittedChangesKind => this.setState({ showUncommittedChangesKind })), (0, (_observable || _load_observable()).compact)((0, (_observable || _load_observable()).throttle)(remeasureEvents, () => (_observable || _load_observable()).nextAnimationFrame).map(() => this._getScrollerHeight())).distinctUntilChanged().subscribe(scrollerHeight => {
-      this.setState({ scrollerHeight });
-    }),
+    this._disposables.add(this._store.subscribe(this._processExternalUpdate), observeAllModifiedStatusChanges().let((0, (_observable || _load_observable()).toggle)(this._showOpenConfigValues)).subscribe(() => this._setModifiedUris()), this._monitorActiveUri(), this._showOpenConfigValues.subscribe(showOpenFiles => this.setState({ showOpenFiles })), this._showUncommittedConfigValue.subscribe(showUncommittedChanges => this.setState({ showUncommittedChanges })), this._showUncommittedKindConfigValue.subscribe(showUncommittedChangesKind => this.setState({ showUncommittedChangesKind })),
     // Customize the context menu to remove items that match the 'atom-pane' selector.
-    _rxjsBundlesRxMinJs.Observable.fromEvent(_reactDom.default.findDOMNode(this), 'contextmenu').switchMap(event => {
+    _rxjsBundlesRxMinJs.Observable.fromEvent(componentDOMNode, 'contextmenu').switchMap(event => {
       if (event.button !== 2) {
         return _rxjsBundlesRxMinJs.Observable.never();
       }
@@ -385,32 +380,40 @@ class FileTreeSidebarComponent extends _react.default.Component {
         atom.commands.dispatch(atom.views.getView(atom.workspace), 'nuclide-file-tree:reveal-active-file');
       }
       this._actions.clearFilter();
-      const scrollerHeight = this._getScrollerHeight();
-      if (scrollerHeight != null) {
-        this.setState({ scrollerHeight });
-      }
-    }
-
-    const node = _reactDom.default.findDOMNode(this.refs.scroller);
-    if (node) {
-      // $FlowFixMe
-      node.scrollTop = this.state.scrollerScrollTop;
     }
   }
 
+  _subscribeToResizeEvents() {
+    const scrollerRects = this._scrollerElements.switchMap(scroller => {
+      if (scroller == null) {
+        return _rxjsBundlesRxMinJs.Observable.empty();
+      }
+
+      return new (_observableDom || _load_observableDom()).ResizeObservable(scroller).map(arr => {
+        if (arr.length === 0) {
+          return null;
+        }
+
+        return arr[arr.length - 1].contentRect;
+      });
+    });
+
+    return scrollerRects.let((_observable || _load_observable()).compact).subscribe(rect => this.setState({ scrollerHeight: rect.height, scrollerWidth: rect.width }));
+  }
+
   render() {
-    const workingSetsStore = this._store.getWorkingSetsStore();
     let toolbar;
+    const workingSetsStore = this.state.workingSetsStore;
     if (this.state.shouldRenderToolbar && workingSetsStore != null) {
-      toolbar = _react.default.createElement(
+      toolbar = _react.createElement(
         'div',
         { className: 'nuclide-file-tree-fixed' },
-        _react.default.createElement((_FileTreeSideBarFilterComponent || _load_FileTreeSideBarFilterComponent()).default, {
+        _react.createElement((_FileTreeSideBarFilterComponent || _load_FileTreeSideBarFilterComponent()).default, {
           key: 'filter',
-          filter: this._store.getFilter(),
-          found: this._store.getFilterFound()
+          filter: this.state.filter,
+          found: this.state.filterFound
         }),
-        this._store.foldersExpanded && _react.default.createElement((_FileTreeToolbarComponent || _load_FileTreeToolbarComponent()).FileTreeToolbarComponent, {
+        this.state.foldersExpanded && _react.createElement((_FileTreeToolbarComponent || _load_FileTreeToolbarComponent()).FileTreeToolbarComponent, {
           key: 'toolbar',
           workingSetsStore: workingSetsStore
         })
@@ -420,10 +423,10 @@ class FileTreeSidebarComponent extends _react.default.Component {
     let uncommittedChangesSection;
     let uncommittedChangesHeadline;
     if (this.state.showUncommittedChanges) {
-      const uncommittedChangesList = _react.default.createElement(
+      const uncommittedChangesList = _react.createElement(
         'div',
         { className: 'nuclide-file-tree-sidebar-uncommitted-changes' },
-        _react.default.createElement((_MultiRootChangedFilesView || _load_MultiRootChangedFilesView()).MultiRootChangedFilesView, {
+        _react.createElement((_MultiRootChangedFilesView || _load_MultiRootChangedFilesView()).MultiRootChangedFilesView, {
           analyticsSurface: 'file-tree-uncommitted-changes',
           commandPrefix: 'file-tree-sidebar',
           enableInlineActions: true,
@@ -435,21 +438,18 @@ class FileTreeSidebarComponent extends _react.default.Component {
         })
       );
 
-      if (!this.state.areStackChangesEnabled) {
-        uncommittedChangesHeadline = 'UNCOMMITTED CHANGES';
-      } else {
-        const showDropdown = Array.from(this.state.uncommittedFileChanges.keys()).some(path => {
-          const repo = (0, (_nuclideVcsBase || _load_nuclideVcsBase()).repositoryForPath)(path);
-          return repo != null && repo.getType() === 'hg';
-        });
+      const showDropdown = Array.from(this.state.uncommittedFileChanges.keys()).some(path => {
+        const repo = (0, (_nuclideVcsBase || _load_nuclideVcsBase()).repositoryForPath)(path);
+        return repo != null && repo.getType() === 'hg';
+      });
 
-        const dropdownIcon = !showDropdown ? null : _react.default.createElement((_Icon || _load_Icon()).Icon, {
-          icon: 'triangle-down',
-          className: 'nuclide-file-tree-toolbar-fader nuclide-ui-dropdown-icon',
-          onClick: this._handleUncommittedChangesKindDownArrow
-        });
+      const dropdownIcon = !showDropdown ? null : _react.createElement((_Icon || _load_Icon()).Icon, {
+        icon: 'triangle-down',
+        className: 'nuclide-file-tree-toolbar-fader nuclide-ui-dropdown-icon',
+        onClick: this._handleUncommittedChangesKindDownArrow
+      });
 
-        const dropdownTooltip = `<div style="text-align: left;">
+      const dropdownTooltip = `<div style="text-align: left;">
 This section shows the file changes you've made:<br />
 <br />
 <b>UNCOMMITTED</b><br />
@@ -462,61 +462,64 @@ Just the changes that you've already amended/committed.<br />
 All the changes across your entire stacked diff.
 </div>`;
 
-        const calculatingChangesSpinner = !this.state.isCalculatingChanges ? null : _react.default.createElement(
-          'span',
-          { className: 'nuclide-file-tree-spinner' },
-          '\xA0',
-          _react.default.createElement((_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinner, {
-            className: 'inline-block',
-            size: (_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinnerSizes.EXTRA_SMALL
-          })
-        );
+      const calculatingChangesSpinner = !this.state.isCalculatingChanges ? null : _react.createElement(
+        'span',
+        { className: 'nuclide-file-tree-spinner' },
+        '\xA0',
+        _react.createElement((_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinner, {
+          className: 'inline-block',
+          size: (_LoadingSpinner || _load_LoadingSpinner()).LoadingSpinnerSizes.EXTRA_SMALL
+        })
+      );
 
-        uncommittedChangesHeadline = _react.default.createElement(
+      uncommittedChangesHeadline = _react.createElement(
+        'span',
+        { ref: (0, (_addTooltip || _load_addTooltip()).default)({ title: dropdownTooltip }) },
+        _react.createElement(
           'span',
-          { ref: (0, (_addTooltip || _load_addTooltip()).default)({ title: dropdownTooltip }) },
-          _react.default.createElement(
-            'span',
-            { className: 'nuclide-dropdown-label-text-wrapper' },
-            this.state.showUncommittedChangesKind.toUpperCase()
-          ),
-          dropdownIcon,
-          calculatingChangesSpinner
-        );
-      }
+          { className: 'nuclide-dropdown-label-text-wrapper' },
+          this.state.showUncommittedChangesKind.toUpperCase()
+        ),
+        dropdownIcon,
+        calculatingChangesSpinner
+      );
 
-      uncommittedChangesSection = _react.default.createElement(
+      uncommittedChangesSection = _react.createElement(
         (_Section || _load_Section()).Section,
         {
           className: 'nuclide-file-tree-section-caption',
           collapsable: true,
-          collapsed: !this._store.uncommittedChangesExpanded,
+          collapsed: !this.state.uncommittedChangesExpanded,
           headline: uncommittedChangesHeadline,
           onChange: this._handleUncommittedFilesExpandedChange,
           size: 'small' },
-        uncommittedChangesList
+        _react.createElement(
+          (_PanelComponentScroller || _load_PanelComponentScroller()).PanelComponentScroller,
+          null,
+          uncommittedChangesList
+        )
       );
     }
 
     let openFilesSection = null;
     let openFilesList = null;
     if (this.state.showOpenFiles && this.state.openFilesUris.length > 0) {
-      if (this._store.openFilesExpanded) {
-        openFilesList = _react.default.createElement((_OpenFilesListComponent || _load_OpenFilesListComponent()).OpenFilesListComponent, {
+      if (this.state.openFilesExpanded) {
+        openFilesList = _react.createElement((_OpenFilesListComponent || _load_OpenFilesListComponent()).OpenFilesListComponent, {
           uris: this.state.openFilesUris,
           modifiedUris: this.state.modifiedUris,
           activeUri: this.state.activeUri
         });
       }
-      openFilesSection = _react.default.createElement(
+      openFilesSection = _react.createElement(
         (_LockableHeightComponent || _load_LockableHeightComponent()).LockableHeight,
         { isLocked: this.state.isFileTreeHovered },
-        _react.default.createElement(
+        _react.createElement(
           (_Section || _load_Section()).Section,
           {
             className: 'nuclide-file-tree-section-caption nuclide-file-tree-open-files-section',
             collapsable: true,
-            collapsed: !this._store.openFilesExpanded,
+            collapsed: !this.state.openFilesExpanded,
             headline: 'OPEN FILES',
             onChange: this._handleOpenFilesExpandedChange,
             size: 'small' },
@@ -527,18 +530,18 @@ All the changes across your entire stacked diff.
 
     let foldersCaption;
     if (uncommittedChangesSection != null || openFilesSection != null) {
-      foldersCaption = _react.default.createElement((_Section || _load_Section()).Section, {
+      foldersCaption = _react.createElement((_Section || _load_Section()).Section, {
         className: 'nuclide-file-tree-section-caption',
         headline: 'FOLDERS',
         collapsable: true,
-        collapsed: !this._store.foldersExpanded,
+        collapsed: !this.state.foldersExpanded,
         onChange: this._handleFoldersExpandedChange,
         size: 'small'
       });
     }
 
     // Include `tabIndex` so this component can be focused by calling its native `focus` method.
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       {
         className: 'nuclide-file-tree-toolbar-container',
@@ -548,18 +551,15 @@ All the changes across your entire stacked diff.
       openFilesSection,
       foldersCaption,
       toolbar,
-      this._store.foldersExpanded && _react.default.createElement(
-        (_PanelComponentScroller || _load_PanelComponentScroller()).PanelComponentScroller,
-        { ref: 'scroller', onScroll: this._handleScroll },
-        _react.default.createElement((_FileTree || _load_FileTree()).FileTree, {
-          ref: 'fileTree',
-          containerHeight: this.state.scrollerHeight,
-          containerScrollTop: this.state.scrollerScrollTop,
-          scrollToPosition: this._scrollToPosition,
-          onMouseEnter: this._handleFileTreeHovered,
-          onMouseLeave: this._handleFileTreeUnhovered
-        })
-      )
+      this.state.foldersExpanded && _react.createElement((_VirtualizedFileTree || _load_VirtualizedFileTree()).VirtualizedFileTree, {
+        ref: this._setScrollerRef,
+        onMouseEnter: this._handleFileTreeHovered,
+        onMouseLeave: this._handleFileTreeUnhovered,
+        onScroll: this._handleScroll,
+        height: this.state.scrollerHeight,
+        width: this.state.scrollerWidth,
+        initialScrollTop: this._scrollerScrollTop
+      })
     );
   }
 
@@ -592,7 +592,7 @@ All the changes across your entire stacked diff.
   _monitorActiveUri() {
     const activeEditors = (0, (_event || _load_event()).observableFromSubscribeFunction)(atom.workspace.onDidStopChangingActivePaneItem.bind(atom.workspace));
 
-    return new (_UniversalDisposable || _load_UniversalDisposable()).default((0, (_observable || _load_observable()).toggle)(activeEditors, this._showOpenConfigValues).subscribe(editor => {
+    return new (_UniversalDisposable || _load_UniversalDisposable()).default(activeEditors.let((0, (_observable || _load_observable()).toggle)(this._showOpenConfigValues)).subscribe(editor => {
       if (editor == null || typeof editor.getPath !== 'function' || editor.getPath() == null) {
         this.setState({ activeUri: null });
         return;
@@ -603,7 +603,11 @@ All the changes across your entire stacked diff.
   }
 
   isFocused() {
-    const el = _reactDom.default.findDOMNode(this.refs.fileTree);
+    if (this._scrollerRef == null) {
+      return false;
+    }
+
+    const el = _reactDom.default.findDOMNode(this._scrollerRef);
     if (el == null) {
       return false;
     }
@@ -611,11 +615,18 @@ All the changes across your entire stacked diff.
   }
 
   focus() {
-    const el = _reactDom.default.findDOMNode(this.refs.fileTree);
+    if (this._scrollerRef == null) {
+      return;
+    }
+    const el = _reactDom.default.findDOMNode(this._scrollerRef);
     if (el == null) {
       return;
     }
-    // $FlowFixMe
+
+    if (!(el instanceof HTMLElement)) {
+      throw new Error('Invariant violation: "el instanceof HTMLElement"');
+    }
+
     el.focus();
   }
 
@@ -704,6 +715,7 @@ exports.default = FileTreeSidebarComponent; /**
                                              * 
                                              * @format
                                              */
+/* global HTMLElement */
 
 function observeAllModifiedStatusChanges() {
   const paneItemChangeEvents = _rxjsBundlesRxMinJs.Observable.merge((0, (_event || _load_event()).observableFromSubscribeFunction)(atom.workspace.onDidAddPaneItem.bind(atom.workspace)), (0, (_event || _load_event()).observableFromSubscribeFunction)(atom.workspace.onDidDestroyPaneItem.bind(atom.workspace))).startWith(undefined);

@@ -69,6 +69,7 @@ function translateField(obj, field, translateUri) {
 function translateUriFromServer(hostname, uri) {
   const components = _url.default.parse(uri);
   if (components.protocol === 'file:') {
+    // flowlint-next-line sketchy-null-string:off
     if (!components.pathname) {
       throw new Error('Invariant violation: "components.pathname"');
     }

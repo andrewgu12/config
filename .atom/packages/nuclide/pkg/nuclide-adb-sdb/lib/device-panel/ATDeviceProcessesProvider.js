@@ -5,12 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ATDeviceProcessesProvider = undefined;
 
-var _AndroidBridge;
-
-function _load_AndroidBridge() {
-  return _AndroidBridge = require('../bridges/AndroidBridge');
-}
-
 var _rxjsBundlesRxMinJs = require('rxjs/bundles/Rx.min.js');
 
 /**
@@ -35,7 +29,8 @@ class ATDeviceProcessesProvider {
   }
 
   observe(host, device) {
-    return _rxjsBundlesRxMinJs.Observable.interval(3000).startWith(0).switchMap(() => this._bridge.getService(host).getProcesses(device).refCount().catch(() => _rxjsBundlesRxMinJs.Observable.of([])));
+    const intervalTime = 3000;
+    return _rxjsBundlesRxMinJs.Observable.interval(intervalTime).startWith(0).switchMap(() => this._bridge.getService(host).getProcesses(device, intervalTime).refCount().catch(() => _rxjsBundlesRxMinJs.Observable.of([])));
   }
 }
 exports.ATDeviceProcessesProvider = ATDeviceProcessesProvider;

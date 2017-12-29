@@ -31,7 +31,9 @@ let setRootDirectoryUri = exports.setRootDirectoryUri = (() => {
     const hackRootDirectory = yield getHackRoot(directoryUri);
     (_utils || _load_utils()).default.debug(`setRootDirectoryUri: from ${directoryUri} to ${(0, (_string || _load_string()).maybeToString)(hackRootDirectory)}`);
     // TODO: make xdebug_includes.php path configurable from hhconfig.
-    const hackDummyRequestFilePath = (_nuclideUri || _load_nuclideUri()).default.join(hackRootDirectory ? hackRootDirectory : '', '/scripts/xdebug_includes.php');
+    const hackDummyRequestFilePath = (_nuclideUri || _load_nuclideUri()).default.join(
+    // flowlint-next-line sketchy-null-string:off
+    hackRootDirectory ? hackRootDirectory : '', '/scripts/xdebug_includes.php');
 
     // Use hackDummyRequestFilePath if possible.
     if (yield (_fsPromise || _load_fsPromise()).default.exists(hackDummyRequestFilePath)) {
@@ -144,7 +146,7 @@ function isCorrectConnection(isAttachConnection, message) {
     }
 
     if (launchWrapperCommand != null) {
-      return (_nuclideUri || _load_nuclideUri()).default.basename(requestScriptPath) === launchWrapperCommand;
+      return (_nuclideUri || _load_nuclideUri()).default.basename(requestScriptPath) === (_nuclideUri || _load_nuclideUri()).default.basename(launchWrapperCommand);
     }
 
     return (0, (_string || _load_string()).shellParse)(launchScriptPath)[0] === requestScriptPath;
@@ -152,5 +154,12 @@ function isCorrectConnection(isAttachConnection, message) {
 
   // The regex is only applied to connections coming in during attach mode.  We do not use the
   // regex for launching.
-  return (!pid || attributes.appid === String(pid)) && (!idekeyRegex || new RegExp(idekeyRegex).test(attributes.idekey)) && (!attachScriptRegex || new RegExp(attachScriptRegex).test(requestScriptPath));
+  return (
+    // flowlint-next-line sketchy-null-number:off
+    (!pid || attributes.appid === String(pid)) && (
+    // flowlint-next-line sketchy-null-string:off
+    !idekeyRegex || new RegExp(idekeyRegex).test(attributes.idekey)) && (
+    // flowlint-next-line sketchy-null-string:off
+    !attachScriptRegex || new RegExp(attachScriptRegex).test(requestScriptPath))
+  );
 }

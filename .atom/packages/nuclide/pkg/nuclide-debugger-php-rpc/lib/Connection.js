@@ -17,11 +17,13 @@ function _load_DataCache() {
   return _DataCache = require('./DataCache');
 }
 
-var _eventKit;
+var _UniversalDisposable;
 
-function _load_eventKit() {
-  return _eventKit = require('event-kit');
+function _load_UniversalDisposable() {
+  return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
 }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 let connectionCount = 1; /**
                           * Copyright (c) 2015-present, Facebook, Inc.
@@ -40,7 +42,7 @@ const EXCEPTION = exports.EXCEPTION = 'exception';
 
 class Connection {
 
-  constructor(socket, onStatusCallback, onNotificationCallback, isDummyConnection) {
+  constructor(socket, onStatusCallback, onNotificationCallback, onUserOutputCallback, isDummyConnection) {
     const dbgpSocket = new (_DbgpSocket || _load_DbgpSocket()).DbgpSocket(socket);
     this._socket = dbgpSocket;
     this._dataCache = new (_DataCache || _load_DataCache()).DataCache(dbgpSocket);
@@ -48,8 +50,9 @@ class Connection {
     this._status = (_DbgpSocket || _load_DbgpSocket()).ConnectionStatus.Starting;
     this._isDummyConnection = isDummyConnection;
     this._isDummyViewable = false;
-    this._disposables = new (_eventKit || _load_eventKit()).CompositeDisposable();
+    this._disposables = new (_UniversalDisposable || _load_UniversalDisposable()).default();
     this._breakCount = 0;
+    this._onUserOutputCallback = onUserOutputCallback;
 
     if (onStatusCallback != null) {
       this._disposables.add(this.onStatus((status, ...args) => onStatusCallback(this, status, ...args)));
@@ -88,6 +91,9 @@ class Connection {
           // TODO(dbonafilia): investigate why we sometimes receive two BREAK_MESSAGES
           const [file, line, exception] = args;
           this._stopReason = exception == null ? BREAKPOINT : EXCEPTION;
+          if (this._stopReason === EXCEPTION) {
+            this._onUserOutputCallback(`Request ${this._id} has been paused to do an exception: ${exception}`, 'info');
+          }
           if (file != null && line != null) {
             this._stopBreakpointLocation = {
               filename: file,

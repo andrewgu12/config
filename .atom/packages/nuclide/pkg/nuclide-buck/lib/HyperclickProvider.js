@@ -19,12 +19,14 @@ var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
  */
 let parseTarget = exports.parseTarget = (() => {
   var _ref = (0, _asyncToGenerator.default)(function* (match, filePath, buckRoot) {
+    // flowlint-next-line sketchy-null-string:off
     if (!match || !filePath) {
       return null;
     }
 
     let path;
     const fullTarget = match[1];
+    // flowlint-next-line sketchy-null-string:off
     if (fullTarget) {
       // Strip off the leading slashes from the fully-qualified build target.
       const basePath = fullTarget.substring('//'.length);
@@ -36,6 +38,7 @@ let parseTarget = exports.parseTarget = (() => {
       path = filePath;
     }
     const name = match[2];
+    // flowlint-next-line sketchy-null-string:off
     if (!name) {
       return null;
     }
@@ -114,6 +117,7 @@ let getSuggestion = exports.getSuggestion = (() => {
     }
 
     const buckRoot = yield (0, (_nuclideBuckBase || _load_nuclideBuckBase()).getBuckProjectRoot)(absolutePath);
+    // flowlint-next-line sketchy-null-string:off
     if (!buckRoot) {
       return null;
     }
@@ -128,7 +132,7 @@ let getSuggestion = exports.getSuggestion = (() => {
       return {
         range: match.range,
         callback() {
-          (0, (_goToLocation || _load_goToLocation()).goToLocation)(match.path, match.line, match.column);
+          (0, (_goToLocation || _load_goToLocation()).goToLocation)(match.path, { line: match.line, column: match.column });
         }
       };
     } else {

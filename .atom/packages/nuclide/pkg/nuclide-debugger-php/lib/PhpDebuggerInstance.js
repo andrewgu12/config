@@ -17,12 +17,6 @@ function _load_ObservableManager() {
   return _ObservableManager = require('./ObservableManager');
 }
 
-var _nuclideUri;
-
-function _load_nuclideUri() {
-  return _nuclideUri = _interopRequireDefault(require('nuclide-commons/nuclideUri'));
-}
-
 var _UniversalDisposable;
 
 function _load_UniversalDisposable() {
@@ -33,10 +27,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 class PhpDebuggerInstance extends (_nuclideDebuggerBase || _load_nuclideDebuggerBase()).DebuggerInstance {
   constructor(processInfo, rpcService) {
-    const subscriptions = new (_UniversalDisposable || _load_UniversalDisposable()).default(new (_ObservableManager || _load_ObservableManager()).ObservableManager(rpcService.getNotificationObservable().refCount(), rpcService.getOutputWindowObservable().refCount().map(message => {
-      const serverMessage = (0, (_nuclideDebuggerBase || _load_nuclideDebuggerBase()).translateMessageFromServer)((_nuclideUri || _load_nuclideUri()).default.getHostname(processInfo.getTargetUri()), message);
-      return JSON.parse(serverMessage);
-    })));
+    const subscriptions = new (_UniversalDisposable || _load_UniversalDisposable()).default(new (_ObservableManager || _load_ObservableManager()).ObservableManager(rpcService.getNotificationObservable().refCount(), rpcService.getOutputWindowObservable().refCount()));
     super(processInfo, rpcService, subscriptions);
   }
 }

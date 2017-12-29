@@ -25,6 +25,12 @@ function _load_observable() {
   return _observable = require('nuclide-commons/observable');
 }
 
+var _RegExpFilter;
+
+function _load_RegExpFilter() {
+  return _RegExpFilter = require('nuclide-commons-ui/RegExpFilter');
+}
+
 var _getCurrentExecutorId;
 
 function _load_getCurrentExecutorId() {
@@ -43,19 +49,20 @@ function _load_Console() {
   return _Console = _interopRequireDefault(require('./Console'));
 }
 
-var _escapeStringRegexp;
-
-function _load_escapeStringRegexp() {
-  return _escapeStringRegexp = _interopRequireDefault(require('escape-string-regexp'));
-}
-
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _rxjsBundlesRxMinJs = require('rxjs/bundles/Rx.min.js');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// Other Nuclide packages (which cannot import this) depend on this URI. If this
+// needs to be changed, grep for CONSOLE_VIEW_URI and ensure that the URIs match.
+
+
+// since state is shared amongst instances, this rule is too risky
+/* eslint-disable react/no-unused-state */
 
 /**
  * Copyright (c) 2015-present, Facebook, Inc.
@@ -70,10 +77,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 const WORKSPACE_VIEW_URI = exports.WORKSPACE_VIEW_URI = 'atom://nuclide/console';
 
+const ERROR_TRANSCRIBING_MESSAGE = "// Nuclide couldn't find the right text to display";
 const INITIAL_RECORD_HEIGHT = 21;
 
 // NOTE: We're not accounting for the "store" prop being changed.
-class ConsoleContainer extends _react.default.Component {
+class ConsoleContainer extends _react.Component {
 
   constructor(props) {
     var _this;
@@ -82,11 +90,12 @@ class ConsoleContainer extends _react.default.Component {
 
     this._resetAllFilters = () => {
       this._selectSources(this.state.sources.map(s => s.id));
-      this._updateFilterText('');
+      this.setState({ filterText: '' });
     };
 
     this._createPaste = (0, _asyncToGenerator.default)(function* () {
-      if (_this.props.createPasteFunction == null) {
+      const { createPasteFunction } = _this.state;
+      if (createPasteFunction == null) {
         return;
       }
 
@@ -97,7 +106,8 @@ class ConsoleContainer extends _react.default.Component {
         const record = displayable.record;
         const level = record.level != null ? record.level.toString().toUpperCase() : 'LOG';
         const timestamp = record.timestamp.toLocaleString();
-        return `[${level}][${record.sourceId}][${timestamp}]\t ${record.text}`;
+        const text = record.text || record.data && record.data.value || ERROR_TRANSCRIBING_MESSAGE;
+        return `[${level}][${record.sourceId}][${timestamp}]\t ${text}`;
       }).join('\n');
 
       if (lines === '') {
@@ -108,15 +118,24 @@ class ConsoleContainer extends _react.default.Component {
 
       atom.notifications.addInfo('Creating Paste...');
 
-      if (!(_this.props.createPasteFunction != null)) {
-        throw new Error('Invariant violation: "this.props.createPasteFunction != null"');
+      try {
+        const uri = yield createPasteFunction(lines, {
+          title: 'Nuclide Console Paste'
+        }, 'console paste');
+        atom.notifications.addSuccess(`Created Paste at ${uri}`);
+      } catch (error) {
+        if (error.stdout == null) {
+          atom.notifications.addError(`Failed to create paste: ${String(error.message || error)}`);
+          return;
+        }
+        const errorMessages = error.stdout.trim().split('\n').map(JSON.parse).map(function (e) {
+          return e.message;
+        });
+        atom.notifications.addError('Failed to create paste', {
+          detail: errorMessages.join('\n'),
+          dismissable: true
+        });
       }
-
-      const uri = yield _this.props.createPasteFunction(lines, {
-        title: 'Nuclide Console Paste'
-      }, 'console paste');
-
-      atom.notifications.addSuccess(`Created Paste at ${uri}`);
     });
 
     this._selectSources = selectedSourceIds => {
@@ -125,12 +144,12 @@ class ConsoleContainer extends _react.default.Component {
       this.setState({ unselectedSourceIds });
     };
 
-    this._toggleRegExpFilter = () => {
-      this.setState({ enableRegExpFilter: !this.state.enableRegExpFilter });
-    };
-
-    this._updateFilterText = filterText => {
-      this.setState({ filterText });
+    this._updateFilter = change => {
+      const { text, isRegExp } = change;
+      this.setState({
+        filterText: text,
+        enableRegExpFilter: isRegExp
+      });
     };
 
     this._handleDisplayableRecordHeightChange = (recordId, newHeight, callback) => {
@@ -159,6 +178,8 @@ class ConsoleContainer extends _react.default.Component {
     } = props;
     this.state = {
       ready: false,
+      createPasteFunction: null,
+      watchEditor: null,
       currentExecutor: null,
       providers: new Map(),
       providerStatuses: new Map(),
@@ -216,6 +237,8 @@ class ConsoleContainer extends _react.default.Component {
       const currentExecutorId = (0, (_getCurrentExecutorId || _load_getCurrentExecutorId()).default)(state);
       const currentExecutor = currentExecutorId != null ? state.executors.get(currentExecutorId) : null;
       this.setState({
+        createPasteFunction: state.createPasteFunction,
+        watchEditor: state.watchEditor,
         ready: true,
         currentExecutor,
         executors: state.executors,
@@ -233,9 +256,8 @@ class ConsoleContainer extends _react.default.Component {
   }
 
   copy() {
-    return (0, (_viewableFromReactElement || _load_viewableFromReactElement()).viewableFromReactElement)(_react.default.createElement(ConsoleContainer, {
+    return (0, (_viewableFromReactElement || _load_viewableFromReactElement()).viewableFromReactElement)(_react.createElement(ConsoleContainer, {
       store: this.props.store,
-      createPasteFunction: this.props.createPasteFunction,
       initialFilterText: this.state.filterText,
       initialEnableRegExpFilter: this.state.enableRegExpFilter,
       initialUnselectedSourceIds: this.state.unselectedSourceIds
@@ -261,14 +283,14 @@ class ConsoleContainer extends _react.default.Component {
   }
 
   _getFilterInfo() {
-    const { pattern, isValid } = this._getFilterPattern(this.state.filterText, this.state.enableRegExpFilter);
+    const { pattern, invalid } = (0, (_RegExpFilter || _load_RegExpFilter()).getFilterPattern)(this.state.filterText, this.state.enableRegExpFilter);
 
     const selectedSourceIds = this.state.sources.map(source => source.id).filter(sourceId => this.state.unselectedSourceIds.indexOf(sourceId) === -1);
 
     const displayableRecords = filterRecords(this.state.displayableRecords, selectedSourceIds, pattern, this.state.sources.length !== selectedSourceIds.length);
 
     return {
-      isValid,
+      invalid,
       selectedSourceIds,
       displayableRecords
     };
@@ -276,25 +298,28 @@ class ConsoleContainer extends _react.default.Component {
 
   render() {
     if (!this.state.ready) {
-      return _react.default.createElement('span', null);
+      return _react.createElement('span', null);
     }
 
     const actionCreators = this._getBoundActionCreators();
     const {
-      isValid,
+      invalid,
       selectedSourceIds,
       displayableRecords
     } = this._getFilterInfo();
     const filteredRecordCount = this.state.displayableRecords.length - displayableRecords.length;
 
-    const createPaste = this.props.createPasteFunction != null ? this._createPaste : null;
+    const createPaste = this.state.createPasteFunction != null ? this._createPaste : null;
 
-    return _react.default.createElement((_Console || _load_Console()).default, {
-      invalidFilterInput: !isValid,
+    const watchEditor = this.state.watchEditor;
+
+    return _react.createElement((_Console || _load_Console()).default, {
+      invalidFilterInput: invalid,
       execute: actionCreators.execute,
       selectExecutor: actionCreators.selectExecutor,
       clearRecords: actionCreators.clearRecords,
       createPaste: createPaste,
+      watchEditor: watchEditor,
       currentExecutor: this.state.currentExecutor,
       unselectedSourceIds: this.state.unselectedSourceIds,
       filterText: this.state.filterText,
@@ -307,8 +332,7 @@ class ConsoleContainer extends _react.default.Component {
       selectSources: this._selectSources,
       executors: this.state.executors,
       getProvider: id => this.state.providers.get(id),
-      toggleRegExpFilter: this._toggleRegExpFilter,
-      updateFilterText: this._updateFilterText,
+      updateFilter: this._updateFilter,
       onDisplayableRecordHeightChange: this._handleDisplayableRecordHeightChange,
       resetAllFilters: this._resetAllFilters
     });
@@ -322,24 +346,6 @@ class ConsoleContainer extends _react.default.Component {
       enableRegExpFilter,
       unselectedSourceIds
     };
-  }
-
-  _getFilterPattern(filterText, isRegExp) {
-    if (filterText === '') {
-      return { pattern: null, isValid: true };
-    }
-    const source = isRegExp ? filterText : (0, (_escapeStringRegexp || _load_escapeStringRegexp()).default)(filterText);
-    try {
-      return {
-        pattern: new RegExp(source, 'i'),
-        isValid: true
-      };
-    } catch (err) {
-      return {
-        pattern: null,
-        isValid: false
-      };
-    }
   }
 
   /**

@@ -130,15 +130,18 @@ const NO_RETRY_ARGS = ['--retry-if-init', 'false', '--retries', '0', '--no-auto-
 const TEMP_SERVER_STATES = [(_FlowConstants || _load_FlowConstants()).ServerStatus.NOT_RUNNING, (_FlowConstants || _load_FlowConstants()).ServerStatus.BUSY, (_FlowConstants || _load_FlowConstants()).ServerStatus.INIT];
 
 class FlowProcess {
-  // The path to the directory where the .flowconfig is -- i.e. the root of the Flow project.
 
-  // If we had to start a Flow server, store the process here so we can kill it when we shut down.
-  constructor(root, execInfoContainer) {
+  // If someone subscribes to _ideConnections, we will also publish them here. But subscribing to
+  // this does not actually cause a connection to be created or maintained.
+
+  // The current state of the Flow server in this directory
+  constructor(root, execInfoContainer, fileCache) {
     this._subscriptions = new (_UniversalDisposable || _load_UniversalDisposable()).default();
     this._execInfoContainer = execInfoContainer;
     this._serverStatus = new _rxjsBundlesRxMinJs.BehaviorSubject((_FlowConstants || _load_FlowConstants()).ServerStatus.UNKNOWN);
     this._root = root;
     this._isDisposed = new _rxjsBundlesRxMinJs.BehaviorSubject(false);
+    this._fileCache = fileCache;
 
     this._optionalIDEConnections = new _rxjsBundlesRxMinJs.BehaviorSubject(null);
     this._ideConnections = this._createIDEConnectionStream();
@@ -166,11 +169,9 @@ class FlowProcess {
       (0, (_nuclideAnalytics || _load_nuclideAnalytics()).track)('flow-server-failed');
     });
   }
+  // The path to the directory where the .flowconfig is -- i.e. the root of the Flow project.
 
-  // If someone subscribes to _ideConnections, we will also publish them here. But subscribing to
-  // this does not actually cause a connection to be created or maintained.
-
-  // The current state of the Flow server in this directory
+  // If we had to start a Flow server, store the process here so we can kill it when we shut down.
 
 
   dispose() {
@@ -262,7 +263,7 @@ class FlowProcess {
         throw new Error('Invariant violation: "connectionWatcher == null"');
       }
 
-      connectionWatcher = new (_FlowIDEConnectionWatcher || _load_FlowIDEConnectionWatcher()).FlowIDEConnectionWatcher(this._tryCreateIDEProcess(), handler);
+      connectionWatcher = new (_FlowIDEConnectionWatcher || _load_FlowIDEConnectionWatcher()).FlowIDEConnectionWatcher(this._tryCreateIDEProcess(), this._fileCache, handler);
       connectionWatcher.start();
     },
     // Called when the observable is unsubscribed from
@@ -358,6 +359,9 @@ class FlowProcess {
       if ((0, (_config || _load_config()).getConfig)('lazyServer')) {
         lazy.push('--lazy');
       }
+      if ((0, (_config || _load_config()).getConfig)('ideLazyMode')) {
+        lazy.push('--lazy-mode', 'ide');
+      }
       // `flow server` will start a server in the foreground. runCommand/runCommandDetailed
       // will not resolve the promise until the process exits, which in this
       // case is never. We need to use spawn directly to get access to the
@@ -378,6 +382,7 @@ class FlowProcess {
         // is null. So, let's blacklist conservatively for now and we can
         // add cases later if we observe Flow crashes that do not fit this
         // pattern.
+        // eslint-disable-next-line eqeqeq
         if (code === 2 && signal === null) {
           logger.error('Flow server unexpectedly exited', _this2._root);
           _this2._setServerStatus((_FlowConstants || _load_FlowConstants()).ServerStatus.FAILED);

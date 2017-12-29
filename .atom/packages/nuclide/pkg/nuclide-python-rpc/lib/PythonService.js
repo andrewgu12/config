@@ -66,6 +66,7 @@ let runLinterCommand = (() => {
   var _ref4 = (0, _asyncToGenerator.default)(function* (src, contents) {
     const dirName = (_nuclideUri || _load_nuclideUri()).default.dirname(src);
     const configDir = yield (_fsPromise || _load_fsPromise()).default.findNearestFile('.flake8', dirName);
+    // flowlint-next-line sketchy-null-string:off
     const configPath = configDir ? (_nuclideUri || _load_nuclideUri()).default.join(configDir, '.flake8') : null;
 
     let result;
@@ -87,6 +88,7 @@ let runLinterCommand = (() => {
     const command = global.atom && atom.config.get('nuclide.nuclide-python.pathToFlake8') || 'flake8';
     const args = [];
 
+    // flowlint-next-line sketchy-null-string:off
     if (configPath) {
       args.push('--config');
       args.push(configPath);
@@ -136,6 +138,12 @@ var _nuclideUri;
 
 function _load_nuclideUri() {
   return _nuclideUri = _interopRequireDefault(require('nuclide-commons/nuclideUri'));
+}
+
+var _once;
+
+function _load_once() {
+  return _once = _interopRequireDefault(require('../../commons-node/once'));
 }
 
 var _JediServerManager;
@@ -188,18 +196,16 @@ function _load_DefinitionHelpers() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the license found in the LICENSE file in
- * the root directory of this source tree.
- *
- * 
- * @format
- */
-
-const serverManager = new (_JediServerManager || _load_JediServerManager()).default();
+const serverManager = new (_JediServerManager || _load_JediServerManager()).default(); /**
+                                                                                        * Copyright (c) 2015-present, Facebook, Inc.
+                                                                                        * All rights reserved.
+                                                                                        *
+                                                                                        * This source code is licensed under the license found in the LICENSE file in
+                                                                                        * the root directory of this source tree.
+                                                                                        *
+                                                                                        * 
+                                                                                        * @format
+                                                                                        */
 
 class PythonSingleFileLanguageService {
 
@@ -212,6 +218,12 @@ class PythonSingleFileLanguageService {
     this._showGlobalVariables = config.showGlobalVariables;
     this._autocompleteArguments = config.autocompleteArguments;
     this._includeOptionalArguments = config.includeOptionalArguments;
+  }
+
+  getCodeActions(filePath, range, diagnostics) {
+    return (0, _asyncToGenerator.default)(function* () {
+      throw new Error('Not implemented');
+    })();
   }
 
   getDiagnostics(filePath, buffer) {
@@ -301,14 +313,12 @@ class PythonSingleFileLanguageService {
   formatEntireFile(filePath, buffer, range) {
     return (0, _asyncToGenerator.default)(function* () {
       const contents = buffer.getText();
-      const start = range.start.row + 1;
-      const end = range.end.row + 1;
-      const libCommand = getFormatterPath();
+      const { command, args } = yield getFormatterCommandImpl()(filePath, range);
       const dirName = (_nuclideUri || _load_nuclideUri()).default.dirname((_nuclideUri || _load_nuclideUri()).default.getPath(filePath));
 
       let stdout;
       try {
-        stdout = yield (0, (_process || _load_process()).runCommand)(libCommand, ['--line', `${start}-${end}`], {
+        stdout = yield (0, (_process || _load_process()).runCommand)(command, args, {
           cwd: dirName,
           input: contents,
           // At the moment, yapf outputs 3 possible exit codes:
@@ -322,7 +332,7 @@ class PythonSingleFileLanguageService {
           }
         }).toPromise();
       } catch (err) {
-        throw new Error(`"${libCommand}" failed, likely due to syntax errors.`);
+        throw new Error(`"${command}" failed, likely due to syntax errors.`);
       }
 
       if (contents !== '' && stdout === '') {
@@ -350,29 +360,27 @@ class PythonSingleFileLanguageService {
     throw new Error('Not Yet Implemented');
   }
 
+  getExpandedSelectionRange(filePath, buffer, currentSelection) {
+    throw new Error('Not Yet Implemented');
+  }
+
+  getCollapsedSelectionRange(filePath, buffer, currentSelection, originalCursorPosition) {
+    throw new Error('Not Yet Implemented');
+  }
+
   dispose() {}
 }
 
-let formatterPath;
-function getFormatterPath() {
-  if (formatterPath) {
-    return formatterPath;
-  }
-
-  formatterPath = 'yapf';
-
+const getFormatterCommandImpl = (0, (_once || _load_once()).default)(() => {
   try {
     // $FlowFB
-    const findFormatterPath = require('./fb/find-formatter-path').default;
-    const overridePath = findFormatterPath();
-    if (overridePath) {
-      formatterPath = overridePath;
-    }
+    return require('./fb/get-formatter-command').default;
   } catch (e) {
-    // Ignore.
+    return (filePath, range) => ({
+      command: 'yapf',
+      args: ['--lines', `${range.start.row + 1}-${range.end.row + 1}`]
+    });
   }
-
-  return formatterPath;
-}
+});
 
 let shouldRunFlake8 = true;

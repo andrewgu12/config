@@ -53,7 +53,7 @@ class Sdb extends (_DebugBridge || _load_DebugBridge()).DebugBridge {
   getDeviceInfo() {
     const unknownCB = () => _rxjsBundlesRxMinJs.Observable.of('');
     return _rxjsBundlesRxMinJs.Observable.forkJoin(this.getDeviceArchitecture().catch(unknownCB), this.getAPIVersion().catch(unknownCB), this.getDeviceModel().catch(unknownCB)).map(([architecture, apiVersion, model]) => {
-      return new Map([['name', this._device], ['architecture', architecture], ['api_version', apiVersion], ['model', model]]);
+      return new Map([['name', this._device.name], ['sdb_port', String(this._device.port)], ['architecture', architecture], ['api_version', apiVersion], ['model', model]]);
     });
   }
 
@@ -66,6 +66,14 @@ class Sdb extends (_DebugBridge || _load_DebugBridge()).DebugBridge {
     });
   }
 
+  stopProcess(packageName, pid) {
+    var _this2 = this;
+
+    return (0, _asyncToGenerator.default)(function* () {
+      yield _this2.runShortCommand('shell', 'kill', '-9', `${pid}`).toPromise();
+    })();
+  }
+
   getDeviceArchitecture() {
     return this.runShortCommand('shell', 'uname', '-m').map(s => s.trim());
   }
@@ -75,7 +83,7 @@ class Sdb extends (_DebugBridge || _load_DebugBridge()).DebugBridge {
   }
 
   getDebuggableProcesses() {
-    throw new Error('not implemented');
+    return _rxjsBundlesRxMinJs.Observable.of([]);
   }
 
   getAPIVersion() {
@@ -98,6 +106,17 @@ class Sdb extends (_DebugBridge || _load_DebugBridge()).DebugBridge {
   uninstallPackage(packageName) {
     // TODO(T17463635)
     return this.runLongCommand('uninstall', packageName);
+  }
+
+  getDeviceArgs() {
+    return this._device.name !== '' ? ['-s', this._device.name] : [];
+  }
+
+  getProcesses() {
+    return this.runShortCommand('shell', 'for file in /proc/[0-9]*/stat; do cat "$file" 2>/dev/null || true; done').map(stdout => stdout.split(/\n/).map(line => {
+      const info = line.trim().split(/\s+/);
+      return { user: 'n/a', pid: info[0], name: info[1] };
+    }));
   }
 }
 exports.Sdb = Sdb;

@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.launchApp = exports.getFileContentsAtPath = exports.getPidFromPackageName = exports.registerCustomPath = exports.getFullConfig = exports.registerSdbPath = undefined;
+exports.stopProcess = exports.launchApp = exports.getFileContentsAtPath = exports.getPidFromPackageName = exports.registerCustomPath = exports.getFullConfig = exports.registerSdbPath = undefined;
 
 var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
 
@@ -67,10 +67,21 @@ let launchApp = exports.launchApp = (() => {
   };
 })();
 
+let stopProcess = exports.stopProcess = (() => {
+  var _ref7 = (0, _asyncToGenerator.default)(function* (device, packageName, pid) {
+    return new (_Sdb || _load_Sdb()).Sdb(device).stopProcess(packageName, pid);
+  });
+
+  return function stopProcess(_x10, _x11, _x12) {
+    return _ref7.apply(this, arguments);
+  };
+})();
+
 exports.getDeviceInfo = getDeviceInfo;
 exports.getDeviceList = getDeviceList;
 exports.installPackage = installPackage;
 exports.uninstallPackage = uninstallPackage;
+exports.getProcesses = getProcesses;
 
 var _Store;
 
@@ -129,4 +140,8 @@ function installPackage(device, packagePath) {
 function uninstallPackage(device, packageName) {
   // TODO(T17463635)
   return new (_Sdb || _load_Sdb()).Sdb(device).uninstallPackage(packageName).publish();
+}
+
+function getProcesses(device, timeout) {
+  return new (_Processes || _load_Processes()).Processes(new (_Sdb || _load_Sdb()).Sdb(device)).fetch(timeout).publish();
 }

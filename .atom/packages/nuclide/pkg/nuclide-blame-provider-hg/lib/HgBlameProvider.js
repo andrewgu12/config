@@ -9,6 +9,7 @@ var _asyncToGenerator = _interopRequireDefault(require('async-to-generator'));
 let doGetBlameForEditor = (() => {
   var _ref = (0, _asyncToGenerator.default)(function* (editor) {
     const path = editor.getPath();
+    // flowlint-next-line sketchy-null-string:off
     if (!path) {
       return Promise.resolve([]);
     }

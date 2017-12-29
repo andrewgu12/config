@@ -36,11 +36,12 @@ let connectionToHackService = (() => {
     if (yield getUseLspConnection()) {
       const host = yield (0, (_nuclideLanguageService || _load_nuclideLanguageService()).getHostServices)();
       const autocompleteArg = (yield getUseFfpAutocomplete()) ? ['--ffp-autocomplete'] : [];
-      return hackService.initializeLsp(config.hhClientPath, // command
+      const lspService = yield hackService.initializeLsp(config.hhClientPath, // command
       ['lsp', '--from', 'nuclide', ...autocompleteArg], // arguments
-      ['.hhconfig'], // project file
-      ['.php'], // which file-notifications should be sent to LSP
+      [(_constants || _load_constants()).HACK_CONFIG_FILE_NAME], // project file
+      (_constants || _load_constants()).HACK_FILE_EXTENSIONS, // which file-notifications should be sent to LSP
       config.logLevel, fileNotifier, host);
+      return lspService || new (_nuclideLanguageServiceRpc || _load_nuclideLanguageServiceRpc()).NullLanguageService();
     } else {
       return hackService.initialize(config.hhClientPath, config.logLevel, fileNotifier);
     }
@@ -107,9 +108,11 @@ let createLanguageService = (() => {
         disableForSelector: null,
         excludeLowerPriority: false,
         analyticsEventName: 'hack.getAutocompleteSuggestions',
-        autocompleteCacherConfig: {
-          updateResults: updateAutocompleteResults,
-          gatekeeper: 'nuclide_hack_fast_autocomplete'
+        autocompleteCacherConfig: usingLsp ? {
+          updateResults: (_nuclideLanguageService || _load_nuclideLanguageService()).updateAutocompleteResults,
+          updateFirstResults: (_nuclideLanguageService || _load_nuclideLanguageService()).updateAutocompleteFirstResults
+        } : {
+          updateResults: hackUpdateAutocompleteResults
         },
         onDidInsertSuggestionAnalyticsEventName: 'hack.autocomplete-chosen'
       },
@@ -154,10 +157,22 @@ let isFileInHackProject = exports.isFileInHackProject = (() => {
 
 exports.resetHackLanguageService = resetHackLanguageService;
 
+var _nuclideLanguageServiceRpc;
+
+function _load_nuclideLanguageServiceRpc() {
+  return _nuclideLanguageServiceRpc = require('../../nuclide-language-service-rpc');
+}
+
 var _nuclideRemoteConnection;
 
 function _load_nuclideRemoteConnection() {
   return _nuclideRemoteConnection = require('../../nuclide-remote-connection');
+}
+
+var _constants;
+
+function _load_constants() {
+  return _constants = require('../../nuclide-hack-common/lib/constants');
 }
 
 var _config;
@@ -224,7 +239,7 @@ function resetHackLanguageService() {
   exports.hackLanguageService = hackLanguageService = createLanguageService();
 }
 
-function updateAutocompleteResults(request, firstResult) {
+function hackUpdateAutocompleteResults(request, firstResult) {
   if (firstResult.isIncomplete) {
     return null;
   }

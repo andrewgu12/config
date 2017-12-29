@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ProviderContainer = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _Section;
 
@@ -19,13 +19,12 @@ function _load_nuclideAnalytics() {
   return _nuclideAnalytics = require('../../nuclide-analytics');
 }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 /**
  * Each context provider view is rendered inside a ProviderContainer.
  */
-class ProviderContainer extends _react.default.Component {
-
+class ProviderContainer extends _react.Component {
   constructor(props) {
     super(props);
 
@@ -43,17 +42,17 @@ class ProviderContainer extends _react.default.Component {
   }
 
   render() {
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: 'nuclide-context-view-provider-container' },
-      _react.default.createElement(
+      _react.createElement(
         (_Section || _load_Section()).Section,
         {
           headline: this.props.title,
           collapsable: true,
           onChange: this._setCollapsed,
           collapsed: this.state.collapsed },
-        _react.default.createElement(
+        _react.createElement(
           'div',
           { className: 'padded' },
           this.props.children

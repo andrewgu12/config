@@ -18,5 +18,6 @@ const FileEventKind = exports.FileEventKind = Object.freeze({
   OPEN: 'open',
   SYNC: 'sync',
   CLOSE: 'close',
-  EDIT: 'edit'
+  EDIT: 'edit',
+  SAVE: 'save'
 });

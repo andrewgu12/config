@@ -34,7 +34,7 @@ function _load_nuclideUri() {
   return _nuclideUri = _interopRequireDefault(require('nuclide-commons/nuclideUri'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _Icon;
 
@@ -54,6 +54,8 @@ function _load_Checkbox() {
   return _Checkbox = require('nuclide-commons-ui/Checkbox');
 }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const ANALYTICS_SOURCE_KEY = 'inline'; /**
@@ -68,7 +70,7 @@ const ANALYTICS_SOURCE_KEY = 'inline'; /**
                                         */
 
 const LF = '\u000A';
-class ChangedFile extends _react.default.Component {
+class ChangedFile extends _react.Component {
   constructor(...args) {
     var _temp;
 
@@ -79,14 +81,14 @@ class ChangedFile extends _react.default.Component {
 
   _getFileClassname() {
     const { commandPrefix, fileStatus, isHgPath, isSelected } = this.props;
-    return (0, (_classnames || _load_classnames()).default)('nuclide-changed-file', 'list-item', {
+    return (0, (_classnames || _load_classnames()).default)('nuclide-changed-file', 'list-item', 'nuclide-path-with-terminal', {
       selected: isSelected,
       [`${commandPrefix}-file-entry`]: isHgPath
     }, (_nuclideVcsBase || _load_nuclideVcsBase()).FileChangeStatusToTextColor[fileStatus]);
   }
 
   _renderAction(key, icon, tooltipTitle, onClick) {
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       {
         className: 'nuclide-changed-file-action',
@@ -97,7 +99,7 @@ class ChangedFile extends _react.default.Component {
           placement: 'top',
           title: tooltipTitle
         }) },
-      _react.default.createElement((_Icon || _load_Icon()).Icon, { icon: icon })
+      _react.createElement((_Icon || _load_Icon()).Icon, { icon: icon })
     );
   }
 
@@ -113,6 +115,13 @@ class ChangedFile extends _react.default.Component {
     , 'trashcan' /* icon */
     , 'Delete file from file system' /* title */
     , this.props.onDeleteFile.bind(this, filePath, ANALYTICS_SOURCE_KEY));
+  }
+
+  _renderResolveAction(filePath) {
+    return this.props.onMarkFileResolved ? this._renderAction('resolve' /* key */
+    , 'check' /* icon */
+    , 'Mark file as resolved' /* title */
+    , this.props.onMarkFileResolved.bind(this, filePath, ANALYTICS_SOURCE_KEY)) : null;
   }
 
   _renderMarkDeletedAction(filePath) {
@@ -137,10 +146,10 @@ class ChangedFile extends _react.default.Component {
   }
 
   _renderOpenInDiffViewAction(filePath) {
-    return this._renderAction('diff' /* key */
+    return this.props.openInDiffViewOption ? this._renderAction('diff' /* key */
     , 'diff' /* icon */
     , 'Open file in Diff View' /* title */
-    , this.props.onOpenFileInDiffView.bind(this, filePath, ANALYTICS_SOURCE_KEY));
+    , this.props.onOpenFileInDiffView.bind(this, filePath, ANALYTICS_SOURCE_KEY)) : null;
   }
 
   render() {
@@ -171,8 +180,12 @@ class ChangedFile extends _react.default.Component {
           // removed from both FS and VCS
           eligibleActions.push(this._renderRestoreAction(filePath));
           break;
+        case (_nuclideVcsBase || _load_nuclideVcsBase()).FileChangeStatus.CHANGE_DELETE:
+          eligibleActions.push(this._renderDeleteAction(filePath));
+          eligibleActions.push(this._renderResolveAction(filePath));
+          break;
       }
-      actions = _react.default.createElement(
+      actions = _react.createElement(
         'div',
         { className: 'nuclide-changed-file-actions' },
         eligibleActions
@@ -180,12 +193,12 @@ class ChangedFile extends _react.default.Component {
     }
     const statusName = (_nuclideVcsBase || _load_nuclideVcsBase()).FileChangeStatusToLabel[fileStatus];
     const projectRelativePath = (0, (_projects || _load_projects()).getAtomProjectRelativePath)(filePath) || filePath;
-    const checkbox = isChecked != null ? _react.default.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
+    const checkbox = isChecked != null ? _react.createElement((_Checkbox || _load_Checkbox()).Checkbox, {
       className: 'nuclide-changed-file-checkbox',
       checked: isChecked,
       onChange: this._onCheckboxChange
     }) : null;
-    return _react.default.createElement(
+    return _react.createElement(
       'li',
       {
         'data-name': baseName,
@@ -194,16 +207,16 @@ class ChangedFile extends _react.default.Component {
         className: this._getFileClassname(),
         key: filePath },
       checkbox,
-      _react.default.createElement(
+      _react.createElement(
         'span',
         {
           className: 'nuclide-changed-file-name',
           onClick: () => this.props.onFileChosen(filePath) },
-        _react.default.createElement((_Icon || _load_Icon()).Icon, {
+        _react.createElement((_Icon || _load_Icon()).Icon, {
           className: 'nuclide-changed-file-name-icon',
           icon: (_nuclideVcsBase || _load_nuclideVcsBase()).FileChangeStatusToIcon[fileStatus]
         }),
-        _react.default.createElement((_PathWithFileIcon || _load_PathWithFileIcon()).default, {
+        _react.createElement((_PathWithFileIcon || _load_PathWithFileIcon()).default, {
           path: baseName,
           title: `${statusName}:${LF}${projectRelativePath}${LF}(Click to open in Nuclide)`
         })

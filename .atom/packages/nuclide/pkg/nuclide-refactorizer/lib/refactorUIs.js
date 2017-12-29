@@ -11,7 +11,7 @@ function _load_UniversalDisposable() {
   return _UniversalDisposable = _interopRequireDefault(require('nuclide-commons/UniversalDisposable'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactDom = _interopRequireDefault(require('react-dom'));
 
@@ -142,7 +142,7 @@ class GenericUIRenderer {
         const element = document.createElement('div');
         this._panel = atom.workspace.addModalPanel({ item: element });
       }
-      _reactDom.default.render(_react.default.createElement((_MainRefactorComponent || _load_MainRefactorComponent()).MainRefactorComponent, { appState: state, store: this._store }), this._panel.getItem());
+      _reactDom.default.render(_react.createElement((_MainRefactorComponent || _load_MainRefactorComponent()).MainRefactorComponent, { appState: state, store: this._store }), this._panel.getItem());
     } else {
       if (this._panel != null) {
         const panel = this._panel;

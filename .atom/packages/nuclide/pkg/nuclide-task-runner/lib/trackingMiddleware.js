@@ -59,13 +59,15 @@ function trackTaskAction(type, store, action) {
   const { task } = taskStatus;
   const taskTrackingData = typeof task.getTrackingData === 'function' ? task.getTrackingData() : {};
   const error = action.type === (_Actions || _load_Actions()).TASK_ERRORED ? action.payload.error : null;
+  const duration = action.type === (_Actions || _load_Actions()).TASK_STARTED ? null : new Date().getTime() - parseInt(action.payload.taskStatus.startDate.getTime(), 10);
   (0, (_nuclideAnalytics || _load_nuclideAnalytics()).trackEvent)({
     type,
     data: Object.assign({}, taskTrackingData, {
       taskRunnerId: activeTaskRunner.id,
       taskType: taskStatus.metadata.type,
       errorMessage: error != null ? error.message : null,
-      stackTrace: error != null ? String(error.stack) : null
+      stackTrace: error != null ? String(error.stack) : null,
+      duration
     })
   });
 }

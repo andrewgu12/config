@@ -20,7 +20,7 @@
         "description": "Absolute path to the Flow executable on your system."
       },
       "canUseFlowBin": {
-        "title": "Use the Flow binary included in each project's flow-bin",
+        "title": "Use the Flow binary included in each project's flow-bin (requires restart)",
         "type": "boolean",
         "default": false,
         "description": "WARNING: Checking this box is a security risk. When you open a project we will immediately run code contained within it. Only use this setting if you fully trust all of the projects that you open."
@@ -47,7 +47,13 @@
         "title": "Highlight identifier references (requires restart)",
         "type": "boolean",
         "default": false,
-        "description": "EXPERIMENTAL: This feature requires flow >=0.38.0, but it is still under-development, so the results may not be what you expect."
+        "description": "This feature requires flow >=0.55.0."
+      },
+      "enableFindReferences": {
+        "title": "Enable global find references (requires restart)",
+        "type": "boolean",
+        "default": false,
+        "description": "EXPERIMENTAL: Has limited support and requires using an unreleased version of Flow"
       },
       "enableTypeHints": {
         "title": "Enable Type Hints",

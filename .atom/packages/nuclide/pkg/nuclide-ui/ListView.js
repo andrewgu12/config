@@ -11,13 +11,15 @@ function _load_classnames() {
   return _classnames = _interopRequireDefault(require('classnames'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _ignoreTextSelectionEvents;
 
 function _load_ignoreTextSelectionEvents() {
   return _ignoreTextSelectionEvents = _interopRequireDefault(require('nuclide-commons-ui/ignoreTextSelectionEvents'));
 }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -35,19 +37,16 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
 /**
  * Use ListViewItem in conjunction with ListView.
  */
-class ListViewItem extends _react.default.Component {
-
+class ListViewItem extends _react.Component {
   _select(value, index, event) {
     this.props.onSelect(value, index);
   }
-  // $FlowIssue `index` and `onSelect` are injected by the surrounding `ListView` component.
-
 
   render() {
     const _props = this.props,
           { children, index, value } = _props,
           remainingProps = _objectWithoutProperties(_props, ['children', 'index', 'value']);
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       Object.assign({
         className: 'nuclide-ui-listview-item'
@@ -59,7 +58,7 @@ class ListViewItem extends _react.default.Component {
 }
 
 exports.ListViewItem = ListViewItem;
-class ListView extends _react.default.Component {
+class ListView extends _react.Component {
   constructor(...args) {
     var _temp;
 
@@ -72,7 +71,7 @@ class ListView extends _react.default.Component {
 
   render() {
     const { children, alternateBackground, selectable } = this.props;
-    const renderedItems = _react.default.Children.map(children, (child, index) => _react.default.cloneElement(child, {
+    const renderedItems = _react.Children.map(children, (child, index) => _react.cloneElement(child, {
       index,
       onSelect: this._handleSelect
     }));
@@ -82,7 +81,7 @@ class ListView extends _react.default.Component {
       'nuclide-ui-listview-highlight-odd': alternateBackground,
       'nuclide-ui-listview-selectable': selectable
     });
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { className: className, tabIndex: -1 },
       renderedItems

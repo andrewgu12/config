@@ -45,7 +45,10 @@ class FileVersionNotifier {
       case (_constants || _load_constants()).FileEventKind.EDIT:
         this._versions.set(filePath, changeCount);
         break;
+      case (_constants || _load_constants()).FileEventKind.SAVE:
+        break;
       default:
+        event.kind;
         throw new Error(`Unexpected LocalFileEvent.kind: ${event.kind}`);
     }
     this._checkRequests(filePath);

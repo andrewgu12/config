@@ -30,7 +30,7 @@ let createConfigDirectory = (() => {
           if (clearDirectory) {
             // When starting up a new server, we remove any connection configs leftover
             // from previous runs.
-            yield (_fsPromise || _load_fsPromise()).default.rmdir(configDirPath);
+            yield (_fsPromise || _load_fsPromise()).default.rimraf(configDirPath);
             if (yield (_fsPromise || _load_fsPromise()).default.exists(configDirPath)) {
               throw new Error('createConfigDirectory: Failed to remove' + configDirPath);
             }
@@ -64,7 +64,7 @@ let createNewEntry = exports.createNewEntry = (() => {
     // TODO: Instead of using this dummy '0' port, will need to figure out
     // a directory structure which can handle multiple registered servers on the client side.
     const subdir = (_nuclideUri || _load_nuclideUri()).default.join(configDirectory, String(0));
-    yield (_fsPromise || _load_fsPromise()).default.rmdir(subdir);
+    yield (_fsPromise || _load_fsPromise()).default.rimraf(subdir);
     if (yield (_fsPromise || _load_fsPromise()).default.exists(subdir)) {
       throw new Error('createNewEntry: Failed to delete: ' + subdir);
     }
@@ -111,6 +111,7 @@ let getServer = exports.getServer = (() => {
 
 let getServerInfos = (() => {
   var _ref5 = (0, _asyncToGenerator.default)(function* (configDirectory) {
+    // $FlowFixMe(>=0.55.0) Flow suppress
     const entries = yield (_fsPromise || _load_fsPromise()).default.readdir(configDirectory);
     return (0, (_collection || _load_collection()).arrayCompact)((yield Promise.all(entries.map((() => {
       var _ref6 = (0, _asyncToGenerator.default)(function* (entry) {

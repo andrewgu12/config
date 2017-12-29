@@ -22,7 +22,11 @@ Adding new icons to the package
 ===============================
 
 The package's icon-font is handled in its [own repository][4].
-Consult its [readme][5] for instructions on adding new icons.
+To add a new icon, [please submit an issue][5] which embeds or links to the icon in SVG format.
+This is preferable to a pull-request because all icons are refitted and optimised by hand.
+
+The current procedure is less than ideal and subject to change in future.
+For now, the icon-font is regenerated using IcoMoon.
 
 
 Updating the changelog
@@ -38,7 +42,6 @@ Preserve the existing format so readers can grep what they're looking for when s
 		This should be used for icons that are quite literally <em>new</em>.
 		This may be a custom glyph, or provided by an existing icon file.
 	</dd>
-	
 	<dt>Support:</dt>
 	<dd>
 		If you're adding support for a new format or filename/extension that uses an existing icon, file it under "Support".
@@ -51,5 +54,5 @@ Preserve the existing format so readers can grep what they're looking for when s
 [2]: lib/icons/.icondb.js
 [3]: https://github.com/file-icons/atom/issues/new
 [4]: https://github.com/file-icons/source
-[5]: https://github.com/file-icons/source#adding-new-icons
+[5]: https://github.com/file-icons/source/issues/new
 [6]: CHANGELOG.md

@@ -10,7 +10,7 @@ function _load_Hasher() {
   return _Hasher = _interopRequireDefault(require('nuclide-commons/Hasher'));
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _reactVirtualized;
 
@@ -36,9 +36,16 @@ function _load_ResizeSensitiveContainer() {
   return _ResizeSensitiveContainer = require('../../../nuclide-ui/ResizeSensitiveContainer');
 }
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+/* eslint-enable react/no-unused-prop-types */
+
 // The number of extra rows to render beyond what is visible
+
+
+/* eslint-disable react/no-unused-prop-types */
 const OVERSCAN_COUNT = 5; /**
                            * Copyright (c) 2015-present, Facebook, Inc.
                            * All rights reserved.
@@ -50,7 +57,7 @@ const OVERSCAN_COUNT = 5; /**
                            * @format
                            */
 
-class OutputTable extends _react.default.Component {
+class OutputTable extends _react.Component {
 
   // The currently rendered range.
   constructor(props) {
@@ -73,13 +80,13 @@ class OutputTable extends _react.default.Component {
       const { index, style } = rowMetadata;
       const displayableRecord = this.props.displayableRecords[index];
       const { record } = displayableRecord;
-      return _react.default.createElement(
+      return _react.createElement(
         'div',
         {
           key: this._hasher.getHash(displayableRecord.record),
           className: 'nuclide-console-table-row-wrapper',
           style: style },
-        _react.default.createElement((_RecordView || _load_RecordView()).default, {
+        _react.createElement((_RecordView || _load_RecordView()).default, {
           ref: view => {
             if (view != null) {
               this._renderedRecords.set(record, view);
@@ -131,16 +138,14 @@ class OutputTable extends _react.default.Component {
         // $FlowIgnore Untyped react-virtualized List component method
         this._list.recomputeRowHeights();
 
-        // If the element in the viewport when its height changes, scroll to ensure that the entirety
-        // of the record is in the viewport. This is important not just for if the last record changes
-        // height through user interaction (e.g. expanding a debugger variable), but also because this
-        // is the mechanism through which the record's true initial height is reported. Therefore, we
-        // may have scrolled to the bottom, and only afterwards received its true height. In this
-        // case, it's important that we then scroll to the new bottom.
-        const index = this.props.displayableRecords.findIndex(record => record.id === recordId);
-        if (index >= this._startIndex && index <= this._stopIndex) {
-          // $FlowIgnore Untyped react-virtualized List component method
-          this._list.scrollToRow(index);
+        // If we are already scrolled to the bottom, scroll to ensure that the scrollbar remains at
+        // the bottom. This is important not just for if the last record changes height through user
+        // interaction (e.g. expanding a debugger variable), but also because this is the mechanism
+        // through which the record's true initial height is reported. Therefore, we may have scrolled
+        // to the bottom, and only afterwards received its true height. In this case, it's important
+        // that we then scroll to the new bottom.
+        if (this.props.shouldScrollToBottom()) {
+          this.scrollToBottom();
         }
       });
     };
@@ -173,23 +178,27 @@ class OutputTable extends _react.default.Component {
   }
 
   render() {
-    return _react.default.createElement(
-      (_ResizeSensitiveContainer || _load_ResizeSensitiveContainer()).ResizeSensitiveContainer,
-      {
-        className: 'nuclide-console-table-wrapper native-key-bindings',
-        onResize: this._handleResize,
-        tabIndex: '1' },
-      this._containerRendered() ? _react.default.createElement((_reactVirtualized || _load_reactVirtualized()).List, {
-        ref: this._handleListRef,
-        height: this.state.height,
-        width: this.state.width,
-        rowCount: this.props.displayableRecords.length,
-        rowHeight: this._getRowHeight,
-        rowRenderer: this._renderRow,
-        overscanRowCount: OVERSCAN_COUNT,
-        onScroll: this._onScroll,
-        onRowsRendered: this._handleListRender
-      }) : null
+    return (
+      // $FlowFixMe(>=0.53.0) Flow suppress
+      _react.createElement(
+        (_ResizeSensitiveContainer || _load_ResizeSensitiveContainer()).ResizeSensitiveContainer,
+        {
+          className: 'nuclide-console-table-wrapper native-key-bindings',
+          onResize: this._handleResize,
+          tabIndex: '1' },
+        this._containerRendered() ? _react.createElement((_reactVirtualized || _load_reactVirtualized()).List
+        // $FlowFixMe(>=0.53.0) Flow suppress
+        , { ref: this._handleListRef,
+          height: this.state.height,
+          width: this.state.width,
+          rowCount: this.props.displayableRecords.length,
+          rowHeight: this._getRowHeight,
+          rowRenderer: this._renderRow,
+          overscanRowCount: OVERSCAN_COUNT,
+          onScroll: this._onScroll,
+          onRowsRendered: this._handleListRender
+        }) : null
+      )
     );
   }
 

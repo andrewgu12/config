@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.DebuggerCallstackComponent = undefined;
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _nuclideUri;
 
@@ -45,7 +45,9 @@ function _load_addTooltip() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-class DebuggerCallstackComponent extends _react.default.Component {
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+class DebuggerCallstackComponent extends _react.Component {
 
   constructor(props) {
     super(props);
@@ -108,13 +110,13 @@ class DebuggerCallstackComponent extends _react.default.Component {
       key: 'location'
     }];
 
-    const emptyComponent = () => _react.default.createElement(
+    const emptyComponent = () => _react.createElement(
       'div',
       { className: 'nuclide-debugger-callstack-list-empty' },
       'callstack unavailable'
     );
 
-    return _react.default.createElement((_Table || _load_Table()).Table, {
+    return _react.createElement((_Table || _load_Table()).Table, {
       className: 'nuclide-debugger-callstack-table',
       columns: columns,
       emptyComponent: emptyComponent,
@@ -140,7 +142,7 @@ exports.DebuggerCallstackComponent = DebuggerCallstackComponent; /**
 
 var _initialiseProps = function () {
   this._locationComponent = props => {
-    const missingSourceItem = this.props.callstackStore.getDebuggerStore().getCanSetSourcePaths() && !props.data.hasSource ? _react.default.createElement('span', {
+    const missingSourceItem = this.props.callstackStore.getDebuggerStore().getCanSetSourcePaths() && !props.data.hasSource ? _react.createElement('span', {
       className: (0, (_classnames || _load_classnames()).default)('text-error', 'icon', 'icon-alert'),
       onClick: () => this.props.actions.configureSourcePaths(),
       ref: (0, (_addTooltip || _load_addTooltip()).default)({
@@ -155,11 +157,11 @@ var _initialiseProps = function () {
 
     // Chrome line numbers are actually 0-based, so add 1.
     const line = props.data.line + 1;
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       { title: `${path}:${line}` },
       missingSourceItem,
-      _react.default.createElement(
+      _react.createElement(
         'span',
         null,
         path,

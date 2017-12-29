@@ -17,9 +17,9 @@ function _load_ButtonGroup() {
   return _ButtonGroup = require('nuclide-commons-ui/ButtonGroup');
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 const DELETE_BUTTON_TITLE_DEFAULT = 'Delete selected item'; /**
                                                              * Copyright (c) 2015-present, Facebook, Inc.
@@ -50,7 +50,7 @@ const DELETE_BUTTON_TITLE_UNDELETABLE = 'Selected item cannot be deleted';
  *  | +  |  - |
  *   ---------
  */
-class MutableListSelector extends _react.default.Component {
+class MutableListSelector extends _react.Component {
   constructor(...args) {
     var _temp;
 
@@ -75,7 +75,7 @@ class MutableListSelector extends _react.default.Component {
         classes += ' selected';
         selectedItem = item;
       }
-      return _react.default.createElement(
+      return _react.createElement(
         'li',
         {
           key: item.id,
@@ -98,25 +98,25 @@ class MutableListSelector extends _react.default.Component {
       deleteButtonTitle = DELETE_BUTTON_TITLE_DEFAULT;
     }
 
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       null,
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'block select-list' },
-        _react.default.createElement(
+        _react.createElement(
           'ol',
           { className: 'list-group' },
           listItems
         )
       ),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { style: { display: 'flex', justifyContent: 'flex-end' } },
-        _react.default.createElement(
+        _react.createElement(
           (_ButtonGroup || _load_ButtonGroup()).ButtonGroup,
           null,
-          _react.default.createElement(
+          _react.createElement(
             (_Button || _load_Button()).Button,
             {
               disabled: selectedItem == null || selectedItem.deletable === false,
@@ -124,7 +124,7 @@ class MutableListSelector extends _react.default.Component {
               title: deleteButtonTitle },
             '-'
           ),
-          _react.default.createElement(
+          _react.createElement(
             (_Button || _load_Button()).Button,
             {
               onClick: this.props.onAddButtonClicked,

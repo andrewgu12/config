@@ -9,12 +9,16 @@
  */
 'use strict';
 
-/* eslint comma-dangle: [1, always-multiline], prefer-object-spread/prefer-object-spread: 0 */
+/* eslint
+  comma-dangle: [1, always-multiline],
+  prefer-object-spread/prefer-object-spread: 0,
+  rulesdir/no-commonjs: 0,
+  */
 
-const {__DEV__} = require('../pkg/nuclide-node-transpiler/lib/env');
+const {__DEV__} = require('../modules/nuclide-node-transpiler/lib/env');
 
 if (__DEV__) {
-  require('../pkg/nuclide-node-transpiler');
+  require('../modules/nuclide-node-transpiler');
 
   // The require profiling is really noisy during tests.
   if (!atom.inSpecMode()) {

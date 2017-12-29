@@ -40,7 +40,7 @@ function _load_notification() {
   return _notification = require('./notification');
 }
 
-var _react = _interopRequireDefault(require('react'));
+var _react = _interopRequireWildcard(require('react'));
 
 var _electron = _interopRequireDefault(require('electron'));
 
@@ -61,6 +61,8 @@ var _log4js;
 function _load_log4js() {
   return _log4js = require('log4js');
 }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -90,8 +92,7 @@ const WAITING_FOR_AUTHENTICATION = 4;
 /**
  * Component that manages the state transitions as the user connects to a server.
  */
-class ConnectionDialog extends _react.default.Component {
-
+class ConnectionDialog extends _react.Component {
   constructor(props) {
     super(props);
 
@@ -104,7 +105,7 @@ class ConnectionDialog extends _react.default.Component {
         throw new Error('Invariant violation: "this.props.connectionProfiles != null"');
       }
 
-      const selectedProfile = this.props.connectionProfiles[this.state.indexOfSelectedConnectionProfile];
+      const selectedProfile = this.props.connectionProfiles[this.props.selectedProfileIndex];
       const connectionDetails = this.refs.content.getFormFields();
       const validationResult = (0, (_formValidationUtils || _load_formValidationUtils()).validateFormInputs)(selectedProfile.displayTitle, connectionDetails, '');
 
@@ -124,7 +125,7 @@ class ConnectionDialog extends _react.default.Component {
         atom.notifications.addWarning(validationResult.warningMessage);
       }
 
-      this.props.onSaveProfile(this.state.indexOfSelectedConnectionProfile, newProfile);
+      this.props.onSaveProfile(this.props.selectedProfileIndex, newProfile);
       this.setState({ isDirty: false });
     };
 
@@ -202,11 +203,9 @@ class ConnectionDialog extends _react.default.Component {
       }
     };
 
-    this.onProfileClicked = indexOfSelectedConnectionProfile => {
-      this.setState({
-        indexOfSelectedConnectionProfile,
-        isDirty: false
-      });
+    this.onProfileClicked = selectedProfileIndex => {
+      this.setState({ isDirty: false });
+      this.props.onProfileSelected(selectedProfileIndex);
     };
 
     const sshHandshake = new (_nuclideRemoteConnection || _load_nuclideRemoteConnection()).SshHandshake((0, (_nuclideRemoteConnection || _load_nuclideRemoteConnection()).decorateSshConnectionDelegateWithTracking)({
@@ -232,7 +231,6 @@ class ConnectionDialog extends _react.default.Component {
 
     this.state = {
       finish: answers => {},
-      indexOfSelectedConnectionProfile: props.indexOfInitiallySelectedConnectionProfile,
       instructions: '',
       isDirty: false,
       mode: REQUEST_CONNECTION_DETAILS,
@@ -244,27 +242,10 @@ class ConnectionDialog extends _react.default.Component {
     this._focus();
   }
 
-  componentWillReceiveProps(nextProps) {
-    let indexOfSelectedConnectionProfile = this.state.indexOfSelectedConnectionProfile;
-    if (nextProps.connectionProfiles == null) {
-      indexOfSelectedConnectionProfile = -1;
-    } else if (this.props.connectionProfiles == null ||
-    // The current selection is outside the bounds of the next profiles list
-    indexOfSelectedConnectionProfile > nextProps.connectionProfiles.length - 1 ||
-    // The next profiles list is longer than before, a new one was added
-    nextProps.connectionProfiles.length > this.props.connectionProfiles.length) {
-      // Select the final connection profile in the list because one of the above conditions means
-      // the current selected index is outdated.
-      indexOfSelectedConnectionProfile = nextProps.connectionProfiles.length - 1;
-    }
-
-    this.setState({ indexOfSelectedConnectionProfile });
-  }
-
   componentDidUpdate(prevProps, prevState) {
     if (this.state.mode !== prevState.mode) {
       this._focus();
-    } else if (this.state.mode === REQUEST_CONNECTION_DETAILS && this.state.indexOfSelectedConnectionProfile === prevState.indexOfSelectedConnectionProfile && !this.state.isDirty && prevState.isDirty && this.refs.okButton != null) {
+    } else if (this.state.mode === REQUEST_CONNECTION_DETAILS && this.props.selectedProfileIndex === prevProps.selectedProfileIndex && !this.state.isDirty && prevState.isDirty && this.refs.okButton != null) {
       // When editing a profile and clicking "Save", the Save button disappears. Focus the primary
       // button after re-rendering so focus is on a logical element.
       this.refs.okButton.focus();
@@ -295,9 +276,9 @@ class ConnectionDialog extends _react.default.Component {
     let okButtonText;
 
     if (mode === REQUEST_CONNECTION_DETAILS) {
-      content = _react.default.createElement((_ConnectionDetailsPrompt || _load_ConnectionDetailsPrompt()).default, {
+      content = _react.createElement((_ConnectionDetailsPrompt || _load_ConnectionDetailsPrompt()).default, {
         connectionProfiles: this.props.connectionProfiles,
-        indexOfSelectedConnectionProfile: this.state.indexOfSelectedConnectionProfile,
+        selectedProfileIndex: this.props.selectedProfileIndex,
         onAddProfileClicked: this.props.onAddProfileClicked,
         onCancel: this.cancel,
         onConfirm: this.ok,
@@ -309,11 +290,11 @@ class ConnectionDialog extends _react.default.Component {
       isOkDisabled = false;
       okButtonText = 'Connect';
     } else if (mode === WAITING_FOR_CONNECTION || mode === WAITING_FOR_AUTHENTICATION) {
-      content = _react.default.createElement((_IndeterminateProgressBar || _load_IndeterminateProgressBar()).default, null);
+      content = _react.createElement((_IndeterminateProgressBar || _load_IndeterminateProgressBar()).default, null);
       isOkDisabled = true;
       okButtonText = 'Connect';
     } else {
-      content = _react.default.createElement((_AuthenticationPrompt || _load_AuthenticationPrompt()).default, {
+      content = _react.createElement((_AuthenticationPrompt || _load_AuthenticationPrompt()).default, {
         instructions: this.state.instructions,
         onCancel: this.cancel,
         onConfirm: this.ok,
@@ -325,14 +306,14 @@ class ConnectionDialog extends _react.default.Component {
 
     let saveButtonGroup;
     let selectedProfile;
-    if (this.state.indexOfSelectedConnectionProfile >= 0 && this.props.connectionProfiles != null) {
-      selectedProfile = this.props.connectionProfiles[this.state.indexOfSelectedConnectionProfile];
+    if (this.props.selectedProfileIndex >= 0 && this.props.connectionProfiles != null) {
+      selectedProfile = this.props.connectionProfiles[this.props.selectedProfileIndex];
     }
     if (this.state.isDirty && selectedProfile != null && selectedProfile.saveable) {
-      saveButtonGroup = _react.default.createElement(
+      saveButtonGroup = _react.createElement(
         (_ButtonGroup || _load_ButtonGroup()).ButtonGroup,
         { className: 'inline-block' },
-        _react.default.createElement(
+        _react.createElement(
           (_Button || _load_Button()).Button,
           { onClick: this._handleClickSave },
           'Save'
@@ -340,27 +321,27 @@ class ConnectionDialog extends _react.default.Component {
       );
     }
 
-    return _react.default.createElement(
+    return _react.createElement(
       'div',
       null,
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { className: 'block' },
         content
       ),
-      _react.default.createElement(
+      _react.createElement(
         'div',
         { style: { display: 'flex', justifyContent: 'flex-end' } },
         saveButtonGroup,
-        _react.default.createElement(
+        _react.createElement(
           (_ButtonGroup || _load_ButtonGroup()).ButtonGroup,
           null,
-          _react.default.createElement(
+          _react.createElement(
             (_Button || _load_Button()).Button,
             { onClick: this.cancel, ref: 'cancelButton' },
             'Cancel'
           ),
-          _react.default.createElement(
+          _react.createElement(
             (_Button || _load_Button()).Button,
             {
               buttonType: (_Button || _load_Button()).ButtonTypes.PRIMARY,
@@ -419,6 +400,3 @@ class ConnectionDialog extends _react.default.Component {
 
 }
 exports.default = ConnectionDialog;
-ConnectionDialog.defaultProps = {
-  indexOfInitiallySelectedConnectionProfile: -1
-};

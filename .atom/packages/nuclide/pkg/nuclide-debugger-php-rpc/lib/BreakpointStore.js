@@ -19,6 +19,14 @@ function _load_DbgpSocket() {
   return _DbgpSocket = require('./DbgpSocket');
 }
 
+var _rxjsBundlesRxMinJs = require('rxjs/bundles/Rx.min.js');
+
+var _event;
+
+function _load_event() {
+  return _event = require('nuclide-commons/event');
+}
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
@@ -34,6 +42,32 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 const PAUSE_ALL_EXCEPTION_NAME = '*';
 const EXCEPTION_PAUSE_STATE_ALL = 'all';
+
+function isConnectionClosed(status) {
+  switch (status) {
+    case (_DbgpSocket || _load_DbgpSocket()).ConnectionStatus.Stopping:
+    case (_DbgpSocket || _load_DbgpSocket()).ConnectionStatus.Stopped:
+    case (_DbgpSocket || _load_DbgpSocket()).ConnectionStatus.Error:
+    case (_DbgpSocket || _load_DbgpSocket()).ConnectionStatus.End:
+      return true;
+    default:
+      return false;
+  }
+}
+
+function doWhileConnectionOpen(connection, ayncFn) {
+  return _rxjsBundlesRxMinJs.Observable.fromPromise(ayncFn())
+  // Avoid waiting indefintely if the connection went away while applying an operaton.
+  .takeUntil((0, (_event || _load_event()).observableFromSubscribeFunction)(connection.onStatus.bind(connection)).filter(isConnectionClosed)).catch((error, stream) => {
+    const isClosed = isConnectionClosed(connection.getStatus());
+    (_utils || _load_utils()).default.error('connection operation error:', error, isClosed);
+    if (isClosed) {
+      return _rxjsBundlesRxMinJs.Observable.of(null);
+    } else {
+      return stream;
+    }
+  }).toPromise();
+}
 
 // Stores breakpoints and connections.
 //
@@ -68,23 +102,23 @@ class BreakpointStore {
         resolved: false,
         hitCount: 0
       });
-      const connectionEnries = Array.from(_this._connections.entries());
-      const breakpointPromises = connectionEnries.map((() => {
-        var _ref = (0, _asyncToGenerator.default)(function* (entry) {
-          const [connection, map] = entry;
+      let updatedBreakpointInfo = false;
+      const connectionEntries = Array.from(_this._connections.entries());
+      const breakpointPromises = connectionEntries.map(function ([connection, map]) {
+        return doWhileConnectionOpen(connection, (0, _asyncToGenerator.default)(function* () {
           const xdebugBreakpointId = yield connection.setFileLineBreakpoint(breakpointInfo);
           map.set(chromeId, xdebugBreakpointId);
-        });
-
-        return function (_x) {
-          return _ref.apply(this, arguments);
-        };
-      })());
+          if (updatedBreakpointInfo || isConnectionClosed(connection.getStatus())) {
+            return;
+          }
+          const xdebugBreakpoint = yield connection.getBreakpoint(xdebugBreakpointId);
+          if (!updatedBreakpointInfo) {
+            _this.updateBreakpoint(chromeId, xdebugBreakpoint);
+            updatedBreakpointInfo = true;
+          }
+        }));
+      });
       yield Promise.all(breakpointPromises);
-      const firstConnectionEntry = connectionEnries[0];
-      if (firstConnectionEntry != null) {
-        yield _this._updateBreakpointInfoForConnection(firstConnectionEntry[0], firstConnectionEntry[1], chromeId);
-      }
 
       return chromeId;
     })();
@@ -108,26 +142,16 @@ class BreakpointStore {
         throw new Error('Invariant violation: "breakpoints != null"');
       }
 
-      const xdebugBreakpointId = yield connection.setFileLineBreakpoint(breakpointInfo);
-      breakpoints.set(chromeId, xdebugBreakpointId);
-      yield _this2._updateBreakpointInfoForConnection(connection, breakpoints, chromeId);
+      yield doWhileConnectionOpen(connection, (0, _asyncToGenerator.default)(function* () {
+        const xdebugBreakpointId = yield connection.setFileLineBreakpoint(breakpointInfo);
+        breakpoints.set(chromeId, xdebugBreakpointId);
+        if (isConnectionClosed(connection.getStatus())) {
+          return;
+        }
+        const xdebugBreakpoint = yield connection.getBreakpoint(xdebugBreakpointId);
+        _this2.updateBreakpoint(chromeId, xdebugBreakpoint);
+      }));
       return chromeId;
-    })();
-  }
-
-  _updateBreakpointInfoForConnection(connection, breakpoints, chromeId) {
-    var _this3 = this;
-
-    return (0, _asyncToGenerator.default)(function* () {
-      const xdebugBreakpointId = breakpoints.get(chromeId);
-
-      if (!(xdebugBreakpointId != null)) {
-        throw new Error('Invariant violation: "xdebugBreakpointId != null"');
-      }
-
-      const promise = connection.getBreakpoint(xdebugBreakpointId);
-      const xdebugBreakpoint = yield promise; // eslint-disable-line no-await-in-loop
-      _this3.updateBreakpoint(chromeId, xdebugBreakpoint);
     })();
   }
 
@@ -157,8 +181,12 @@ class BreakpointStore {
     }
 
     const { breakpointInfo } = breakpoint;
-    breakpointInfo.lineNumber = Number(xdebugBreakpoint.lineno || breakpointInfo.lineNumber);
-    breakpointInfo.filename = xdebugBreakpoint.filename || breakpointInfo.filename;
+    breakpointInfo.lineNumber = Number(
+    // flowlint-next-line sketchy-null-number:off
+    xdebugBreakpoint.lineno || breakpointInfo.lineNumber);
+    breakpointInfo.filename =
+    // flowlint-next-line sketchy-null-string:off
+    xdebugBreakpoint.filename || breakpointInfo.filename;
     if (xdebugBreakpoint.resolved != null) {
       breakpoint.resolved = xdebugBreakpoint.resolved === 'resolved';
     } else {
@@ -167,12 +195,8 @@ class BreakpointStore {
   }
 
   removeBreakpoint(breakpointId) {
-    var _this4 = this;
-
-    return (0, _asyncToGenerator.default)(function* () {
-      _this4._breakpoints.delete(breakpointId);
-      return _this4._removeBreakpointFromConnections(breakpointId);
-    })();
+    this._breakpoints.delete(breakpointId);
+    return this._removeBreakpointFromConnections(breakpointId);
   }
 
   /**
@@ -181,26 +205,21 @@ class BreakpointStore {
    * so we only support 'all' and treat all other states as 'none'.
    */
   setPauseOnExceptions(chromeId, state) {
-    var _this5 = this;
+    var _this3 = this;
 
     return (0, _asyncToGenerator.default)(function* () {
       if (state !== EXCEPTION_PAUSE_STATE_ALL) {
         // Try to remove any existing exception breakpoint.
-        return _this5._removePauseAllExceptionBreakpointIfNeeded();
+        return _this3._removePauseAllExceptionBreakpointIfNeeded();
       }
-      _this5._pauseAllExceptionBreakpointId = chromeId;
+      _this3._pauseAllExceptionBreakpointId = chromeId;
 
-      const breakpointPromises = Array.from(_this5._connections.entries()).map((() => {
-        var _ref2 = (0, _asyncToGenerator.default)(function* (entry) {
-          const [connection, map] = entry;
+      const breakpointPromises = Array.from(_this3._connections.entries()).map(function ([connection, map]) {
+        return doWhileConnectionOpen(connection, (0, _asyncToGenerator.default)(function* () {
           const xdebugBreakpointId = yield connection.setExceptionBreakpoint(PAUSE_ALL_EXCEPTION_NAME);
           map.set(chromeId, xdebugBreakpointId);
-        });
-
-        return function (_x2) {
-          return _ref2.apply(this, arguments);
-        };
-      })());
+        }));
+      });
       yield Promise.all(breakpointPromises);
     })();
   }
@@ -210,13 +229,14 @@ class BreakpointStore {
   }
 
   _removePauseAllExceptionBreakpointIfNeeded() {
-    var _this6 = this;
+    var _this4 = this;
 
     return (0, _asyncToGenerator.default)(function* () {
-      const breakpointId = _this6._pauseAllExceptionBreakpointId;
+      const breakpointId = _this4._pauseAllExceptionBreakpointId;
+      // flowlint-next-line sketchy-null-string:off
       if (breakpointId) {
-        _this6._pauseAllExceptionBreakpointId = null;
-        return _this6._removeBreakpointFromConnections(breakpointId);
+        _this4._pauseAllExceptionBreakpointId = null;
+        return _this4._removeBreakpointFromConnections(breakpointId);
       } else {
         // This can happen if users switch between 'none' and 'uncaught' states.
         (_utils || _load_utils()).default.debug('No exception breakpoint to remove.');
@@ -226,24 +246,20 @@ class BreakpointStore {
   }
 
   _removeBreakpointFromConnections(breakpointId) {
-    return Promise.all(Array.from(this._connections.entries()).map(entry => {
-      const [connection, map] = entry;
-      if (map.has(breakpointId)) {
-        const connectionIdPromise = map.get(breakpointId);
+    var _this5 = this;
 
-        if (!(connectionIdPromise != null)) {
-          throw new Error('Invariant violation: "connectionIdPromise != null"');
-        }
-
-        map.delete(breakpointId);
-        // Ensure we've removed from the connection's map before awaiting.
-        return (0, _asyncToGenerator.default)(function* () {
-          return connection.removeBreakpoint((yield connectionIdPromise));
-        })();
-      } else {
-        return Promise.resolve();
-      }
-    }));
+    return (0, _asyncToGenerator.default)(function* () {
+      yield Promise.all(Array.from(_this5._connections.entries()).map(function ([connection, map]) {
+        return doWhileConnectionOpen(connection, (0, _asyncToGenerator.default)(function* () {
+          const xdebugBreakpointId = map.get(breakpointId);
+          if (xdebugBreakpointId == null) {
+            return;
+          }
+          map.delete(breakpointId);
+          yield connection.removeBreakpoint(xdebugBreakpointId);
+        }));
+      }));
+    })();
   }
 
   findBreakpoint(filename, lineNumber) {
@@ -279,12 +295,12 @@ class BreakpointStore {
   }
 
   addConnection(connection) {
-    var _this7 = this;
+    var _this6 = this;
 
     return (0, _asyncToGenerator.default)(function* () {
       const map = new Map();
-      const breakpointPromises = Array.from(_this7._breakpoints.values()).map((() => {
-        var _ref4 = (0, _asyncToGenerator.default)(function* (breakpoint) {
+      const breakpointPromises = Array.from(_this6._breakpoints.values()).map((() => {
+        var _ref5 = (0, _asyncToGenerator.default)(function* (breakpoint) {
           const { chromeId, breakpointInfo, connectionId } = breakpoint;
           if (connectionId != null) {
             // That breakpoint is set for a sepecific connection (doesn't apply to all connections).
@@ -294,28 +310,25 @@ class BreakpointStore {
           map.set(chromeId, xdebugBreakpointId);
         });
 
-        return function (_x3) {
-          return _ref4.apply(this, arguments);
+        return function (_x) {
+          return _ref5.apply(this, arguments);
         };
       })());
+      _this6._connections.set(connection, map);
       yield Promise.all(breakpointPromises);
-      if (_this7._pauseAllExceptionBreakpointId) {
+      // flowlint-next-line sketchy-null-string:off
+      if (_this6._pauseAllExceptionBreakpointId) {
         const breakpoitnId = yield connection.setExceptionBreakpoint(PAUSE_ALL_EXCEPTION_NAME);
 
-        if (!(_this7._pauseAllExceptionBreakpointId != null)) {
+        if (!(_this6._pauseAllExceptionBreakpointId != null)) {
           throw new Error('Invariant violation: "this._pauseAllExceptionBreakpointId != null"');
         }
 
-        map.set(_this7._pauseAllExceptionBreakpointId, breakpoitnId);
+        map.set(_this6._pauseAllExceptionBreakpointId, breakpoitnId);
       }
-      _this7._connections.set(connection, map);
       connection.onStatus(function (status) {
-        switch (status) {
-          case (_DbgpSocket || _load_DbgpSocket()).ConnectionStatus.Stopping:
-          case (_DbgpSocket || _load_DbgpSocket()).ConnectionStatus.Stopped:
-          case (_DbgpSocket || _load_DbgpSocket()).ConnectionStatus.Error:
-          case (_DbgpSocket || _load_DbgpSocket()).ConnectionStatus.End:
-            _this7._removeConnection(connection);
+        if (isConnectionClosed(status)) {
+          _this6._removeConnection(connection);
         }
       });
     })();
