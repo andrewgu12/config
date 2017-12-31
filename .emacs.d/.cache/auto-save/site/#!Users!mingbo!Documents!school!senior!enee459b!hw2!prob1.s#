@@ -1,6 +1,0 @@
-%rbp)          ## 4-byte Spill
-	callq	_exit
-	.cfi_endproc
-
-
-.subsections_via_symbols
