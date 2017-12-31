@@ -1,0 +1,60 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-1171113-28549-iaqqy6.akqvqxs9k9/package.tgz",
+        "scope": null,
+        "escapedName": null,
+        "name": null,
+        "rawSpec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-1171113-28549-iaqqy6.akqvqxs9k9/package.tgz",
+        "spec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-1171113-28549-iaqqy6.akqvqxs9k9/package.tgz",
+        "type": "local"
+      },
+      "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/apm-install-dir-1171113-28549-djli31.n33iu7syvi"
+    ]
+  ],
+  "_from": "../d-1171113-28549-iaqqy6.akqvqxs9k9/package.tgz",
+  "_id": "flatland-dark@0.2.2",
+  "_inCache": true,
+  "_location": "/flatland-dark",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-1171113-28549-iaqqy6.akqvqxs9k9/package.tgz",
+    "scope": null,
+    "escapedName": null,
+    "name": null,
+    "rawSpec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-1171113-28549-iaqqy6.akqvqxs9k9/package.tgz",
+    "spec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-1171113-28549-iaqqy6.akqvqxs9k9/package.tgz",
+    "type": "local"
+  },
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "file:../d-1171113-28549-iaqqy6.akqvqxs9k9/package.tgz",
+  "_shasum": "b132eae09fd6b2188b1a2d0c7c307e4c3f3496c9",
+  "_shrinkwrap": null,
+  "_spec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-1171113-28549-iaqqy6.akqvqxs9k9/package.tgz",
+  "_where": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/apm-install-dir-1171113-28549-djli31.n33iu7syvi",
+  "bugs": {
+    "url": "https://github.com/michaelhelmick/flatland-dark/issues"
+  },
+  "dependencies": {},
+  "description": "A Flatland Dark theme",
+  "devDependencies": {},
+  "engines": {
+    "atom": ">0.50.0"
+  },
+  "homepage": "https://github.com/michaelhelmick/flatland-dark#readme",
+  "license": "MIT",
+  "name": "flatland-dark",
+  "optionalDependencies": {},
+  "private": true,
+  "readme": "# Flatland Dark theme\n\nOriginally converted from the [TextMate](https://github.com/thinkpixellab/flatland/blob/master/Flatland%20Dark.tmTheme) theme using the [TextMate bundle converter](http://atom.io/docs/latest/converting-a-text-mate-theme)..\n\n![screenshot](https://i.imgur.com/Wzw1WWv.png)\n",
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michaelhelmick/flatland-dark.git"
+  },
+  "theme": "syntax",
+  "version": "0.2.2"
+}
