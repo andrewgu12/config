@@ -1,5 +1,5 @@
 ;;; relative-linum.el --- Relative Line Numbers *** how I like it ***
-
+;;; Written by @zirrostig
 ;; After seeing linum-relative.el and some others, I realized that none of them
 ;; provided linum's like I wanted, so I took inspiration and code from
 ;; linum-relative.el and made my own
