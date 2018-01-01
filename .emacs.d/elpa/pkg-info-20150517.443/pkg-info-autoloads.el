@@ -1,13 +1,11 @@
 ;;; pkg-info-autoloads.el --- automatically extracted autoloads
 ;;
 ;;; Code:
-
-(add-to-list 'load-path (directory-file-name
-                         (or (file-name-directory #$) (car load-path))))
-
+(add-to-list 'load-path (directory-file-name (or (file-name-directory #$) (car load-path))))
 
-;;;### (autoloads nil "pkg-info" "pkg-info.el" (0 0 0 0))
-;;; Generated autoloads from pkg-info.el
+;;;### (autoloads nil "pkg-info" "../../../../.emacs.d/elpa/pkg-info-20150517.443/pkg-info.el"
+;;;;;;  "a08e27796d79b1489b9543d76791fa5f")
+;;; Generated autoloads from ../../../../.emacs.d/elpa/pkg-info-20150517.443/pkg-info.el
 
 (autoload 'pkg-info-library-original-version "pkg-info" "\
 Get the original version in the header of LIBRARY.
@@ -114,7 +112,11 @@ version.
 
 \(fn LIBRARY &optional PACKAGE SHOW)" t nil)
 
-(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "pkg-info" '("pkg-info-")))
+;;;***
+
+;;;### (autoloads nil nil ("../../../../.emacs.d/elpa/pkg-info-20150517.443/pkg-info-autoloads.el"
+;;;;;;  "../../../../.emacs.d/elpa/pkg-info-20150517.443/pkg-info.el")
+;;;;;;  (23113 63707 145401 745000))
 
 ;;;***
 
@@ -122,6 +124,5 @@ version.
 ;; version-control: never
 ;; no-byte-compile: t
 ;; no-update-autoloads: t
-;; coding: utf-8
 ;; End:
 ;;; pkg-info-autoloads.el ends here

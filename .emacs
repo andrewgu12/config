@@ -3,7 +3,7 @@
 (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 (add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/"))
-(add-to-list 'load-path "~/.emacs.d/custom-packages") ; either self written packages or downloaded
+;; (add-to-list 'load-path "~/.emacs.d/custom-packages") ; either self written packages or downloaded
 
 (setq package-enable-at-startup nil)
 (package-initialize)
@@ -18,9 +18,15 @@
 (load-theme 'darktooth t)
 
 ;; Disable menu-bars, scroll-bars, and other nonsense
-(menu-bar-mode -1)t
+(menu-bar-mode -1)
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
+
+;; helm settings
+(global-set-key (kbd "M-x") 'helm-M-x)
+(global-set-key (kbd "M-y") 'helm-show-kill-ring)
+(global-set-key (kbd "C-x b") 'helm-mini)
+(global-set-key (kbd "C-x C-f") 'helm-find-files)
 
 ;; Set Font
 (set-default-font "Source Code Pro 13")
@@ -37,8 +43,8 @@
 (spaceline-spacemacs-theme)
 
 ;; Line Numbers
-(require 'relative-linum)
-(setq linum-min-luminance 0.5)
+;; (require 'relative-linum)
+;; (setq linum-min-luminance 0.5)
 (global-linum-mode t)
 
 ;; Projectile settings
@@ -49,12 +55,6 @@
 (require 'markdown-mode)
 (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
 (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
-
-;; helm settings
-(global-set-key (kbd "M-x") 'helm-M-x)
-(global-set-key (kbd "M-y") 'helm-show-kill-ring)
-(global-set-key (kbd "C-x b") 'helm-mini)
-(global-set-key (kbd "C-x C-f") 'helm-find-files)
 
 ;; Autopair
 (require 'autopair)
@@ -67,12 +67,11 @@
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    (quote
-    ("a4d03266add9a1c8f12b5309612cbbf96e1291773c7bc4fb685bfdaf83b721c6" default)))
+    ("0ee3fc6d2e0fc8715ff59aed2432510d98f7e76fe81d183a0eb96789f4d897ca" "a4d03266add9a1c8f12b5309612cbbf96e1291773c7bc4fb685bfdaf83b721c6" default)))
  '(global-linum-mode t)
  '(package-selected-packages
    (quote
-    (autopair markdown-mode linum-relative spaceline projectile darktooth-theme helm helm-ebdb)))
- '(tramp-syntax (quote default) nil (tramp)))
+    (creamsody-theme darktooth-theme autopair markdown-mode linum-relative spaceline projectile helm helm-ebdb))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

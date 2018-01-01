@@ -1,13 +1,11 @@
 ;;; projectile-autoloads.el --- automatically extracted autoloads
 ;;
 ;;; Code:
-
-(add-to-list 'load-path (directory-file-name
-                         (or (file-name-directory #$) (car load-path))))
-
+(add-to-list 'load-path (directory-file-name (or (file-name-directory #$) (car load-path))))
 
-;;;### (autoloads nil "projectile" "projectile.el" (0 0 0 0))
-;;; Generated autoloads from projectile.el
+;;;### (autoloads nil "projectile" "../../../../.emacs.d/elpa/projectile-20171229.1155/projectile.el"
+;;;;;;  "fed2128efd68993c9e24d2c708bfed66")
+;;; Generated autoloads from ../../../../.emacs.d/elpa/projectile-20171229.1155/projectile.el
 
 (autoload 'projectile-version "projectile" "\
 Get the Projectile version as string.
@@ -515,7 +513,11 @@ Otherwise behave as if called interactively.
 
 (define-obsolete-function-alias 'projectile-global-mode 'projectile-mode)
 
-(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "projectile" '("projectile-" "??" "def-projectile-commander-method")))
+;;;***
+
+;;;### (autoloads nil nil ("../../../../.emacs.d/elpa/projectile-20171229.1155/projectile-autoloads.el"
+;;;;;;  "../../../../.emacs.d/elpa/projectile-20171229.1155/projectile.el")
+;;;;;;  (23113 63708 205947 454000))
 
 ;;;***
 
@@ -523,6 +525,5 @@ Otherwise behave as if called interactively.
 ;; version-control: never
 ;; no-byte-compile: t
 ;; no-update-autoloads: t
-;; coding: utf-8
 ;; End:
 ;;; projectile-autoloads.el ends here

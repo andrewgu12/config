@@ -1,13 +1,11 @@
 ;;; autopair-autoloads.el --- automatically extracted autoloads
 ;;
 ;;; Code:
-
-(add-to-list 'load-path (directory-file-name
-                         (or (file-name-directory #$) (car load-path))))
-
+(add-to-list 'load-path (directory-file-name (or (file-name-directory #$) (car load-path))))
 
-;;;### (autoloads nil "autopair" "autopair.el" (0 0 0 0))
-;;; Generated autoloads from autopair.el
+;;;### (autoloads nil "autopair" "../../../../.emacs.d/elpa/autopair-20160304.437/autopair.el"
+;;;;;;  "3e03ada29f79aeeaf6ef00f8816d8a28")
+;;; Generated autoloads from ../../../../.emacs.d/elpa/autopair-20160304.437/autopair.el
 
 (autoload 'autopair-mode "autopair" "\
 Automagically pair braces and quotes like in TextMate.
@@ -36,7 +34,11 @@ See `autopair-mode' for more information on Autopair mode.
 
 \(fn &optional ARG)" t nil)
 
-(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "autopair" '("autopair-")))
+;;;***
+
+;;;### (autoloads nil nil ("../../../../.emacs.d/elpa/autopair-20160304.437/autopair-autoloads.el"
+;;;;;;  "../../../../.emacs.d/elpa/autopair-20160304.437/autopair.el")
+;;;;;;  (23113 63816 957258 994000))
 
 ;;;***
 
@@ -44,6 +46,5 @@ See `autopair-mode' for more information on Autopair mode.
 ;; version-control: never
 ;; no-byte-compile: t
 ;; no-update-autoloads: t
-;; coding: utf-8
 ;; End:
 ;;; autopair-autoloads.el ends here

@@ -1,13 +1,11 @@
 ;;; async-autoloads.el --- automatically extracted autoloads
 ;;
 ;;; Code:
-
-(add-to-list 'load-path (directory-file-name
-                         (or (file-name-directory #$) (car load-path))))
-
+(add-to-list 'load-path (directory-file-name (or (file-name-directory #$) (car load-path))))
 
-;;;### (autoloads nil "async" "async.el" (0 0 0 0))
-;;; Generated autoloads from async.el
+;;;### (autoloads nil "async" "../../../../.emacs.d/elpa/async-20171015.2239/async.el"
+;;;;;;  "aab1109360727294893de47bfb0b90f5")
+;;; Generated autoloads from ../../../../.emacs.d/elpa/async-20171015.2239/async.el
 
 (autoload 'async-start-process "async" "\
 Start the executable PROGRAM asynchronously.  See `async-start'.
@@ -69,13 +67,11 @@ returns nil.  It can still be useful, however, as an argument to
 
 \(fn START-FUNC &optional FINISH-FUNC)" nil nil)
 
-(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "async" '("async-")))
-
 ;;;***
 
-;;;### (autoloads nil "async-bytecomp" "async-bytecomp.el" (0 0 0
-;;;;;;  0))
-;;; Generated autoloads from async-bytecomp.el
+;;;### (autoloads nil "async-bytecomp" "../../../../.emacs.d/elpa/async-20171015.2239/async-bytecomp.el"
+;;;;;;  "c3f92425d089a0a8527673e0882c2fb5")
+;;; Generated autoloads from ../../../../.emacs.d/elpa/async-20171015.2239/async-bytecomp.el
 
 (autoload 'async-byte-recompile-directory "async-bytecomp" "\
 Compile all *.el files in DIRECTORY asynchronously.
@@ -100,12 +96,11 @@ Async compilation of packages can be controlled by
 
 \(fn &optional ARG)" t nil)
 
-(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "async-bytecomp" '("async-byte")))
-
 ;;;***
 
-;;;### (autoloads nil "dired-async" "dired-async.el" (0 0 0 0))
-;;; Generated autoloads from dired-async.el
+;;;### (autoloads nil "dired-async" "../../../../.emacs.d/elpa/async-20171015.2239/dired-async.el"
+;;;;;;  "9fa4eacc12640ee5a2a48604f72f8ef6")
+;;; Generated autoloads from ../../../../.emacs.d/elpa/async-20171015.2239/dired-async.el
 
 (defvar dired-async-mode nil "\
 Non-nil if Dired-Async mode is enabled.
@@ -142,19 +137,15 @@ Run ‘dired-do-rename’ asynchronously.
 
 \(fn &optional ARG)" t nil)
 
-(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "dired-async" '("dired-async-")))
-
 ;;;***
 
-;;;### (autoloads nil "smtpmail-async" "smtpmail-async.el" (0 0 0
-;;;;;;  0))
-;;; Generated autoloads from smtpmail-async.el
-
-(if (fboundp 'register-definition-prefixes) (register-definition-prefixes "smtpmail-async" '("async-smtpmail-")))
-
-;;;***
-
-;;;### (autoloads nil nil ("async-pkg.el") (0 0 0 0))
+;;;### (autoloads nil nil ("../../../../.emacs.d/elpa/async-20171015.2239/async-autoloads.el"
+;;;;;;  "../../../../.emacs.d/elpa/async-20171015.2239/async-bytecomp.el"
+;;;;;;  "../../../../.emacs.d/elpa/async-20171015.2239/async-pkg.el"
+;;;;;;  "../../../../.emacs.d/elpa/async-20171015.2239/async.el"
+;;;;;;  "../../../../.emacs.d/elpa/async-20171015.2239/dired-async.el"
+;;;;;;  "../../../../.emacs.d/elpa/async-20171015.2239/smtpmail-async.el")
+;;;;;;  (23113 63098 12833 919000))
 
 ;;;***
 
@@ -162,6 +153,5 @@ Run ‘dired-do-rename’ asynchronously.
 ;; version-control: never
 ;; no-byte-compile: t
 ;; no-update-autoloads: t
-;; coding: utf-8
 ;; End:
 ;;; async-autoloads.el ends here
