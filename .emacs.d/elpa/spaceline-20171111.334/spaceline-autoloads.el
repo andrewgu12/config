@@ -8,7 +8,7 @@
 ;;;;;;  "../../../../.emacs.d/elpa/spaceline-20171111.334/spaceline-pkg.el"
 ;;;;;;  "../../../../.emacs.d/elpa/spaceline-20171111.334/spaceline-segments.el"
 ;;;;;;  "../../../../.emacs.d/elpa/spaceline-20171111.334/spaceline.el")
-;;;;;;  (23113 63678 656291 75000))
+;;;;;;  (23118 57267 342303 616000))
 
 ;;;***
 
