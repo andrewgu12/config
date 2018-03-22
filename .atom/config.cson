@@ -1,9 +1,17 @@
 "*":
+  "aligner-javascript":
+    ":-alignment": "left"
+    ":-leftSpace": true
   "atom-clock":
     showClockIcon: true
   "atom-ide-ui":
     "atom-ide-code-format":
       formatOnType: false
+    hideNuclideWarning: true
+  "atom-package-deps":
+    ignored: [
+      "atom-typescript"
+    ]
   core:
     customFileTypes:
       "source.ini": [
@@ -20,6 +28,7 @@
     disabledPackages: [
       "tree-view"
     ]
+    excludeVcsIgnoredPaths: false
     telemetryConsent: "no"
     themes: [
       "city-lights-ui"
@@ -28,11 +37,15 @@
     titleBar: "custom"
   editor:
     fontFamily: "Source Code Pro"
-    fontSize: 13
+    fontSize: 12
     preferredLineLength: 800
     showIndentGuide: true
   "exception-reporting":
     userId: "35af83ae-4998-434b-9d8d-47617c17f014"
+  "file-icons":
+    onChanges: true
+  "file-types":
+    "^Dockerfile\\..*$": "source.dockerfile"
   nuclide:
     "nuclide-home":
       showHome: false

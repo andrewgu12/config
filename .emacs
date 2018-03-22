@@ -67,6 +67,10 @@
 (require 'go-mode)
 (add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode))
 
+;; Arduino Mode
+(setq auto-mode-alist (cons '("\\.\\(pde\\|ino\\)$" . arduino-mode) auto-mode-alist))
+(autoload 'arduino-mode "arduino-mode" "Arduino editing mode." t)
+
 ;; Web Dev Stuff
 
 ;; Coffee Mode
@@ -86,9 +90,10 @@
    (quote
     ("878497d07b1cb63d19c088031a189ba4edda845c7e0849ab68a4232ab4d6c0b7" "0ee3fc6d2e0fc8715ff59aed2432510d98f7e76fe81d183a0eb96789f4d897ca" "a4d03266add9a1c8f12b5309612cbbf96e1291773c7bc4fb685bfdaf83b721c6" default)))
  '(global-linum-mode t)
+ '(inhibit-startup-screen t)
  '(package-selected-packages
    (quote
-    (auto-complete go-mode atom-one-dark-theme coffee-mode jade-mode helm-core helm-coreelm creamsody-theme darktooth-theme autopair markdown-mode linum-relative spaceline projectile helm helm-ebdb))))
+    (neotree matlab-mode arduino-mode auto-complete go-mode atom-one-dark-theme coffee-mode jade-mode helm-core helm-coreelm creamsody-theme darktooth-theme autopair markdown-mode linum-relative spaceline projectile helm helm-ebdb))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

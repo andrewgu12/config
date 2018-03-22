@@ -10,3 +10,4 @@ set number
 colorscheme lucario
 set laststatus=2
 set ttimeoutlen=50
+set backspace=indent,eol,start
