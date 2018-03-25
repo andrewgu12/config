@@ -1,127 +1,143 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const dom = require("jsx-render-dom");
+const etch = require("etch");
 const path_1 = require("path");
-const utils_1 = require("../utils");
-class StatusPanel extends HTMLElement {
-    createdCallback() {
-        const nodes = [
-            dom.createElement("div", { ref: el => (this.version = el), className: "inline-block" }),
-            dom.createElement("a", { ref: el => (this.pendingContainer = el), className: "inline-block", href: "", onClick: evt => {
-                    evt.preventDefault();
-                    this.showPendingRequests();
-                } },
-                dom.createElement("span", { ref: span => (this.pendingCounter = span) }),
-                dom.createElement("span", { ref: span => (this.pendingSpinner = span), className: "loading loading-spinner-tiny inline-block", style: { marginLeft: "5px", opacity: 0.5, verticalAlign: "sub" } })),
-            dom.createElement("a", { ref: el => (this.configPathContainer = el), className: "inline-block", href: "", onClick: evt => {
-                    evt.preventDefault();
-                    this.openConfigPath();
-                } }),
-            dom.createElement("div", { ref: el => (this.statusContainer = el), className: "inline-block" },
-                dom.createElement("span", { ref: el => (this.statusText = el) })),
-            dom.createElement("progress", { ref: el => (this.progress = el), style: { verticalAlign: "baseline" }, className: "inline-block" }),
-        ];
-        for (const node of nodes) {
-            this.appendChild(node);
-        }
-        this.setVersion(undefined);
-        this.setPending([], true);
-        this.setTsConfigPath(undefined);
-        this.setBuildStatus(undefined);
-        this.setProgress(undefined);
+const lodash_1 = require("lodash");
+class StatusPanel {
+    constructor(props) {
+        this.buildStatusClicked = () => {
+            if (this.props.buildStatus && !this.props.buildStatus.success) {
+                atom.notifications.addError("Build failed", {
+                    detail: this.props.buildStatus.message,
+                    dismissable: true,
+                });
+            }
+        };
+        this.handlePendingRequests = () => {
+            this.update({ pending: lodash_1.flatten(lodash_1.values(this.props.clientResolver.clients).map(cl => cl.pending)) });
+        };
+        this.props = Object.assign({ visible: true }, props);
+        etch.initialize(this);
+        this.resetBuildStatusTimeout();
+        this.props.clientResolver.on("pendingRequestsChange", this.handlePendingRequests);
+    }
+    async update(props) {
+        this.props = Object.assign({}, this.props, props);
+        this.resetBuildStatusTimeout();
+        await etch.update(this);
+    }
+    render() {
+        return (etch.dom("ts-status-panel", { className: this.props.visible ? "" : "hide" },
+            this.renderVersion(),
+            this.renderPending(),
+            this.renderConfigPath(),
+            this.renderStatus(),
+            this.renderProgress()));
+    }
+    async destroy() {
+        await etch.destroy(this);
+        this.props.clientResolver.removeListener("pendingRequestsChange", this.handlePendingRequests);
     }
     dispose() {
-        this.remove();
+        this.destroy();
+    }
+    show() {
+        this.update({ visible: true });
+    }
+    hide() {
+        this.update({ visible: false });
+    }
+    resetBuildStatusTimeout() {
+        if (this.buildStatusTimeout) {
+            window.clearTimeout(this.buildStatusTimeout);
+            this.buildStatusTimeout = undefined;
+        }
+        if (this.props.buildStatus && this.props.buildStatus.success) {
+            const timeout = atom.config.get("atom-typescript.buildStatusTimeout");
+            if (timeout > 0) {
+                this.buildStatusTimeout = window.setTimeout(() => {
+                    this.update({ buildStatus: undefined });
+                }, timeout * 1000);
+            }
+            else if (timeout === 0) {
+                this.update({ buildStatus: undefined });
+            }
+        }
     }
     openConfigPath() {
-        if (this.configPath && !this.configPath.startsWith("/dev/null")) {
-            utils_1.openFile(this.configPath);
+        if (this.props.tsConfigPath && !this.props.tsConfigPath.startsWith("/dev/null")) {
+            atom.workspace.open(this.props.tsConfigPath);
         }
         else {
             atom.notifications.addInfo("No tsconfig for current file");
         }
     }
-    setBuildStatus(status) {
-        const container = this.statusText;
-        if (status) {
-            if (status.success) {
-                container.classList.remove("highlight-error");
-                container.classList.add("highlight-success");
-                container.textContent = "Emit Success";
+    showPendingRequests() {
+        if (this.props.pending) {
+            atom.notifications.addInfo("Pending Requests: <br/> - " + this.props.pending.join("<br/> - "));
+        }
+    }
+    renderVersion() {
+        if (this.props.version) {
+            return (etch.dom("div", { ref: "version", className: "inline-block" }, this.props.version));
+        }
+        return null;
+    }
+    renderPending() {
+        if (this.props.pending && this.props.pending.length) {
+            return (etch.dom("a", { ref: "pendingContainer", className: "inline-block", href: "", on: {
+                    click: evt => {
+                        evt.preventDefault();
+                        this.showPendingRequests();
+                    },
+                } },
+                etch.dom("span", { ref: "pendingCounter" }, this.props.pending.length.toString()),
+                etch.dom("span", { ref: "pendingSpinner", className: "loading loading-spinner-tiny inline-block", style: { marginLeft: "5px", opacity: "0.5", verticalAlign: "sub" } })));
+        }
+        return null;
+    }
+    renderConfigPath() {
+        if (this.props.tsConfigPath) {
+            return (etch.dom("a", { ref: "configPathContainer", className: "inline-block", href: "", on: {
+                    click: evt => {
+                        evt.preventDefault();
+                        this.openConfigPath();
+                    },
+                } }, this.props.tsConfigPath.startsWith("/dev/null")
+                ? "No project"
+                : path_1.dirname(getFilePathRelativeToAtomProject(this.props.tsConfigPath))));
+        }
+        return null;
+    }
+    renderStatus() {
+        if (this.props.buildStatus) {
+            let cls;
+            let text;
+            if (this.props.buildStatus.success) {
+                cls = "highlight-success";
+                text = "Emit Success";
             }
             else {
-                container.classList.add("highlight-error");
-                container.classList.remove("highlight-success");
-                container.textContent = "Emit Failed";
+                cls = "highlight-error";
+                text = "Emit Failed";
             }
-            this.statusContainer.classList.remove("hide");
+            return (etch.dom("div", { ref: "statusContainer", className: "inline-block" },
+                etch.dom("span", { ref: "statusText", class: cls, on: { click: this.buildStatusClicked } }, text)));
         }
-        else {
-            this.statusContainer.classList.add("hide");
-        }
+        return null;
     }
-    setProgress(progress) {
-        if (progress) {
-            this.progress.max = progress.max;
-            this.progress.value = progress.value;
-            this.progress.classList.remove("hide");
+    renderProgress() {
+        if (this.props.progress) {
+            return (etch.dom("progress", { ref: "progress", style: { verticalAlign: "baseline" }, className: "inline-block", max: this.props.progress.max, value: this.props.progress.value }));
         }
-        else {
-            this.progress.classList.add("hide");
-        }
-    }
-    setTsConfigPath(configPath) {
-        this.configPath = configPath;
-        if (configPath) {
-            this.configPathContainer.textContent = configPath.startsWith("/dev/null")
-                ? "No project"
-                : path_1.dirname(utils_1.getFilePathRelativeToAtomProject(configPath));
-            this.configPathContainer.classList.remove("hide");
-        }
-        else {
-            this.configPathContainer.classList.add("hide");
-        }
-    }
-    setVersion(version) {
-        if (version) {
-            this.version.textContent = version;
-            this.version.classList.remove("hide");
-        }
-        else {
-            this.version.classList.add("hide");
-        }
-    }
-    _setPending(pending) {
-        this.pendingRequests = pending;
-        if (pending.length) {
-            this.pendingContainer.classList.remove("hide");
-            this.pendingCounter.textContent = pending.length.toString();
-        }
-        else {
-            this.pendingContainer.classList.add("hide");
-        }
-    }
-    setPending(pending, immediate = false) {
-        const timeout = immediate ? 0 : 100;
-        if (this.pendingTimeout !== undefined)
-            window.clearTimeout(this.pendingTimeout);
-        this.pendingTimeout = window.setTimeout(() => this._setPending(pending), timeout);
-    }
-    showPendingRequests() {
-        if (this.pendingRequests) {
-            atom.notifications.addInfo("Pending Requests: <br/> - " + this.pendingRequests.join("<br/> - "));
-        }
-    }
-    show() {
-        this.classList.remove("hide");
-    }
-    hide() {
-        this.classList.add("hide");
-    }
-    static create() {
-        return document.createElement("ts-status-panel");
+        return null;
     }
 }
 exports.StatusPanel = StatusPanel;
-document.registerElement("ts-status-panel", StatusPanel);
+/**
+ * converts "c:\dev\somethin\bar.ts" to "~something\bar".
+ */
+function getFilePathRelativeToAtomProject(filePath) {
+    return "~" + atom.project.relativize(filePath);
+}
 //# sourceMappingURL=statusPanel.js.map

@@ -2,39 +2,39 @@
   "_args": [
     [
       {
-        "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118219-25931-1j2stk5.g5z6oxyldi/package.tgz",
+        "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118222-71455-c2tplr.fqaa5lv7vi/package.tgz",
         "scope": null,
         "escapedName": null,
         "name": null,
-        "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118219-25931-1j2stk5.g5z6oxyldi/package.tgz",
-        "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118219-25931-1j2stk5.g5z6oxyldi/package.tgz",
+        "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118222-71455-c2tplr.fqaa5lv7vi/package.tgz",
+        "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118222-71455-c2tplr.fqaa5lv7vi/package.tgz",
         "type": "local"
       },
-      "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-118219-25931-1ekmh1y.q06wghkt9"
+      "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-118222-71455-1ocjhg9.zipvjf9a4i"
     ]
   ],
-  "_from": "../d-118219-25931-1j2stk5.g5z6oxyldi/package.tgz",
+  "_from": "../d-118222-71455-c2tplr.fqaa5lv7vi/package.tgz",
   "_id": "language-pug@0.0.22",
   "_inCache": true,
   "_location": "/language-pug",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118219-25931-1j2stk5.g5z6oxyldi/package.tgz",
+    "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118222-71455-c2tplr.fqaa5lv7vi/package.tgz",
     "scope": null,
     "escapedName": null,
     "name": null,
-    "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118219-25931-1j2stk5.g5z6oxyldi/package.tgz",
-    "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118219-25931-1j2stk5.g5z6oxyldi/package.tgz",
+    "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118222-71455-c2tplr.fqaa5lv7vi/package.tgz",
+    "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118222-71455-c2tplr.fqaa5lv7vi/package.tgz",
     "type": "local"
   },
   "_requiredBy": [
     "#USER"
   ],
-  "_resolved": "file:../d-118219-25931-1j2stk5.g5z6oxyldi/package.tgz",
+  "_resolved": "file:../d-118222-71455-c2tplr.fqaa5lv7vi/package.tgz",
   "_shasum": "ac1ef067f0851c7d1fafb7c82de7fff4fceeff40",
   "_shrinkwrap": null,
-  "_spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118219-25931-1j2stk5.g5z6oxyldi/package.tgz",
-  "_where": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-118219-25931-1ekmh1y.q06wghkt9",
+  "_spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118222-71455-c2tplr.fqaa5lv7vi/package.tgz",
+  "_where": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-118222-71455-1ocjhg9.zipvjf9a4i",
   "bugs": {
     "url": "https://github.com/genoma/language-pug/issues"
   },

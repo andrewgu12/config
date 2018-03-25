@@ -1,70 +1,71 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-let singleton;
-function simpleSelectionView(options) {
-    if (!singleton) {
-        singleton = new SimpleSelectListView(options);
+const SelectListView = require("atom-select-list");
+const etch = require("etch");
+async function selectListView({ items, itemTemplate, itemFilterKey, didChangeSelection, }) {
+    let panel;
+    const currentFocus = document.activeElement;
+    try {
+        return await new Promise(resolve => {
+            let didChangeQuery;
+            let loadingMessage = "Loading...";
+            let emptyMessage;
+            let resolved = false;
+            const update = (props) => {
+                if (resolved)
+                    return;
+                select.update(props);
+            };
+            if (typeof items === "function") {
+                didChangeQuery = async (query) => {
+                    const timeout = setTimeout(() => update({ loadingMessage: "Loading..." }), 300);
+                    const is = await items(query);
+                    clearTimeout(timeout);
+                    update({
+                        items: is,
+                        emptyMessage: "Nothing matches the search value",
+                        loadingMessage: undefined,
+                    });
+                };
+                loadingMessage = undefined;
+                emptyMessage = "Please enter a search value";
+            }
+            const select = new SelectListView({
+                items: [],
+                elementForItem: (item) => etch.render(itemTemplate(item, select)),
+                filterKeyForItem: (item) => `${item[itemFilterKey]}`,
+                didChangeSelection,
+                didCancelSelection: () => {
+                    resolved = true;
+                    resolve();
+                },
+                didConfirmSelection: (item) => {
+                    resolved = true;
+                    resolve(item);
+                },
+                loadingMessage,
+                didChangeQuery,
+                emptyMessage,
+                itemsClassList: ["atom-typescript"],
+            });
+            if (typeof items !== "function") {
+                Promise.resolve(items).then(is => {
+                    update({ items: is, loadingMessage: undefined });
+                });
+            }
+            panel = atom.workspace.addModalPanel({
+                item: select,
+                visible: true,
+            });
+            select.focus();
+        });
     }
-    else {
-        singleton.options = options;
+    finally {
+        if (panel)
+            panel.destroy();
+        if (currentFocus)
+            currentFocus.focus();
     }
-    singleton.setItems();
-    singleton.show();
-    return singleton;
 }
-exports.simpleSelectionView = simpleSelectionView;
-/**
- * Various Utility section
- */
-const sp = require("atom-space-pen-views");
-var $ = sp.$;
-class SimpleSelectListView extends sp.SelectListView {
-    constructor(options) {
-        super();
-        this.options = options;
-    }
-    setItems() {
-        super.setItems(this.options.items);
-    }
-    /** override */
-    viewForItem(item) {
-        const view = this.options.viewForItem(item);
-        if (typeof view === "string") {
-            return `<li>
-                ${view}
-            </li>`;
-        }
-        else {
-            return $("<li></li>").append(view);
-        }
-    }
-    /** override */
-    confirmed(item) {
-        this.options.confirmed(item);
-        this.hide();
-    }
-    /** override */
-    getFilterKey() {
-        return this.options.filterKey;
-    }
-    show() {
-        this.storeFocusedElement();
-        if (!this.panel) {
-            this.panel = atom.workspace.addModalPanel({ item: this });
-        }
-        this.panel.show();
-        this.focusFilterEditor();
-        // debugger; // DEBUG: the UI in the inspector so that it doesn't change on you
-    }
-    hide() {
-        if (this.panel) {
-            this.panel.hide();
-        }
-        this.restoreFocus();
-    }
-    cancelled() {
-        this.hide();
-    }
-}
-exports.SimpleSelectListView = SimpleSelectListView;
+exports.selectListView = selectListView;
 //# sourceMappingURL=simpleSelectionView.js.map

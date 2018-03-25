@@ -1,14 +1,18 @@
 import * as Atom from "atom"
 import {ClientResolver} from "../../client/clientResolver"
 import {handleDefinitionResult} from "./commands/goToDeclaration"
-import {isTypescriptGrammar} from "./utils"
+import {isTypescriptEditorWithPath} from "./utils"
+import {EditorPositionHistoryManager} from "./editorPositionHistoryManager"
 
-export function getHyperclickProvider(clientResolver: ClientResolver) {
+export function getHyperclickProvider(
+  clientResolver: ClientResolver,
+  editorPosHist: EditorPositionHistoryManager,
+) {
   return {
     providerName: "typescript-hyperclick-provider",
     wordRegExp: /([A-Za-z0-9_])+|['"`](\\.|[^'"`\\\\])*['"`]/g,
     getSuggestionForWord(editor: Atom.TextEditor, _text: string, range: Atom.Range) {
-      if (!isTypescriptGrammar(editor)) {
+      if (!isTypescriptEditorWithPath(editor)) {
         return null
       }
       const filePath = editor.getPath()
@@ -25,8 +29,8 @@ export function getHyperclickProvider(clientResolver: ClientResolver) {
             offset: range.start.column + 1,
           }
           const client = await clientResolver.get(location.file)
-          const result = await client.executeDefinition(location)
-          handleDefinitionResult(result, location)
+          const result = await client.execute("definition", location)
+          handleDefinitionResult(result, editor, editorPosHist)
         },
       }
     },

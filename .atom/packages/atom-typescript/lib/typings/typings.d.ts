@@ -2,25 +2,15 @@ interface Window {
   atom_typescript_debug: boolean
 }
 
-interface Document {
-  registerElement(tagName: string, elementClass: typeof HTMLElement)
-}
-
 // escape-html
 declare module "escape-html" {
   function escape(html: string): string
   export = escape
 }
 
-declare module "atom-space-pen-views" {
-  import * as sp from "space-pen"
-  export class SelectListView {
-    storeFocusedElement(): void
-    focusFilterEditor(): void
-    restoreFocus(): void
-    setItems(items: any[]): void
-  }
-  export class ScrollView {}
-  export class View extends sp.View {}
-  export var $: JQueryStatic
+//experimental properties / methods on Element
+// (do not use without checking existence of property/method first)
+interface ElementExp extends Element {
+  //experimental feature in Chrome, see https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoViewIfNeeded
+  scrollIntoViewIfNeeded: (opt_center?: boolean) => void
 }

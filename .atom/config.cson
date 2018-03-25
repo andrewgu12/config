@@ -1,56 +1,40 @@
 "*":
-  "aligner-javascript":
-    ":-alignment": "left"
-    ":-leftSpace": true
-  "atom-clock":
-    showClockIcon: true
   "atom-ide-ui":
-    "atom-ide-code-format":
-      formatOnType: false
-    hideNuclideWarning: true
-  "atom-package-deps":
-    ignored: [
-      "atom-typescript"
-    ]
+    use: {}
   core:
-    customFileTypes:
-      "source.ini": [
-        ".buckconfig"
-        ".hgrc"
-        ".flowconfig"
-      ]
-      "source.json": [
-        "BUCK.autodeps"
-      ]
-      "source.python": [
-        "BUCK"
-      ]
-    disabledPackages: [
-      "tree-view"
-    ]
     excludeVcsIgnoredPaths: false
+    ignoredNames: [
+      ".git"
+      ".hg"
+      ".svn"
+      ".DS_Store"
+      "._*"
+      "Thumbs.db"
+      "desktop.ini"
+      "node_modules"
+    ]
     telemetryConsent: "no"
     themes: [
-      "city-lights-ui"
-      "firewatch-syntax"
+      "seti-ui"
+      "ariake-dark-syntax"
     ]
     titleBar: "custom"
   editor:
     fontFamily: "Source Code Pro"
     fontSize: 12
+    invisibles: {}
     preferredLineLength: 800
-    showIndentGuide: true
   "exception-reporting":
-    userId: "35af83ae-4998-434b-9d8d-47617c17f014"
-  "file-icons":
-    onChanges: true
-  "file-types":
-    "^Dockerfile\\..*$": "source.dockerfile"
-  nuclide:
-    "nuclide-home":
-      showHome: false
+    userId: "953a4d77-1f01-4973-9815-550d6f116b8f"
+  "fuzzy-finder":
+    ignoredNames: [
+      "node_modules"
+    ]
+    searchAllPanes: true
+  "seti-ui":
+    fileIcons: false
+    hideDocumentTitle: true
+    hideProjectTab: true
+    themeColor: "Purple"
   welcome:
     showOnStartup: false
-".reason.source":
-  editor:
-    preferredLineLength: 110

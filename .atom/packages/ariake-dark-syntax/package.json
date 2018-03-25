@@ -1,0 +1,65 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118224-3629-ix08r6.dxxhoos9k9/package.tgz",
+        "scope": null,
+        "escapedName": null,
+        "name": null,
+        "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118224-3629-ix08r6.dxxhoos9k9/package.tgz",
+        "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118224-3629-ix08r6.dxxhoos9k9/package.tgz",
+        "type": "local"
+      },
+      "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-118224-3629-m6rv4v.9n6wasjor"
+    ]
+  ],
+  "_from": "../d-118224-3629-ix08r6.dxxhoos9k9/package.tgz",
+  "_id": "ariake-dark-syntax@0.1.3",
+  "_inCache": true,
+  "_location": "/ariake-dark-syntax",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118224-3629-ix08r6.dxxhoos9k9/package.tgz",
+    "scope": null,
+    "escapedName": null,
+    "name": null,
+    "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118224-3629-ix08r6.dxxhoos9k9/package.tgz",
+    "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118224-3629-ix08r6.dxxhoos9k9/package.tgz",
+    "type": "local"
+  },
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "file:../d-118224-3629-ix08r6.dxxhoos9k9/package.tgz",
+  "_shasum": "e260406610ffdf0954195761d1b54acb5adb8718",
+  "_shrinkwrap": null,
+  "_spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118224-3629-ix08r6.dxxhoos9k9/package.tgz",
+  "_where": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-118224-3629-m6rv4v.9n6wasjor",
+  "bugs": {
+    "url": "https://github.com/pathtrk/ariake-dark-syntax/issues"
+  },
+  "dependencies": {},
+  "description": "A dark blue syntax theme inspired by Japan colors and the poetry.",
+  "devDependencies": {},
+  "engines": {
+    "atom": ">=1.13.0"
+  },
+  "homepage": "https://github.com/pathtrk/ariake-dark-syntax#readme",
+  "keywords": [
+    "dark",
+    "blue",
+    "syntax",
+    "japan"
+  ],
+  "license": "MIT",
+  "name": "ariake-dark-syntax",
+  "optionalDependencies": {},
+  "readme": "## Ariake Dark Syntax theme\n\nAriake is an atom syntax theme inspired by Japanese traditional colors and the poetry composed 1000 years ago.\n\n\"有明の　つれなく見えし　別れより　暁ばかり　憂きものはなし\" - Mibu no Tadamine (壬生忠岑)\n> \"Since I saw the moon in dawn when you said good-bye, My heart aches every time I see it again.\"\n\n![Mibuno Tadamine](https://cloud.githubusercontent.com/assets/633848/19710567/4ad4d860-9b6a-11e6-8331-ac245eaf5a5b.jpg)\n\nThis theme is also a fork of [One Dark Syntax](https://github.com/atom/one-dark-syntax).\n\n![Ariake Syntax screen shot](https://cloud.githubusercontent.com/assets/633848/19751339/640a91a2-9c33-11e6-816b-f710989a78e0.png)\n\n> The font used in the screenshot is [Fira Mono](https://github.com/mozilla/Fira).\n\nThere is also a matching [UI theme](https://atom.io/themes/one-dark-ui).\n\n### Install\n\nSearch for `ariake-dark-syntax` in Settings > Install > Themes.\n\nOr install it directly using the command:\n\n```shell\napm install ariake-dark-syntax\n```\n",
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pathtrk/ariake-dark-syntax.git"
+  },
+  "theme": "syntax",
+  "version": "0.1.3"
+}

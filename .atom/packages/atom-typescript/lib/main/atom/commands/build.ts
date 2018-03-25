@@ -1,13 +1,14 @@
-import {commands} from "./registry"
+import {addCommand} from "./registry"
 import {commandForTypeScript, getFilePathPosition} from "../utils"
 
-commands.set("typescript:build", deps => {
-  return async e => {
+addCommand("atom-text-editor", "typescript:build", deps => ({
+  description: "Compile all files in project related to current active text editor",
+  async didDispatch(e) {
     if (!commandForTypeScript(e)) {
       return
     }
 
-    const fpp = getFilePathPosition()
+    const fpp = getFilePathPosition(e.currentTarget.getModel())
     if (!fpp) {
       e.abortKeyBinding()
       return
@@ -15,35 +16,34 @@ commands.set("typescript:build", deps => {
     const {file} = fpp
     const client = await deps.getClient(file)
 
-    const projectInfo = await client.executeProjectInfo({
+    const projectInfo = await client.execute("projectInfo", {
       file,
       needFileNameList: true,
     })
 
     const files = new Set(projectInfo.body!.fileNames)
     files.delete(projectInfo.body!.configFileName)
+    let filesSoFar = 0
+    const stp = deps.getStatusPanel()
     const promises = [...files.values()].map(f =>
-      _finally(client.executeCompileOnSaveEmitFile({file: f, forced: true}), () => {
-        files.delete(file)
+      _finally(client.execute("compileOnSaveEmitFile", {file: f, forced: true}), () => {
+        stp.update({progress: {max: files.size, value: (filesSoFar += 1)}})
+        if (files.size <= filesSoFar) stp.update({progress: undefined})
       }),
     )
 
-    Promise.all(promises)
-      .then(results => {
-        if (results.some(result => result.body === false)) {
-          throw new Error("Emit failed")
-        }
-
-        deps.statusPanel.setBuildStatus({success: true})
-      })
-      .catch(err => {
-        console.error(err)
-        deps.statusPanel.setBuildStatus({success: false})
-      })
-
-    deps.statusPanel.setBuildStatus(undefined)
-  }
-})
+    try {
+      const results = await Promise.all(promises)
+      if (results.some(result => result.body === false)) {
+        throw new Error("Emit failed")
+      }
+      stp.update({buildStatus: {success: true}})
+    } catch (err) {
+      console.error(err)
+      stp.update({buildStatus: {success: false, message: err.message}})
+    }
+  },
+}))
 
 function _finally<T>(promise: Promise<T>, callback: (result: T) => void): Promise<T> {
   promise.then(callback, callback)

@@ -2,39 +2,39 @@
   "_args": [
     [
       {
-        "raw": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-1171113-28322-gzywyb.gvfgp3c8fr/package.tgz",
+        "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118222-71658-1ub3ao5.y69f3whfr/package.tgz",
         "scope": null,
         "escapedName": null,
         "name": null,
-        "rawSpec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-1171113-28322-gzywyb.gvfgp3c8fr/package.tgz",
-        "spec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-1171113-28322-gzywyb.gvfgp3c8fr/package.tgz",
+        "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118222-71658-1ub3ao5.y69f3whfr/package.tgz",
+        "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118222-71658-1ub3ao5.y69f3whfr/package.tgz",
         "type": "local"
       },
-      "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/apm-install-dir-1171113-28322-v64wq8.0266dh1tt9"
+      "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-118222-71658-1vdtgdk.owrfmeu3di"
     ]
   ],
-  "_from": "../d-1171113-28322-gzywyb.gvfgp3c8fr/package.tgz",
+  "_from": "../d-118222-71658-1ub3ao5.y69f3whfr/package.tgz",
   "_id": "firewatch-syntax@1.1.1",
   "_inCache": true,
   "_location": "/firewatch-syntax",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-1171113-28322-gzywyb.gvfgp3c8fr/package.tgz",
+    "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118222-71658-1ub3ao5.y69f3whfr/package.tgz",
     "scope": null,
     "escapedName": null,
     "name": null,
-    "rawSpec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-1171113-28322-gzywyb.gvfgp3c8fr/package.tgz",
-    "spec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-1171113-28322-gzywyb.gvfgp3c8fr/package.tgz",
+    "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118222-71658-1ub3ao5.y69f3whfr/package.tgz",
+    "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118222-71658-1ub3ao5.y69f3whfr/package.tgz",
     "type": "local"
   },
   "_requiredBy": [
     "#USER"
   ],
-  "_resolved": "file:../d-1171113-28322-gzywyb.gvfgp3c8fr/package.tgz",
+  "_resolved": "file:../d-118222-71658-1ub3ao5.y69f3whfr/package.tgz",
   "_shasum": "7f19f92f860d8db9aacae75d64566443dd388086",
   "_shrinkwrap": null,
-  "_spec": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/d-1171113-28322-gzywyb.gvfgp3c8fr/package.tgz",
-  "_where": "/private/var/folders/2b/74cx1c716pz4k5zjddqg18mh0000gn/T/apm-install-dir-1171113-28322-v64wq8.0266dh1tt9",
+  "_spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118222-71658-1ub3ao5.y69f3whfr/package.tgz",
+  "_where": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-118222-71658-1vdtgdk.owrfmeu3di",
   "bugs": {
     "url": "https://github.com/SebastianSzturo/firewatch-syntax/issues"
   },

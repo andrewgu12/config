@@ -1,11 +1,11 @@
 // more: https://github.com/atom-community/autocomplete-plus/wiki/Provider-API
 import {ClientResolver} from "../../client/clientResolver"
-import {kindToType, FileLocationQuery} from "./utils"
+import {FileLocationQuery} from "./utils"
 import * as ACP from "atom/autocomplete-plus"
-import {TypescriptBuffer} from "../typescriptBuffer"
 import {TypescriptServiceClient} from "../../client/client"
 import * as Atom from "atom"
 import * as fuzzaldrin from "fuzzaldrin"
+import {WithTypescriptBuffer} from "../pluginManager"
 
 const importPathScopes = ["meta.import", "meta.import-equals", "triple-slash-directive"]
 
@@ -14,22 +14,17 @@ type SuggestionWithDetails = ACP.TextSuggestion & {
 }
 
 interface Options {
-  getTypescriptBuffer: (
-    filePath: string,
-  ) => Promise<{
-    buffer: TypescriptBuffer
-    isOpen: boolean
-  }>
+  withTypescriptBuffer: WithTypescriptBuffer
 }
 
 export class AutocompleteProvider implements ACP.AutocompleteProvider {
-  selector = ".source.ts, .source.tsx"
+  public selector = ".source.ts, .source.tsx"
 
-  disableForSelector = ".comment"
+  public disableForSelector = ".comment"
 
-  inclusionPriority = 3
-  suggestionPriority = atom.config.get("atom-typescript.autocompletionSuggestionPriority")
-  excludeLowerPriority = false
+  public inclusionPriority = 3
+  public suggestionPriority = atom.config.get("atom-typescript.autocompletionSuggestionPriority")
+  public excludeLowerPriority = false
 
   private clientResolver: ClientResolver
   private lastSuggestions: {
@@ -53,48 +48,7 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     this.opts = opts
   }
 
-  // Try to reuse the last completions we got from tsserver if they're for the same position.
-  async getSuggestionsWithCache(
-    prefix: string,
-    location: FileLocationQuery,
-    activatedManually: boolean,
-  ): Promise<SuggestionWithDetails[]> {
-    if (this.lastSuggestions && !activatedManually) {
-      const lastLoc = this.lastSuggestions.location
-      const lastCol = getNormalizedCol(this.lastSuggestions.prefix, lastLoc.offset)
-      const thisCol = getNormalizedCol(prefix, location.offset)
-
-      if (lastLoc.file === location.file && lastLoc.line === location.line && lastCol === thisCol) {
-        if (this.lastSuggestions.suggestions.length !== 0) {
-          return this.lastSuggestions.suggestions
-        }
-      }
-    }
-
-    const client = await this.clientResolver.get(location.file)
-    const completions = await client.executeCompletions({
-      prefix,
-      includeExternalModuleExports: false,
-      ...location,
-    })
-
-    const suggestions = completions.body!.map(entry => ({
-      text: entry.name,
-      leftLabel: entry.kind,
-      type: kindToType(entry.kind),
-    }))
-
-    this.lastSuggestions = {
-      client,
-      location,
-      prefix,
-      suggestions,
-    }
-
-    return suggestions
-  }
-
-  async getSuggestions(opts: ACP.SuggestionsRequestedEvent): Promise<ACP.TextSuggestion[]> {
+  public async getSuggestions(opts: ACP.SuggestionsRequestedEvent): Promise<ACP.TextSuggestion[]> {
     const location = getLocationQuery(opts)
     const {prefix} = opts
 
@@ -126,8 +80,9 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     }
 
     // Flush any pending changes for this buffer to get up to date completions
-    const {buffer} = await this.opts.getTypescriptBuffer(location.file)
-    await buffer.flush()
+    await this.opts.withTypescriptBuffer(location.file, async buffer => {
+      await buffer.flush()
+    })
 
     try {
       let suggestions = await this.getSuggestionsWithCache(prefix, location, opts.activatedManually)
@@ -153,9 +108,12 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
     }
   }
 
-  async getAdditionalDetails(suggestions: SuggestionWithDetails[], location: FileLocationQuery) {
+  private async getAdditionalDetails(
+    suggestions: SuggestionWithDetails[],
+    location: FileLocationQuery,
+  ) {
     if (suggestions.some(s => !s.details)) {
-      const details = await this.lastSuggestions.client.executeCompletionDetails({
+      const details = await this.lastSuggestions.client.execute("completionEntryDetails", {
         entryNames: suggestions.map(s => s.text!),
         ...location,
       })
@@ -182,6 +140,47 @@ export class AutocompleteProvider implements ACP.AutocompleteProvider {
         }
       })
     }
+  }
+
+  // Try to reuse the last completions we got from tsserver if they're for the same position.
+  private async getSuggestionsWithCache(
+    prefix: string,
+    location: FileLocationQuery,
+    activatedManually: boolean,
+  ): Promise<SuggestionWithDetails[]> {
+    if (this.lastSuggestions && !activatedManually) {
+      const lastLoc = this.lastSuggestions.location
+      const lastCol = getNormalizedCol(this.lastSuggestions.prefix, lastLoc.offset)
+      const thisCol = getNormalizedCol(prefix, location.offset)
+
+      if (lastLoc.file === location.file && lastLoc.line === location.line && lastCol === thisCol) {
+        if (this.lastSuggestions.suggestions.length !== 0) {
+          return this.lastSuggestions.suggestions
+        }
+      }
+    }
+
+    const client = await this.clientResolver.get(location.file)
+    const completions = await client.execute("completions", {
+      prefix,
+      includeExternalModuleExports: false,
+      ...location,
+    })
+
+    const suggestions = completions.body!.map(entry => ({
+      text: entry.name,
+      leftLabel: entry.kind,
+      type: kindToType(entry.kind),
+    }))
+
+    this.lastSuggestions = {
+      client,
+      location,
+      prefix,
+      suggestions,
+    }
+
+    return suggestions
   }
 }
 
@@ -237,4 +236,33 @@ function containsScope(scopes: string[], matchScope: string): boolean {
   }
 
   return false
+}
+
+/** See types :
+ * https://github.com/atom-community/autocomplete-plus/pull/334#issuecomment-85697409
+ */
+export function kindToType(kind: string) {
+  // variable, constant, property, value, method, function, class, type, keyword, tag, snippet, import, require
+  switch (kind) {
+    case "const":
+      return "constant"
+    case "interface":
+      return "type"
+    case "identifier":
+      return "variable"
+    case "local function":
+      return "function"
+    case "local var":
+      return "variable"
+    case "let":
+    case "var":
+    case "parameter":
+      return "variable"
+    case "alias":
+      return "import"
+    case "type parameter":
+      return "type"
+    default:
+      return kind.split(" ")[0]
+  }
 }
