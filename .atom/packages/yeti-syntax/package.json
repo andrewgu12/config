@@ -1,0 +1,59 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118225-27248-1by3yo9.powfyctyb9/package.tgz",
+        "scope": null,
+        "escapedName": null,
+        "name": null,
+        "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118225-27248-1by3yo9.powfyctyb9/package.tgz",
+        "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118225-27248-1by3yo9.powfyctyb9/package.tgz",
+        "type": "local"
+      },
+      "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-118225-27248-1uvkxu2.ksvvgta9k9"
+    ]
+  ],
+  "_from": "../d-118225-27248-1by3yo9.powfyctyb9/package.tgz",
+  "_id": "yeti-syntax@0.1.2",
+  "_inCache": true,
+  "_location": "/yeti-syntax",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118225-27248-1by3yo9.powfyctyb9/package.tgz",
+    "scope": null,
+    "escapedName": null,
+    "name": null,
+    "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118225-27248-1by3yo9.powfyctyb9/package.tgz",
+    "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118225-27248-1by3yo9.powfyctyb9/package.tgz",
+    "type": "local"
+  },
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "file:../d-118225-27248-1by3yo9.powfyctyb9/package.tgz",
+  "_shasum": "8507887f437e2d18c9cf7b65890693a2cedb629c",
+  "_shrinkwrap": null,
+  "_spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118225-27248-1by3yo9.powfyctyb9/package.tgz",
+  "_where": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-118225-27248-1uvkxu2.ksvvgta9k9",
+  "bugs": {
+    "url": "https://github.com/jesseweed/yeti-syntax/issues"
+  },
+  "dependencies": {},
+  "description": "Yeti Syntax - A subtle light colored theme for Atom.",
+  "devDependencies": {},
+  "engines": {
+    "atom": ">0.100.0"
+  },
+  "homepage": "https://github.com/jesseweed/yeti-syntax#readme",
+  "license": "MIT",
+  "name": "yeti-syntax",
+  "optionalDependencies": {},
+  "readme": "# Yeti Syntax\n\nA subtle light colored syntax theme for Atom.\n\n[Yeti UI](https://atom.io/themes/yeti-ui) also available.\n\n![Screenshot](https://github.com/jesseweed/yeti-syntax/raw/master/screenshot.png)\n\n\n### Custom Icons\n[ ![Screenshot](https://github.com/jesseweed/yeti-syntax/raw/master/_icons/circular/circular-128x128.png) ](_icons/circular/)\n[ ![Screenshot](https://github.com/jesseweed/yeti-syntax/raw/master/_icons/rounded/rounded-128x128.png) ](_icons/rounded/)\n[ ![Screenshot](https://github.com/jesseweed/yeti-syntax/raw/master/_icons/squared/squared-128x128.png) ](_icons/squared/)\n\n\n\n## Feeling Darker?\n\nCheckout Yeti's cousin themes [Seti UI](https://atom.io/themes/seti-ui) & [Seti Syntax](https://atom.io/themes/seti-syntax)",
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jesseweed/yeti-syntax.git"
+  },
+  "theme": "syntax",
+  "version": "0.1.2"
+}

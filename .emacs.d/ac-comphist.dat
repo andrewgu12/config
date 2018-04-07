@@ -1,1 +1,14 @@
-(nil)
+((("maxValue" .
+   [1 0 0 0 0 0 0 0])
+  ("minValue" .
+   [1 0 0 0 0 0 0 0])
+  ("maxSaturation" .
+   [0 0 0 0 0 0 0 0 0 0 1 0 0])
+  ("minSaturation" .
+   [1 0 0 0 0 0 0 0 0 0 0 0 0])
+  ("getTrackbarPos" .
+   [0 0 0 0 0 0 0 0 1 0 0 0 0 0])
+  ("maxHue" .
+   [1 0 0 0 0 0])
+  ("cv2" .
+   [2 0 0])))

@@ -1,6 +1,8 @@
 "*":
   "atom-ide-ui":
     use: {}
+  "autocomplete-python":
+    useKite: false
   core:
     excludeVcsIgnoredPaths: false
     ignoredNames: [
@@ -24,6 +26,7 @@
     fontSize: 12
     invisibles: {}
     preferredLineLength: 800
+    tabLength: 4
   "exception-reporting":
     userId: "953a4d77-1f01-4973-9815-550d6f116b8f"
   "fuzzy-finder":
@@ -32,6 +35,7 @@
     ]
     searchAllPanes: true
   "seti-ui":
+    compactView: true
     fileIcons: false
     hideDocumentTitle: true
     hideProjectTab: true

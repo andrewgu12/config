@@ -36,7 +36,7 @@
 
 ;; Default tab width
 (setq-default indent-tabs-mode nil)
-(setq-default tab-width 2)
+(setq-default tab-width 4)
 
 ;; Spacemacs Mode Line
 (require 'spaceline-config)
@@ -71,6 +71,9 @@
 (setq auto-mode-alist (cons '("\\.\\(pde\\|ino\\)$" . arduino-mode) auto-mode-alist))
 (autoload 'arduino-mode "arduino-mode" "Arduino editing mode." t)
 
+;; Neotree
+(require 'all-the-icons)
+(setq neo-theme (if (display-graphic-p) 'icons 'arrow))
 ;; Web Dev Stuff
 
 ;; Coffee Mode
@@ -93,7 +96,7 @@
  '(inhibit-startup-screen t)
  '(package-selected-packages
    (quote
-    (neotree matlab-mode arduino-mode auto-complete go-mode atom-one-dark-theme coffee-mode jade-mode helm-core helm-coreelm creamsody-theme darktooth-theme autopair markdown-mode linum-relative spaceline projectile helm helm-ebdb))))
+    (all-the-icons typescript-mode neotree matlab-mode arduino-mode auto-complete go-mode atom-one-dark-theme coffee-mode jade-mode helm-core helm-coreelm creamsody-theme darktooth-theme autopair markdown-mode linum-relative spaceline projectile helm helm-ebdb))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
