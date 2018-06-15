@@ -1,44 +1,38 @@
 "*":
+  "aligner-javascript":
+    ":-leftSpace": true
   "atom-ide-ui":
-    use: {}
-  "autocomplete-python":
-    useKite: false
+    use:
+      "atom-ide-busy-signal": "default"
+      "atom-ide-code-actions": "default"
+      "atom-ide-code-format": "default"
+      "atom-ide-code-highlight": "default"
+      "atom-ide-console": "default"
+      "atom-ide-datatip": "default"
+      "atom-ide-debugger": "default"
+      "atom-ide-definitions": "default"
+      "atom-ide-diagnostics": "default"
+      "atom-ide-diagnostics-ui": "default"
+      "atom-ide-find-references": "default"
+      "atom-ide-global": "default"
+      "atom-ide-outline-view": "default"
+      "atom-ide-signature-help": "default"
+      "atom-ide-terminal": "default"
+      hyperclick: "default"
   core:
-    excludeVcsIgnoredPaths: false
-    ignoredNames: [
-      ".git"
-      ".hg"
-      ".svn"
-      ".DS_Store"
-      "._*"
-      "Thumbs.db"
-      "desktop.ini"
-      "node_modules"
-    ]
     telemetryConsent: "no"
     themes: [
-      "seti-ui"
+      "one-dark-ui"
       "ariake-dark-syntax"
     ]
     titleBar: "custom"
   editor:
     fontFamily: "Source Code Pro"
-    fontSize: 12
-    invisibles: {}
+    fontSize: 13
     preferredLineLength: 800
-    tabLength: 4
+    scrollPastEnd: true
+    showIndentGuide: true
   "exception-reporting":
-    userId: "953a4d77-1f01-4973-9815-550d6f116b8f"
-  "fuzzy-finder":
-    ignoredNames: [
-      "node_modules"
-    ]
-    searchAllPanes: true
-  "seti-ui":
-    compactView: true
-    fileIcons: false
-    hideDocumentTitle: true
-    hideProjectTab: true
-    themeColor: "Purple"
+    userId: "7c9d53de-7aa8-445f-b2ee-7c7781332d5f"
   welcome:
     showOnStartup: false

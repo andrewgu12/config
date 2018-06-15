@@ -1,12 +1,19 @@
-(require 'package)
-;; add in MELPA and org packages
-(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/"))
-;; (add-to-list 'load-path "~/.emacs.d/custom-packages") ; either self written packages or downloaded
-
-(setq package-enable-at-startup nil)
 (package-initialize)
+;; MELPA and ELPA packages repository
+(setq package-archives      
+      '(("gnu" . "http://elpa.gnu.org/packages/")
+	("melpa" . "http://melpa.org/packages/")))
+
+(add-to-list 'load-path "~/.emacs.d/custom-packages")
+;(require 'custom-packages)
+
+;; Load custom theme
+(load-theme 'subatomic t)
+
+;; Set Font
+(set-default-font "Source Code Pro 13")
+
+;; Rebind Modifier key b/c OSX
 (setq mac-command-modifier 'meta)
 
 ;;where to store backup files
@@ -14,13 +21,50 @@
  backup-by-copying t
  backup-directory-alist '(("." . "~/.emacs-backups")))
 
-;; default theme
-(load-theme 'atom-one-dark t)
+;; Autocomplete parantheses
+(electric-pair-mode 1)
 
-;; Disable menu-bars, scroll-bars, and other nonsense
-(menu-bar-mode -1)
-(scroll-bar-mode -1)
-(tool-bar-mode -1)
+;; Line numbers
+(require 'relative-linum)
+(global-linum-mode t)
+
+;; Show Matching parens
+(setq show-paren-delay 0) ; Quickly
+(show-paren-mode t)
+
+;; Miscellaneous settings
+(setq-default inhibit-startup-message t
+	      frame-title-format  "%@%b%* - emacs")
+
+;; Default tab width
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 4)
+
+;; TODO: config helm, neotree, web dev stuff
+
+;; Company Mode
+(add-hook 'after-init-hook 'global-company-mode)
+
+;; Tide setup
+(defun setup-tide-mode ()
+  (interactive)
+  (tide-setup)
+  (flycheck-mode +1)
+  (setq flycheck-check-syntax-automatically '(save mode-enabled))
+  (eldoc-mode +1)
+  (tide-hl-identifier-mode +1)
+  ;; company is an optional dependency. You have to
+  ;; install it separately via package-install
+  ;; `M-x package-install [ret] company`
+  (company-mode +1))
+
+;; aligns annotation to the right hand side
+(setq company-tooltip-align-annotations t)
+
+;; formats the buffer before saving
+;;(add-hook 'before-save-hook 'tide-format-before-save)
+
+(add-hook 'typescript-mode-hook #'setup-tide-mode)
 
 ;; helm settings
 (global-set-key (kbd "M-x") 'helm-M-x)
@@ -28,61 +72,67 @@
 (global-set-key (kbd "C-x b") 'helm-mini)
 (global-set-key (kbd "C-x C-f") 'helm-find-files)
 
-;; Set Font
-(set-default-font "Source Code Pro 13")
+;; Disable top bars
+(menu-bar-mode -1)
+(scroll-bar-mode -1)
+(tool-bar-mode -1)
 
-;; Mark return key to be a new line and autoindent
-(global-set-key (kbd "RET") 'newline-and-indent)
+;; All the Icons
+(require 'all-the-icons)
 
-;; Default tab width
-(setq-default indent-tabs-mode nil)
-(setq-default tab-width 4)
-
-;; Spacemacs Mode Line
+;; Spaceline (bottom bar)
 (require 'spaceline-config)
-(spaceline-spacemacs-theme)
-
-;; Line Numbers
-;; (require 'relative-linum)
-;; (setq linum-min-luminance 0.5)
-(global-linum-mode t)
-
-;; Projectile settings
-(setq projectile-require-project-root nil)
-(global-set-key (kbd "C-o") 'projectile-find-file)
-
-;; Markdown Settings
-(require 'markdown-mode)
-(add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
-(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
-
-;; Autopair
-(require 'autopair)
-(autopair-global-mode) ;; enable autopair in all buffers
-
-;; Auto-Complete
-(ac-config-default)
-
-;; Go Mode
-(require 'go-mode)
-(add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode))
-
-;; Arduino Mode
-(setq auto-mode-alist (cons '("\\.\\(pde\\|ino\\)$" . arduino-mode) auto-mode-alist))
-(autoload 'arduino-mode "arduino-mode" "Arduino editing mode." t)
+(use-package spaceline-all-the-icons 
+  :after spaceline
+  :config (spaceline-all-the-icons-theme))
 
 ;; Neotree
-(require 'all-the-icons)
+(require 'neotree)
+(global-set-key [f8] 'neotree-toggle)
 (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
-;; Web Dev Stuff
 
-;; Coffee Mode
-(require 'coffee-mode)
-(add-to-list 'auto-mode-alist '("\\.coffee\\'" . coffee-mode))
+;; Projectile
+(setq projectile-require-project-root nil)
+(global-set-key (kbd "C-t") 'projectile-find-file)
 
-;; Jade Mode
-(require 'jade-mode)
-(add-to-list 'auto-mode-alist '("\\.jade\\'" . jade-mode))
+;; Dockerfile
+(use-package dockerfile-mode
+  :delight dockerfile-mode "Dockerfile"
+  :mode "Dockerfile\\'")
+
+;; YAML
+(use-package yaml-mode
+  :delight yaml-mode "YAML"
+  :mode "\\.yml\\'")
+
+;; Markdown Mode
+(use-package markdown-mode
+  :delight markdown-mode "Markdown"
+  :preface
+  (defun me/markdown-set-ongoing-hydra-body ()
+    (setq me/ongoing-hydra-body #'hydra-markdown/body))
+  :mode
+  ("INSTALL\\'"
+   "CONTRIBUTORS\\'"
+   "LICENSE\\'"
+   "README\\'"
+   "\\.markdown\\'"
+   "\\.md\\'")
+  :hook (markdown-mode . me/markdown-set-ongoing-hydra-body)
+  :config
+  (unbind-key "M-<down>" markdown-mode-map)
+  (unbind-key "M-<up>" markdown-mode-map)
+  (setq-default
+   markdown-asymmetric-header t
+   markdown-split-window-direction 'right)
+  (me/unboldify '(markdown-header-face))
+  (set-face-attribute 'markdown-table-face nil :height me/font-size-small))
+
+(require 'yarn-mode)
+
+;; Log files
+(require 'logview)
+
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -91,12 +141,10 @@
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    (quote
-    ("878497d07b1cb63d19c088031a189ba4edda845c7e0849ab68a4232ab4d6c0b7" "0ee3fc6d2e0fc8715ff59aed2432510d98f7e76fe81d183a0eb96789f4d897ca" "a4d03266add9a1c8f12b5309612cbbf96e1291773c7bc4fb685bfdaf83b721c6" default)))
- '(global-linum-mode t)
- '(inhibit-startup-screen t)
+    ("c90fd1c669f260120d32ddd20168343f5c717ca69e95d2f805e42e88430c340e" "d8f76414f8f2dcb045a37eb155bfaa2e1d17b6573ed43fb1d18b936febc7bbc2" "78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" "b34636117b62837b3c0c149260dfebe12c5dad3d1177a758bb41c4b15259ed7e" default)))
  '(package-selected-packages
    (quote
-    (all-the-icons typescript-mode neotree matlab-mode arduino-mode auto-complete go-mode atom-one-dark-theme coffee-mode jade-mode helm-core helm-coreelm creamsody-theme darktooth-theme autopair markdown-mode linum-relative spaceline projectile helm helm-ebdb))))
+    (flatland-theme spacegray-theme atom-one-dark-theme magit sql-indent logview yarn-mode markdown-mode yaml-mode dockerfile-mode helm-ag projectile neotree helm flycheck company tide use-package spaceline-all-the-icons all-the-icons spaceline subatomic-theme))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

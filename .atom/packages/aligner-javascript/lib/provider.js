@@ -3,9 +3,7 @@ module.exports = {
     '.source.js',
     '.source.js.jsx',
     '.source.js.embedded.html',
-    '.source.json',
-    '.source.ts',
-    '.source.tsx'
+    '.source.json'
   ],
   id: 'aligner-javascript', // package name
   config: {

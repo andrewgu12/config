@@ -3,7 +3,7 @@
 ;;; Code:
 (add-to-list 'load-path (directory-file-name (or (file-name-directory #$) (car load-path))))
 
-;;;### (autoloads nil nil ("memoize.el") (23240 53063 371902 602000))
+;;;### (autoloads nil nil ("memoize.el") (23323 53934 270943 259000))
 
 ;;;***
 

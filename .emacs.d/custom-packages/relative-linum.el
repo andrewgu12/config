@@ -1,5 +1,5 @@
 ;;; relative-linum.el --- Relative Line Numbers *** how I like it ***
-;;; Written by @zirrostig
+
 ;; After seeing linum-relative.el and some others, I realized that none of them
 ;; provided linum's like I wanted, so I took inspiration and code from
 ;; linum-relative.el and made my own
@@ -41,7 +41,7 @@
 
 (defface relative-linum-face
   `((t :foreground ,(face-attribute 'font-lock-comment-face :foreground)
-       :background "unspecified-bg"
+       :background "#303347"
        :weight normal
        :slant normal
        ))
@@ -57,8 +57,8 @@
   :group 'relative-linum)
 
 (defvar linum-last 0 "Last line number.")
-(defvar linum-min-luminance 0.25 "Minimum luminance for faded numbers.")
-(defvar linum-luminance-step 0.015 "Luminance decrements by this amount per line.")
+(defvar linum-min-luminance 1 "Minimum luminance for faded numbers.")
+(defvar linum-luminance-step 0 "Luminance decrements by this amount per line.")
 (defvar linum-relative-display-step 5 "Distance between relative numbers.")
 
 (defadvice linum-update (before relative-linum-update activate)
@@ -90,7 +90,7 @@
                       (relative-linum-color diff)))
          (face (if current-p 'relative-linum-current-face 'relative-linum-face))
          (abs-str (propertize (format " %3d" line-number)
-                              'face `(:foreground ,abs-color :background "unspecified-bg")))
+                              'face `(:foreground ,abs-color :background "#303347")))
          (rel-str (propertize (format " %2s" current-symbol) 'face face)))
     (concat abs-str rel-str)))
     ;(propertize (format " %3d %2s " line-number current-symbol) 'face face)))
