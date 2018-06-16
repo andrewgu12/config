@@ -57,8 +57,8 @@
   :group 'relative-linum)
 
 (defvar linum-last 0 "Last line number.")
-(defvar linum-min-luminance 1 "Minimum luminance for faded numbers.")
-(defvar linum-luminance-step 0 "Luminance decrements by this amount per line.")
+(defvar linum-min-luminance 0.5 "Minimum luminance for faded numbers.")
+(defvar linum-luminance-step 0.1 "Luminance decrements by this amount per line.")
 (defvar linum-relative-display-step 5 "Distance between relative numbers.")
 
 (defadvice linum-update (before relative-linum-update activate)

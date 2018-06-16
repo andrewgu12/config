@@ -1,18 +1,10 @@
-'use strict';Object.defineProperty(exports, "__esModule", { value: true });exports.default =
+'use strict';
 
-
-
-
-
-
-
-
-
-
-
-
-
-getCurrentExecutorId;function getCurrentExecutorId(state) {
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = getCurrentExecutorId;
+function getCurrentExecutorId(state) {
   let { currentExecutorId } = state;
   if (currentExecutorId == null) {
     const firstExecutor = Array.from(state.executors.values())[0];
@@ -27,6 +19,6 @@ getCurrentExecutorId;function getCurrentExecutorId(state) {
    * LICENSE file in the root directory of this source tree. An additional grant
    * of patent rights can be found in the PATENTS file in the same directory.
    *
-   * 
+   *  strict-local
    * @format
    */

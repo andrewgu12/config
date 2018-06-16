@@ -2,39 +2,39 @@
   "_args": [
     [
       {
-        "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11846-3662-1sn27k.28c5fjemi/package.tgz",
+        "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-1lrnu5j.lwy18257b9/package.tgz",
         "scope": null,
         "escapedName": null,
         "name": null,
-        "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11846-3662-1sn27k.28c5fjemi/package.tgz",
-        "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11846-3662-1sn27k.28c5fjemi/package.tgz",
+        "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-1lrnu5j.lwy18257b9/package.tgz",
+        "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-1lrnu5j.lwy18257b9/package.tgz",
         "type": "local"
       },
-      "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-11846-3662-19fx8ir.u1vxfajor"
+      "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-118516-70174-1wi9dom.3fq01qncdi"
     ]
   ],
-  "_from": "../d-11846-3662-1sn27k.28c5fjemi/package.tgz",
+  "_from": "../d-118516-70174-1lrnu5j.lwy18257b9/package.tgz",
   "_id": "ariake-dark-syntax@0.1.3",
   "_inCache": true,
   "_location": "/ariake-dark-syntax",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11846-3662-1sn27k.28c5fjemi/package.tgz",
+    "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-1lrnu5j.lwy18257b9/package.tgz",
     "scope": null,
     "escapedName": null,
     "name": null,
-    "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11846-3662-1sn27k.28c5fjemi/package.tgz",
-    "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11846-3662-1sn27k.28c5fjemi/package.tgz",
+    "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-1lrnu5j.lwy18257b9/package.tgz",
+    "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-1lrnu5j.lwy18257b9/package.tgz",
     "type": "local"
   },
   "_requiredBy": [
     "#USER"
   ],
-  "_resolved": "file:../d-11846-3662-1sn27k.28c5fjemi/package.tgz",
+  "_resolved": "file:../d-118516-70174-1lrnu5j.lwy18257b9/package.tgz",
   "_shasum": "e260406610ffdf0954195761d1b54acb5adb8718",
   "_shrinkwrap": null,
-  "_spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11846-3662-1sn27k.28c5fjemi/package.tgz",
-  "_where": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-11846-3662-19fx8ir.u1vxfajor",
+  "_spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-1lrnu5j.lwy18257b9/package.tgz",
+  "_where": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-118516-70174-1wi9dom.3fq01qncdi",
   "bugs": {
     "url": "https://github.com/pathtrk/ariake-dark-syntax/issues"
   },

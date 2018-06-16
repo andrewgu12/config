@@ -1,20 +1,10 @@
-"use strict";Object.defineProperty(exports, "__esModule", { value: true });exports.default =
+"use strict";
 
-
-
-
-
-
-
-
-
-
-
-
-
-matchIndexesToRanges;function matchIndexesToRanges(
-matchIndexes)
-{
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = matchIndexesToRanges;
+function matchIndexesToRanges(matchIndexes) {
   let streakOngoing = false;
   let start = 0;
   const ranges = [];
@@ -46,6 +36,6 @@ matchIndexes)
    * LICENSE file in the root directory of this source tree. An additional grant
    * of patent rights can be found in the PATENTS file in the same directory.
    *
-   * 
+   *  strict
    * @format
    */

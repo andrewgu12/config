@@ -1,5 +1,36 @@
 # Changelog
 
+## v0.12.0
+
+- Atom 1.25 is now the minimum required version.
+- Fixes for Atom 1.28-beta:
+  - Added a new prebuilt version of pty compatible with Electron 2.0. (#241)
+  - Code action menus correctly appear at the cursor position. (#248)
+- Paths in the Terminal now require a cmd/ctrl+click to open.
+- Upgraded React to 16.3.2.
+
+## v0.11.2
+
+### General
+
+- Fixed indentation bug in outline view. (#176)
+- Fixed console scroll behavior where the console wouldn't allow the user to scroll while new messages were coming in.
+- Diagnostics popups are now scrollable, with a fixed maximum height.
+- Removed NODE_PATH override that was sometimes causing issues. (see #64)
+- Added a scoped setting to enable/disable signature help.
+
+### Debugger
+
+- Made the 'multi-line' tip in the debugger console more compact.
+- The debugger console now stays focused when the debugger hits a breakpoint.
+- Fixed duplicate debugger tabs when switching hostnames.
+- Added shortcut for the "Debugger" menu on Windows (`alt-d`).
+
+### Terminal
+
+- Clicking on absolute paths in the terminal now opens the file in Atom.
+- Fixed a bug where the terminal scrollbar would be unclickable.
+
 ## v0.11.1
 
 - Fix atom-ide-debugger-native-gdb on systems with a different Node version from Atom.

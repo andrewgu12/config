@@ -2,39 +2,39 @@
   "_args": [
     [
       {
-        "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11846-8356-18ecupi.zxxikq33di/package.tgz",
+        "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-ca3p7q.t4smnjc3di/package.tgz",
         "scope": null,
         "escapedName": null,
         "name": null,
-        "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11846-8356-18ecupi.zxxikq33di/package.tgz",
-        "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11846-8356-18ecupi.zxxikq33di/package.tgz",
+        "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-ca3p7q.t4smnjc3di/package.tgz",
+        "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-ca3p7q.t4smnjc3di/package.tgz",
         "type": "local"
       },
-      "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-11846-8356-1wxyr84.f35p5e9udi"
+      "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-118516-70174-9lshwq.ir1542huxr"
     ]
   ],
-  "_from": "../d-11846-8356-18ecupi.zxxikq33di/package.tgz",
+  "_from": "../d-118516-70174-ca3p7q.t4smnjc3di/package.tgz",
   "_id": "ide-typescript@0.7.6",
   "_inCache": true,
   "_location": "/ide-typescript",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11846-8356-18ecupi.zxxikq33di/package.tgz",
+    "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-ca3p7q.t4smnjc3di/package.tgz",
     "scope": null,
     "escapedName": null,
     "name": null,
-    "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11846-8356-18ecupi.zxxikq33di/package.tgz",
-    "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11846-8356-18ecupi.zxxikq33di/package.tgz",
+    "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-ca3p7q.t4smnjc3di/package.tgz",
+    "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-ca3p7q.t4smnjc3di/package.tgz",
     "type": "local"
   },
   "_requiredBy": [
     "#USER"
   ],
-  "_resolved": "file:../d-11846-8356-18ecupi.zxxikq33di/package.tgz",
+  "_resolved": "file:../d-118516-70174-ca3p7q.t4smnjc3di/package.tgz",
   "_shasum": "60586c96c3eac9b0220379a343995d40176650ee",
   "_shrinkwrap": null,
-  "_spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11846-8356-18ecupi.zxxikq33di/package.tgz",
-  "_where": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-11846-8356-1wxyr84.f35p5e9udi",
+  "_spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-ca3p7q.t4smnjc3di/package.tgz",
+  "_where": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-118516-70174-9lshwq.ir1542huxr",
   "bugs": {
     "url": "https://github.com/atom/ide-typescript/issues"
   },
