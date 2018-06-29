@@ -24,18 +24,16 @@
 'body.platform-win32':
   'shift-delete': 'atomic-emacs:cut'
   'ctrl-insert': 'atomic-emacs:copy'
-  'ctrl-x': 'atomic-emacs:cut'
-  'ctrl-c': 'atomic-emacs:copy'
 
 'atom-workspace atom-text-editor':
   # Navigation
-  'ctrl-b': 'atomic-emacs:backward-char'
+  'alt-b': 'atomic-emacs:backward-char'
   'left': 'atomic-emacs:backward-char'
-  'ctrl-f': 'atomic-emacs:forward-char'
+  'alt-f': 'atomic-emacs:forward-char'
   'right': 'atomic-emacs:forward-char'
-  'alt-b': 'atomic-emacs:backward-word'
+  'ctrl-b': 'atomic-emacs:backward-word'
   'cmd-left': 'atomic-emacs:backward-word'
-  'alt-f': 'atomic-emacs:forward-word'
+  'ctrl-f': 'atomic-emacs:forward-word'
   'alt-right': 'atomic-emacs:forward-word'
   'ctrl-alt-b': 'atomic-emacs:backward-sexp'
   'ctrl-alt-f': 'atomic-emacs:forward-sexp'
@@ -54,8 +52,8 @@
   'alt-backspace': 'atomic-emacs:backward-kill-word'
   'alt-delete': 'atomic-emacs:backward-kill-word'
   'alt-d': 'atomic-emacs:kill-word'
-  'ctrl-k': 'atomic-emacs:kill-line'
-  'ctrl-w': 'atomic-emacs:kill-region'
+  'cmd-k': 'atomic-emacs:kill-line'
+  'cmd-w': 'atomic-emacs:kill-region'
   'alt-w': 'atomic-emacs:copy-region-as-kill'
   'ctrl-alt-w': 'atomic-emacs:append-next-kill'
   'ctrl-y': 'atomic-emacs:yank'

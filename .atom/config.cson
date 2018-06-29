@@ -1,16 +1,32 @@
 "*":
   "aligner-javascript":
     ",-leftSpace": true
+    ":-alignment": "left"
     ":-leftSpace": true
   "atom-package-deps":
     ignored: [
       "linter-tslint"
     ]
+  "city-lights-ui": {}
   core:
     debugLSP: true
+    excludeVcsIgnoredPaths: false
+    ignoredNames: [
+      ".git"
+      ".hg"
+      ".svn"
+      ".DS_Store"
+      "._*"
+      "Thumbs.db"
+      "desktop.ini"
+      "node_modules"
+    ]
+    packagesWithKeymapsDisabled: [
+      "atomic-emacs"
+    ]
     telemetryConsent: "no"
     themes: [
-      "seti-ui"
+      "city-lights-ui"
       "ariake-dark-syntax"
     ]
     titleBar: "custom"
@@ -19,7 +35,7 @@
     fontSize: 13
     preferredLineLength: 800
     showIndentGuide: true
-    tabLength: 4
+    tabType: "soft"
   "exception-reporting":
     userId: "80a04611-b850-4db3-8956-f22694fdfe71"
   "seti-ui":

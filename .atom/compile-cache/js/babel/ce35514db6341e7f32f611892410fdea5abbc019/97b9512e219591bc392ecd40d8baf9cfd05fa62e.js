@@ -1,0 +1,17 @@
+'use babel';
+
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+var Settings = {
+	dotenvFileNames: {
+		title: 'Filenames',
+		description: 'Filenames to associate with the Dotenv grammar. Ex. .env, .env.local',
+		type: 'array',
+		'default': ['.env'],
+		order: 1
+	}
+};
+
+exports.Settings = Settings;
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi9Vc2Vycy9taW5nYm8vY29uZmlnLy5hdG9tL3BhY2thZ2VzL2xhbmd1YWdlLWRvdGVudi9saWIvY29uZmlnLmpzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLFdBQVcsQ0FBQzs7Ozs7QUFFWixJQUFNLFFBQVEsR0FBRztBQUNoQixnQkFBZSxFQUFFO0FBQ2hCLE9BQUssRUFBRSxXQUFXO0FBQ2xCLGFBQVcsRUFBRSxzRUFBc0U7QUFDbkYsTUFBSSxFQUFFLE9BQU87QUFDYixhQUFTLENBQUMsTUFBTSxDQUFDO0FBQ2pCLE9BQUssRUFBRSxDQUFDO0VBQ1I7Q0FDRCxDQUFDOztRQUVNLFFBQVEsR0FBUixRQUFRIiwiZmlsZSI6Ii9Vc2Vycy9taW5nYm8vY29uZmlnLy5hdG9tL3BhY2thZ2VzL2xhbmd1YWdlLWRvdGVudi9saWIvY29uZmlnLmpzIiwic291cmNlc0NvbnRlbnQiOlsiJ3VzZSBiYWJlbCc7XG5cbmNvbnN0IFNldHRpbmdzID0ge1xuXHRkb3RlbnZGaWxlTmFtZXM6IHtcblx0XHR0aXRsZTogJ0ZpbGVuYW1lcycsXG5cdFx0ZGVzY3JpcHRpb246ICdGaWxlbmFtZXMgdG8gYXNzb2NpYXRlIHdpdGggdGhlIERvdGVudiBncmFtbWFyLiBFeC4gLmVudiwgLmVudi5sb2NhbCcsXG5cdFx0dHlwZTogJ2FycmF5Jyxcblx0XHRkZWZhdWx0OiBbJy5lbnYnXSxcblx0XHRvcmRlcjogMVxuXHR9XG59O1xuXG5leHBvcnQge1NldHRpbmdzfTsiXX0=
