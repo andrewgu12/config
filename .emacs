@@ -45,6 +45,7 @@
 (setq-default tab-width 2)
 
 ;; TODO: config helm, neotree, web dev stuff
+(setq-default neo-show-hidden-files t)
 
 ;; Company Mode
 (add-hook 'after-init-hook 'global-company-mode)
