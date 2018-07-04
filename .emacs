@@ -8,7 +8,7 @@
 ;(require 'custom-packages)
 
 ;; Load custom theme
-(load-theme 'subatomic t)
+(load-theme 'atom-one-dark t)
 
 ;; Set Font
 (set-default-font "Source Code Pro 13")
@@ -171,3 +171,5 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+(put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
