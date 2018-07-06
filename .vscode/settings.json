@@ -1,0 +1,34 @@
+{
+    "workbench.startupEditor": "newUntitledFile",
+    "editor.fontFamily": "Source Code Pro",
+    "gitlens.advanced.messages": {
+        "suppressShowKeyBindingsNotice": true
+    },
+    "gitlens.historyExplorer.enabled": true,
+    "workbench.iconTheme": "vscode-icons",
+    "editor.tabSize": 2,
+    "workbench.colorTheme": "Atom One Dark",
+    "editor.minimap.enabled": false,
+    "editor.fontSize": 13,
+    "tslint.run": "onSave",
+    "explorer.confirmDragAndDrop": false,
+    "problems.decorations.enabled": false,
+   "alignment.surroundSpace": {
+       "colon": [
+           1,
+           1
+       ],
+       "assignment": [
+           1,
+           1
+       ],
+       "arrow": [
+           1,
+           1
+       ],
+       "comment": 2
+},
+"atomKeymap.promptV3Features": true,
+"editor.multiCursorModifier": "ctrlCmd",
+"editor.formatOnPaste": true
+}

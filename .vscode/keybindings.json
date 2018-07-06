@@ -1,0 +1,70 @@
+// Place your key bindings in this file to overwrite the defaults
+[
+      {
+            "key": "ctrl+x ctrl+n",
+            "command": "workbench.action.newWindow"
+      },
+      {
+            "key": "ctrl+x 1",
+            "command": "workbench.action.closeEditorsInOtherGroups"
+      },
+      {
+            "key": "ctrl+x 2",
+            "command": "workbench.action.splitEditorDown"
+      },
+      {
+            "key": "ctrl+x 3",
+            "command": "workbench.action.splitEditorRight"
+      },
+      {
+            "key": "ctrl+x o",
+            "command": "workbench.action.navigateEditorGroups"
+      },
+      {
+            "key": "ctrl+x 0",
+            "command": "workbench.action.closeActiveEditor"
+      },
+      {
+            "key": "ctrl+x ctrl+l",
+            "command": "editor.action.transformToLowercase",
+            "when": "editorTextFocus && !editorReadonly"
+      },
+      {
+            "key": "ctrl+x ctrl+u",
+            "command": "editor.action.transformToUppercase",
+            "when": "editorTextFocus && !editorReadonly"
+      },
+      {
+            "key": "ctrl+s",
+            "command": "editor.action.nextMatchFindAction",
+            "when": "findWidgetVisible"
+      },
+      {
+            "key": "ctrl+r",
+            "command": "actions.find",
+            "when": "!findWidgetVisible"
+      },
+      {
+            "key": "ctrl+r",
+            "command": "editor.action.previousMatchFindAction",
+            "when": "findWidgetVisible"
+      },
+      {
+            "key": "ctrl+x ctrl+f",
+            "command": "workbench.action.quickOpen"
+      },
+      {
+            "key": "ctrl+x ctrl+s",
+            "command": "workbench.action.files.save",
+            "when": "editorTextFocus"
+      },
+      {
+            "key": "ctrl+x h",
+            "command": "editor.action.selectAll"
+      },
+      {
+            "key": "ctrl+x ctrl+g",
+            "command": "cancelSelection",
+            "when": "editorHasSelection && textInputFocus"
+      }
+]
