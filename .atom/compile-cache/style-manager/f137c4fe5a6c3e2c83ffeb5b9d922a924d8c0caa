@@ -1,1 +1,0 @@
-{"source":".nuclide-ui-hr {\n  /*\n   * Border colors taken from core Atom's [sections.less][1].\n   *\n   * [1]: https://github.com/atom/atom/blob/d06da3f47046643292c0a451be5ca51c67436a1b/static/sections.less\n   */\n  border-bottom: 1px solid rgba(255, 255, 255, 0.07);\n  border-top: 1px solid rgba(0, 0, 0, 0.25);\n  margin-left: 12px;\n  margin-right: 12px;\n}\n"}

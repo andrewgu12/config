@@ -2,39 +2,39 @@
   "_args": [
     [
       {
-        "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-9rxd7s.9tsrk3ayvi/package.tgz",
+        "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11869-82474-txmxig.wqt2anstt9/package.tgz",
         "scope": null,
         "escapedName": null,
         "name": null,
-        "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-9rxd7s.9tsrk3ayvi/package.tgz",
-        "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-9rxd7s.9tsrk3ayvi/package.tgz",
+        "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11869-82474-txmxig.wqt2anstt9/package.tgz",
+        "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11869-82474-txmxig.wqt2anstt9/package.tgz",
         "type": "local"
       },
-      "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-118516-70174-vpp8z5.3hz8y3nmi"
+      "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-11869-82474-ni797u.kh8n8tcsor"
     ]
   ],
-  "_from": "../d-118516-70174-9rxd7s.9tsrk3ayvi/package.tgz",
+  "_from": "../d-11869-82474-txmxig.wqt2anstt9/package.tgz",
   "_id": "aligner@1.2.4",
   "_inCache": true,
   "_location": "/aligner",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-9rxd7s.9tsrk3ayvi/package.tgz",
+    "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11869-82474-txmxig.wqt2anstt9/package.tgz",
     "scope": null,
     "escapedName": null,
     "name": null,
-    "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-9rxd7s.9tsrk3ayvi/package.tgz",
-    "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-9rxd7s.9tsrk3ayvi/package.tgz",
+    "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11869-82474-txmxig.wqt2anstt9/package.tgz",
+    "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11869-82474-txmxig.wqt2anstt9/package.tgz",
     "type": "local"
   },
   "_requiredBy": [
     "#USER"
   ],
-  "_resolved": "file:../d-118516-70174-9rxd7s.9tsrk3ayvi/package.tgz",
+  "_resolved": "file:../d-11869-82474-txmxig.wqt2anstt9/package.tgz",
   "_shasum": "2b2b2a3607d8e59cce40e94e6d50dc127db04389",
   "_shrinkwrap": null,
-  "_spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-9rxd7s.9tsrk3ayvi/package.tgz",
-  "_where": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-118516-70174-vpp8z5.3hz8y3nmi",
+  "_spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11869-82474-txmxig.wqt2anstt9/package.tgz",
+  "_where": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-11869-82474-ni797u.kh8n8tcsor",
   "bugs": {
     "url": "https://github.com/adrianlee44/atom-aligner/issues"
   },

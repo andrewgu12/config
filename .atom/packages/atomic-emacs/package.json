@@ -2,39 +2,39 @@
   "_args": [
     [
       {
-        "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-78dlvp.3g059daemi/package.tgz",
+        "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11869-82635-f81zit.l8o7ccv7vi/package.tgz",
         "scope": null,
         "escapedName": null,
         "name": null,
-        "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-78dlvp.3g059daemi/package.tgz",
-        "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-78dlvp.3g059daemi/package.tgz",
+        "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11869-82635-f81zit.l8o7ccv7vi/package.tgz",
+        "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11869-82635-f81zit.l8o7ccv7vi/package.tgz",
         "type": "local"
       },
-      "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-118516-70174-cxixoi.2yxgaurf6r"
+      "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-11869-82635-1ychf6q.4svopc766r"
     ]
   ],
-  "_from": "../d-118516-70174-78dlvp.3g059daemi/package.tgz",
+  "_from": "../d-11869-82635-f81zit.l8o7ccv7vi/package.tgz",
   "_id": "atomic-emacs@0.12.1",
   "_inCache": true,
   "_location": "/atomic-emacs",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-78dlvp.3g059daemi/package.tgz",
+    "raw": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11869-82635-f81zit.l8o7ccv7vi/package.tgz",
     "scope": null,
     "escapedName": null,
     "name": null,
-    "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-78dlvp.3g059daemi/package.tgz",
-    "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-78dlvp.3g059daemi/package.tgz",
+    "rawSpec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11869-82635-f81zit.l8o7ccv7vi/package.tgz",
+    "spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11869-82635-f81zit.l8o7ccv7vi/package.tgz",
     "type": "local"
   },
   "_requiredBy": [
     "#USER"
   ],
-  "_resolved": "file:../d-118516-70174-78dlvp.3g059daemi/package.tgz",
+  "_resolved": "file:../d-11869-82635-f81zit.l8o7ccv7vi/package.tgz",
   "_shasum": "b97a91a846e64ec20c212eaa8f90a20f18ea6d23",
   "_shrinkwrap": null,
-  "_spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-118516-70174-78dlvp.3g059daemi/package.tgz",
-  "_where": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-118516-70174-cxixoi.2yxgaurf6r",
+  "_spec": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/d-11869-82635-f81zit.l8o7ccv7vi/package.tgz",
+  "_where": "/private/var/folders/3g/y_vrj7ms74s854vvm885d4c00000gn/T/apm-install-dir-11869-82635-1ychf6q.4svopc766r",
   "activationCommands": {
     "atom-text-editor": [
       "atomic-emacs:backward-char",

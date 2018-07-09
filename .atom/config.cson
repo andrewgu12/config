@@ -1,33 +1,15 @@
 "*":
-  "aligner-javascript":
-    ",-leftSpace": true
-    ":-alignment": "left"
-    ":-leftSpace": true
-  "atom-package-deps":
-    ignored: [
-      "linter-tslint"
-    ]
-  "city-lights-ui": {}
+  "advanced-open-file":
+    fuzzyMatch: true
   core:
-    debugLSP: true
-    excludeVcsIgnoredPaths: false
-    ignoredNames: [
-      ".git"
-      ".hg"
-      ".svn"
-      ".DS_Store"
-      "._*"
-      "Thumbs.db"
-      "desktop.ini"
-      "node_modules"
-    ]
-    packagesWithKeymapsDisabled: [
-      "atomic-emacs"
+    disabledPackages: [
+      "file-icons"
+      "advanced-open-file"
     ]
     telemetryConsent: "no"
     themes: [
       "city-lights-ui"
-      "ariake-dark-syntax"
+      "firewatch-syntax"
     ]
     titleBar: "custom"
   editor:
@@ -35,13 +17,7 @@
     fontSize: 13
     preferredLineLength: 800
     showIndentGuide: true
-    tabType: "soft"
   "exception-reporting":
-    userId: "80a04611-b850-4db3-8956-f22694fdfe71"
-  "seti-ui":
-    fileIcons: false
-    hideDocumentTitle: true
-    hideTitleBar: true
-    themeColor: "Orange"
+    userId: "92b4835d-0b8c-48cf-99c9-0a0c1c52bc1f"
   welcome:
     showOnStartup: false

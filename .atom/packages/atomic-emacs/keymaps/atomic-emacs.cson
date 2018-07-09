@@ -24,69 +24,71 @@
 'body.platform-win32':
   'shift-delete': 'atomic-emacs:cut'
   'ctrl-insert': 'atomic-emacs:copy'
+  'ctrl-x': 'atomic-emacs:cut'
+  'ctrl-c': 'atomic-emacs:copy'
 
 'atom-workspace atom-text-editor':
   # Navigation
-  'alt-b': 'atomic-emacs:backward-char'
+  'ctrl-b': 'atomic-emacs:backward-char'
   'left': 'atomic-emacs:backward-char'
-  'alt-f': 'atomic-emacs:forward-char'
+  'ctrl-f': 'atomic-emacs:forward-char'
   'right': 'atomic-emacs:forward-char'
-  'ctrl-b': 'atomic-emacs:backward-word'
+  'cmd-b': 'atomic-emacs:backward-word'
   'cmd-left': 'atomic-emacs:backward-word'
-  'ctrl-f': 'atomic-emacs:forward-word'
-  'alt-right': 'atomic-emacs:forward-word'
-  'ctrl-alt-b': 'atomic-emacs:backward-sexp'
-  'ctrl-alt-f': 'atomic-emacs:forward-sexp'
-  'ctrl-alt-p': 'atomic-emacs:backward-list'
-  'ctrl-alt-n': 'atomic-emacs:forward-list'
+  'cmd-f': 'atomic-emacs:forward-word'
+  'cmd-right': 'atomic-emacs:forward-word'
+  'ctrl-cmd-b': 'atomic-emacs:backward-sexp'
+  'ctrl-cmd-f': 'atomic-emacs:forward-sexp'
+  'ctrl-cmd-p': 'atomic-emacs:backward-list'
+  'ctrl-cmd-n': 'atomic-emacs:forward-list'
   'cmd-{': 'atomic-emacs:backward-paragraph'
   'cmd-}': 'atomic-emacs:forward-paragraph'
-  'alt-m': 'atomic-emacs:back-to-indentation'
+  'cmd-m': 'atomic-emacs:back-to-indentation'
   'ctrl-a': 'editor:move-to-beginning-of-line'
   'ctrl-s': 'find-and-replace:show'
   'ctrl-r': 'find-and-replace:show'
-  'alt-<': 'core:move-to-top'
-  'alt->': 'core:move-to-bottom'
+  'cmd-<': 'core:move-to-top'
+  'cmd->': 'core:move-to-bottom'
 
   # Killing & Yanking
-  'alt-backspace': 'atomic-emacs:backward-kill-word'
-  'alt-delete': 'atomic-emacs:backward-kill-word'
-  'alt-d': 'atomic-emacs:kill-word'
-  'cmd-k': 'atomic-emacs:kill-line'
-  'cmd-w': 'atomic-emacs:kill-region'
-  'alt-w': 'atomic-emacs:copy-region-as-kill'
-  'ctrl-alt-w': 'atomic-emacs:append-next-kill'
+  'cmd-backspace': 'atomic-emacs:backward-kill-word'
+  'cmd-delete': 'atomic-emacs:backward-kill-word'
+  'cmd-d': 'atomic-emacs:kill-word'
+  'ctrl-k': 'atomic-emacs:kill-line'
+  'ctrl-w': 'atomic-emacs:kill-region'
+  'cmd-w': 'atomic-emacs:copy-region-as-kill'
+  'ctrl-cmd-w': 'atomic-emacs:append-next-kill'
   'ctrl-y': 'atomic-emacs:yank'
-  'alt-y': 'atomic-emacs:yank-pop'
-  'alt-shift-y': 'atomic-emacs:yank-shift'
+  'cmd-y': 'atomic-emacs:yank-pop'
+  'cmd-shift-y': 'atomic-emacs:yank-shift'
 
   # Editing
-  'alt-\\': 'atomic-emacs:delete-horizontal-space'
-  'alt-^': 'atomic-emacs:delete-indentation'
+  'cmd-\\': 'atomic-emacs:delete-horizontal-space'
+  'cmd-^': 'atomic-emacs:delete-indentation'
   'ctrl-o': 'atomic-emacs:open-line'
-  'alt-space': 'atomic-emacs:just-one-space'
+  'cmd-space': 'atomic-emacs:just-one-space'
   'ctrl-x ctrl-o': 'atomic-emacs:delete-blank-lines'
   'ctrl-t': 'atomic-emacs:transpose-chars'
-  'alt-t': 'atomic-emacs:transpose-words'
-  'ctrl-alt-t': 'atomic-emacs:transpose-sexps'
+  'cmd-t': 'atomic-emacs:transpose-words'
+  'ctrl-cmd-t': 'atomic-emacs:transpose-sexps'
   'ctrl-x ctrl-t': 'atomic-emacs:transpose-lines'
   'ctrl-x ctrl-l': 'atomic-emacs:downcase-word-or-region'
-  'alt-l': 'atomic-emacs:downcase-word-or-region'
+  'cmd-l': 'atomic-emacs:downcase-word-or-region'
   'ctrl-x ctrl-u': 'atomic-emacs:upcase-word-or-region'
-  'alt-u': 'atomic-emacs:upcase-word-or-region'
-  'alt-c': 'atomic-emacs:capitalize-word-or-region'
+  'cmd-u': 'atomic-emacs:upcase-word-or-region'
+  'cmd-c': 'atomic-emacs:capitalize-word-or-region'
   'ctrl-j': 'editor:newline'
   'ctrl-m': 'editor:newline'
   'ctrl-/': 'core:undo'
   'ctrl-_': 'core:undo'
   'ctrl-x u': 'core:undo'
-  'alt-/': 'autocomplete-plus:activate'
-  'alt-q': 'autoflow:reflow-selection'
-  'alt-;': 'editor:toggle-line-comments'
+  'cmd-/': 'autocomplete-plus:activate'
+  'cmd-q': 'autoflow:reflow-selection'
+  'cmd-;': 'editor:toggle-line-comments'
 
   # Marking & Selecting
   'ctrl-space': 'atomic-emacs:set-mark'
-  'ctrl-alt-space': 'atomic-emacs:mark-sexp'
+  'ctrl-cmd-space': 'atomic-emacs:mark-sexp'
   'ctrl-x h': 'atomic-emacs:mark-whole-buffer'
   'ctrl-x ctrl-x': 'atomic-emacs:exchange-point-and-mark'
 
@@ -94,7 +96,7 @@
   'ctrl-g': 'core:cancel'
   'ctrl-x ctrl-s': 'core:save'
   'ctrl-x ctrl-w': 'core:save-as'
-  'alt-.': 'symbols-view:toggle-file-symbols'
+  'cmd-.': 'symbols-view:toggle-file-symbols'
 
 'atom-text-editor:not(.autocomplete-active):not(.mini)':
   # Navigation
@@ -106,7 +108,7 @@
   # Scrolling
   'ctrl-l': 'atomic-emacs:recenter-top-bottom'
   'ctrl-v': 'atomic-emacs:scroll-up'
-  'alt-v': 'atomic-emacs:scroll-down'
+  'cmd-v': 'atomic-emacs:scroll-down'
 
 '.platform-linux atom-workspace.atomic-emacs atom-text-editor':
   'ctrl-d': 'core:delete'
@@ -139,17 +141,18 @@
   'ctrl-g': 'tool-panel:unfocus'
 
 '.platform-linux atom-workspace, .platform-win32 atom-workspace':
-  'alt-g g': 'go-to-line:toggle'
-  'alt-g alt-g': 'go-to-line:toggle'
+  'cmd-g g': 'go-to-line:toggle'
+  'cmd-g cmd-g': 'go-to-line:toggle'
   'ctrl-g': 'core:cancel'
 
 '.platform-win32 .go-to-line atom-text-editor[mini] input':
   'ctrl-g': 'core:cancel'
 
 '.platform-darwin':
-  'alt-g g': 'go-to-line:toggle'
-  'alt-g alt-g': 'go-to-line:toggle'
+  'cmd-g g': 'go-to-line:toggle'
+  'cmd-g cmd-g': 'go-to-line:toggle'
   'ctrl-g': 'core:cancel'
+  'ctrl-x ctrl-f': 'fuzzy-finder:toggle-file-finder'
 
 '.platform-darwin .go-to-line atom-text-editor[mini] input':
   'ctrl-g': 'core:cancel'
