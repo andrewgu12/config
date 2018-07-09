@@ -36,6 +36,9 @@
 (setq show-paren-delay 0) ; Quickly
 (show-paren-mode t)
 
+;; Enable Rainbow Delimiters mode
+(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+
 ;; Miscellaneous settings
 (setq-default inhibit-startup-message t
 	      frame-title-format  "%@%b%* - emacs")
@@ -162,7 +165,7 @@
  '(js-indent-level 2)
  '(package-selected-packages
    (quote
-    (material-theme pug-mode web-mode editorconfig flatland-theme spacegray-theme atom-one-dark-theme magit sql-indent logview yarn-mode markdown-mode yaml-mode dockerfile-mode helm-ag projectile neotree helm flycheck company tide use-package spaceline-all-the-icons all-the-icons spaceline subatomic-theme)))
+    (rainbow-delimiters material-theme pug-mode web-mode editorconfig flatland-theme spacegray-theme atom-one-dark-theme magit sql-indent logview yarn-mode markdown-mode yaml-mode dockerfile-mode helm-ag projectile neotree helm flycheck company tide use-package spaceline-all-the-icons all-the-icons spaceline subatomic-theme)))
  '(standard-indent 2)
  '(typescript-indent-level 2))
 (custom-set-faces

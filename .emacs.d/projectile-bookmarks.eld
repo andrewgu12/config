@@ -1,1 +1,1 @@
-("~/.emacs.d/elpa/helm-ag-20170209.745/" "~/")
+("~/config/" "~/.emacs.d/elpa/helm-ag-20170209.745/" "~/")
