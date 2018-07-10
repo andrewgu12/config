@@ -3,7 +3,6 @@
     fuzzyMatch: true
   core:
     disabledPackages: [
-      "file-icons"
       "advanced-open-file"
     ]
     telemetryConsent: "no"

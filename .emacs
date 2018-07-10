@@ -28,10 +28,6 @@
 (require 'relative-linum)
 (global-linum-mode t)
 
-;; EditorConfig
-(require 'editorconfig)
-(editorconfig-mode 1)
-
 ;; Show Matching parens
 (setq show-paren-delay 0) ; Quickly
 (show-paren-mode t)
@@ -47,8 +43,15 @@
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 2)
 
+;; Disable system audio bells
+(setq ring-bell-function 'ignore)
+
 ;; TODO: config helm, neotree, web dev stuff
 (setq-default neo-show-hidden-files t)
+
+;; EditorConfig
+(require 'editorconfig)
+(editorconfig-mode 1)
 
 ;; Company Mode
 (add-hook 'after-init-hook 'global-company-mode)
@@ -119,6 +122,7 @@
 (add-to-list 'auto-mode-alist '("\\.css\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.scss\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.hbs\\'" . web-mode))
 
 ;; Pug-Mode
 (require 'pug-mode)
@@ -161,11 +165,14 @@
  '(custom-safe-themes
    (quote
     ("a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a" "c90fd1c669f260120d32ddd20168343f5c717ca69e95d2f805e42e88430c340e" "d8f76414f8f2dcb045a37eb155bfaa2e1d17b6573ed43fb1d18b936febc7bbc2" "78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" "b34636117b62837b3c0c149260dfebe12c5dad3d1177a758bb41c4b15259ed7e" default)))
+ '(editorconfig-mode t)
  '(indent-tabs-mode nil)
  '(js-indent-level 2)
+ '(neo-window-fixed-size nil)
  '(package-selected-packages
    (quote
-    (rainbow-delimiters material-theme pug-mode web-mode editorconfig flatland-theme spacegray-theme atom-one-dark-theme magit sql-indent logview yarn-mode markdown-mode yaml-mode dockerfile-mode helm-ag projectile neotree helm flycheck company tide use-package spaceline-all-the-icons all-the-icons spaceline subatomic-theme)))
+    (helm-ag-r rainbow-delimiters material-theme pug-mode web-mode editorconfig flatland-theme spacegray-theme atom-one-dark-theme magit sql-indent logview yarn-mode markdown-mode yaml-mode dockerfile-mode helm-ag projectile neotree helm flycheck company tide use-package spaceline-all-the-icons all-the-icons spaceline subatomic-theme)))
+ '(projectile-mode t nil (projectile))
  '(standard-indent 2)
  '(typescript-indent-level 2))
 (custom-set-faces
