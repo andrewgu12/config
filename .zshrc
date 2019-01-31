@@ -23,9 +23,9 @@ alias school="cd ~/Documents/school/senior"
 alias projects="cd ~/Documents/projects"
 
 # colorls
-source $(dirname $(gem which colorls))/tab_complete.sh
-alias lc="colorls -lA --sd"
-alias lt="colorls --tree"
+#source $(dirname $(gem which colorls))/tab_complete.sh
+#alias lc="colorls -lA --sd"
+#alias lt="colorls --tree"
 # OPAM configuration
 # alias opam_start="eval `opam config env`"
 

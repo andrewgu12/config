@@ -1,0 +1,2 @@
+([cl-struct-treemacs-workspace "Default Workspace"
+                               ([cl-struct-treemacs-project "api_v2" "/Users/mingbo/Documents/projects/ksa_expo/api_v2"])])

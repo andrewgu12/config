@@ -17,9 +17,10 @@
 (setq mac-command-modifier 'meta)
 
 ;;where to store backup files
-(setq
- backup-by-copying t
- backup-directory-alist '(("." . "~/.emacs-backups")))
+(setq backup-directory-alist '(("" . "~/.emacs.d/emacs-backup")))
+
+(setq make-backup-files nil) ; stop creating backup~ files
+(setq auto-save-default nil) ; stop creating #autosave# files
 
 ;; Autocomplete parantheses
 (electric-pair-mode 1)
@@ -27,6 +28,12 @@
 ;; Line numbers
 (require 'relative-linum)
 (global-linum-mode t)
+
+;; Easier way to move between windows
+;; (global-set-key (kbd "C-x <up>") 'windmove-up) 
+;; (global-set-key (kbd "C-x <down>") 'windmove-down)
+;; (global-set-key (kbd "C-x <right>") 'windmove-right)
+;; (global-set-key (kbd "C-x <left>") 'windmove-left)
 
 ;; Show Matching parens
 (setq show-paren-delay 0) ; Quickly
@@ -42,6 +49,10 @@
 ;; Default tab width
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 2)
+(setq indent-line-function 'insert-tab)
+(setq c-default-style "linux") 
+(setq c-basic-offset 2) 
+(c-set-offset 'comment-intro 0)
 
 ;; Disable system audio bells
 (setq ring-bell-function 'ignore)
@@ -100,7 +111,12 @@
 ;; Neotree
 (require 'neotree)
 (global-set-key [f8] 'neotree-toggle)
-(setq neo-theme (if (display-graphic-p) 'icons 'arrow))
+
+;; Doom
+(require 'doom-themes)
+(load-theme 'doom-one t)
+(doom-themes-neotree-config)            ; NeoTree custom doom theme
+
 
 ;; Projectile
 (setq projectile-require-project-root nil)
@@ -124,33 +140,16 @@
 (add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.hbs\\'" . web-mode))
 
+;; Ruby Mode
+(add-to-list 'auto-mode-alist '("\\Gemfile\\'" . ruby-mode))
+(add-to-list 'auto-mode-alist '("\\Rakefile\\'" . ruby-mode))
+(add-to-list 'auto-mode-alist '("\\.ru\\'" . ruby-mode))
+
 ;; Pug-Mode
 (require 'pug-mode)
 (add-to-list 'auto-mode-alist '("\\.pug\\'" . pug-mode))
 
-;; Markdown Mode
-(use-package markdown-mode
-  :delight markdown-mode "Markdown"
-  :preface
-  (defun me/markdown-set-ongoing-hydra-body ()
-    (setq me/ongoing-hydra-body #'hydra-markdown/body))
-  :mode
-  ("INSTALL\\'"
-   "CONTRIBUTORS\\'"
-   "LICENSE\\'"
-   "README\\'"
-   "\\.markdown\\'"
-   "\\.md\\'")
-  :hook (markdown-mode . me/markdown-set-ongoing-hydra-body)
-  :config
-  (unbind-key "M-<down>" markdown-mode-map)
-  (unbind-key "M-<up>" markdown-mode-map)
-  (setq-default
-   markdown-asymmetric-header t
-   markdown-split-window-direction 'right)
-  (me/unboldify '(markdown-header-face))
-  (set-face-attribute 'markdown-table-face nil :height me/font-size-small))
-
+(require 'markdown-mode)
 (require 'yarn-mode)
 
 ;; Log files
@@ -163,18 +162,22 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   (quote
-    ("a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a" "c90fd1c669f260120d32ddd20168343f5c717ca69e95d2f805e42e88430c340e" "d8f76414f8f2dcb045a37eb155bfaa2e1d17b6573ed43fb1d18b936febc7bbc2" "78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" "b34636117b62837b3c0c149260dfebe12c5dad3d1177a758bb41c4b15259ed7e" default)))
+    (quote
+     ("a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a" "c90fd1c669f260120d32ddd20168343f5c717ca69e95d2f805e42e88430c340e" "d8f76414f8f2dcb045a37eb155bfaa2e1d17b6573ed43fb1d18b936febc7bbc2" "78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" "b34636117b62837b3c0c149260dfebe12c5dad3d1177a758bb41c4b15259ed7e" default)))
+ '(doom-neotree-file-icons (quote t))
  '(editorconfig-mode t)
  '(indent-tabs-mode nil)
  '(js-indent-level 2)
  '(neo-window-fixed-size nil)
  '(package-selected-packages
-   (quote
-    (helm-ag-r rainbow-delimiters material-theme pug-mode web-mode editorconfig flatland-theme spacegray-theme atom-one-dark-theme magit sql-indent logview yarn-mode markdown-mode yaml-mode dockerfile-mode helm-ag projectile neotree helm flycheck company tide use-package spaceline-all-the-icons all-the-icons spaceline subatomic-theme)))
+    (quote
+     (doom-themes neotree helm-ag-r rainbow-delimiters material-theme pug-mode web-mode editorconfig flatland-theme spacegray-theme atom-one-dark-theme magit sql-indent logview yarn-mode markdown-mode yaml-mode dockerfile-mode helm-ag projectile helm flycheck company tide use-package spaceline-all-the-icons all-the-icons spaceline subatomic-theme)))
  '(projectile-mode t nil (projectile))
  '(standard-indent 2)
- '(typescript-indent-level 2))
+ '(typescript-indent-level 2)
+ '(web-mode-code-indent-offset 2)
+ '(web-mode-css-indent-offset 2)
+ '(web-mode-markup-indent-offset 2))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

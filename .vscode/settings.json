@@ -30,5 +30,7 @@
 },
 "atomKeymap.promptV3Features": true,
 "editor.multiCursorModifier": "ctrlCmd",
-"editor.formatOnPaste": true
+"editor.formatOnPaste": true,
+"gitlens.views.fileHistory.enabled": true,
+"gitlens.views.lineHistory.enabled": true
 }
