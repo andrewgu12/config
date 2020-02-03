@@ -1,1 +1,1 @@
-("~/Documents/projects/resumes/" "~/config/" "~/" "~/Documents/projects/ksa_expo/api_v2/" "~/Documents/projects/ksa_expo/api/" "~/Documents/projects/ksa_expo/web/" "~/Documents/projects/hospitalrun/hospitalrun-frontend/" "~/.emacs.d/elpa/helm-ag-20170209.745/")
+("~/Documents/andrew gu/andrewgu12.github.io/")

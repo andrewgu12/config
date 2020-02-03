@@ -1,0 +1,40 @@
+;;; -*- coding: utf-8 -*-
+
+;; ----- ido-last-directory-list -----
+(
+ ("/Users/andrewgu/.emacs.d/" . "elpa/")
+ ("/Users/andrewgu/Documents/andrew gu/andrewgu12.github.io/" . "blog/")
+ ("/Users/andrewgu/Documents/andrew gu/" . "andrewgu12.github.io/")
+ ("/Users/andrewgu/Documents/" . "andrew gu/")
+ ("/Users/andrewgu/" . "Documents/")
+)
+
+;; ----- ido-work-directory-list -----
+(
+ "/Users/andrewgu/Documents/andrew gu/andrewgu12.github.io/blog/"
+)
+
+;; ----- ido-work-file-list -----
+(
+ "leaving-the-bay.md"
+)
+
+;; ----- ido-dir-file-cache -----
+(
+ ("/Users/andrewgu/" (24117 61941 103464 835000) ".zlogin" ".viminfo" ".bash_history" ".gitconfig" "Downloads/" ".oh-my-zsh/" ".gem/" ".bash_profile" ".vscode/" "Documents/" ".npm/" ".zcompdump" ".Trash/" ".emacs~" ".profile" "Applications/" ".emacs" ".vimrc" "Movies/" ".ssh/" "Public/" ".zcompdump-Andrew’s MacBook Pro-5.7.1" ".node_repl_history" ".emacs.d/" ".mkshrc" "Library/" "Desktop/" ".zsh_history" ".tmux-themepack/" ".bundle/" ".nvm/" ".shell.pre-oh-my-zsh" "Pictures/" ".zshrc" ".zshrc.pre-oh-my-zsh" ".bashrc" ".subversion/" "config/" ".vagrant.d/" ".rbenv/" ".CFUserTextEncoding" ".yarnrc" "VirtualBox VMs/" ".tmux.conf" ".zcompdump-Andrew’s MacBook Pro-5.3" ".DS_Store" ".vim/" "Music/" ".config/" "../" "./")
+
+ ("/Users/andrewgu/.emacs.d/elpa/" (24117 61737 797801 940000) "one-themes-20190424.740/" "atom-dark-theme-20181022.1602/" "bind-key-20191110.416/" "markdown-mode-readme.txt" "use-package-20191126.2034/" "archives/" "use-package-readme.txt" "atom-one-dark-theme-readme.txt" "one-themes-readme.txt" "markdown-mode-20191230.1055/" "../" "./")
+
+ ("/Users/andrewgu/.emacs.d/" (24117 57605 21051 398000) "elpa/" "auto-save-list/" "../" "./")
+
+ ("/Users/andrewgu/Documents/andrew gu/andrewgu12.github.io/blog/" (24110 2465 463916 586000) "leaving-the-bay.md" "../" "./")
+
+ ("/Users/andrewgu/Documents/andrew gu/andrewgu12.github.io/" (24110 2401 806597 294000) ".idea/" "ts/" ".vscode/" ".git/" "index.ts" "tsconfig.json" "package.json" ".gitignore" "yarn.lock" "blog/" "docs/" "webpack.config.js" "node_modules/" "scss/" "CNAME" "dist/" "yarn-error.log" ".DS_Store" "index.html" "../" "./")
+
+ ("/Users/andrewgu/Documents/andrew gu/" (24117 41826 740362 872000) "Federal_W4_Mingbo_Gu_il7msyyyfwu2sd93ulu9cio6m.pdf" "signature.jpg" "eye prescription glasses.jpeg" "cover letter updated.docx" "sketch license.txt" "IMG_5969.JPG" "cover letter.odt" "eRenterPlan Insurance Confirmation Document.pdf" "insurance/" "Dict/" "eye doctor receipt.jpg" "andrew_gu_resume.pdf" "apartment/" "github-recovery-codes.txt" "TaxReturn.pdf" "IMG_8292.JPG" "resume andrew gu.pdf" "konica resume andrew gu.docx" "IMG_9398.JPG" "resumev2.docx" "social security card.jpg" "cars/" "resume dump.docx" "uin proof.jpg" "sublime license.txt" "LocalStorage/" "Gu, Mingbo - 2015 FiscalNote W2.pdf" "andrewgu12.github.io/" "license.jpg" "Logs/" "resume.docx" "china visa.pdf" "permit number.txt" "2019 tax return.tax2019" "cover letter.pdf" "resume_updated.pdf" "sign.jpg" "签证邀请信-minghui.doc" "introduction.docx" "andrew gu cover letter.pdf" "Image (2).jpg" "andrew_gu_transcript.pdf" "resume_updated.docx" "Image (3).jpg" "resume/" "health insurance 1.jpg" "Proof of Citizenship for Financial Aid.zip" "2018_TaxReturn.pdf.pdf" "签证邀请信-mingBo.doc" "info.txt" "health insurance 2.jpg" "encouragement.tex" "andrew_gu_cover_letter.pdf" "2019 tax return.pdf" ".DS_Store" "uin proof 3.jpg" "lastpass.txt" "Databases/" "cover letter.docx" "uin proof 2.jpg" "credit/" "insurance + medication.txt" "Personal/" "../" "./")
+
+ ("/Users/andrewgu/Documents/" (24117 51980 947382 350000) "school/" "fonts/" "employment/" "craigslist/" "CNY amazon decorations receipt 1.pdf" "andrew gu/" "CNY amazon decorations receipt 2.pdf" "projects/" ".localized" ".DS_Store" "../" "./")
+)
+
+;; ----- ido-unc-hosts-cache -----
+t

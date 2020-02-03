@@ -1,188 +1,88 @@
 (package-initialize)
-;; MELPA and ELPA packages repository
-(setq package-archives      
+
+(setq package-archives
       '(("gnu" . "http://elpa.gnu.org/packages/")
 	("melpa" . "http://melpa.org/packages/")))
 
-(add-to-list 'load-path "~/.emacs.d/custom-packages")
-;(require 'custom-packages)
+(eval-when-compile
+  (require 'use-package))
 
-;; Load custom theme
-(load-theme 'atom-one-dark t)
+;; Mac specific keybindings
+(when (eq system-type 'darwin)
+  (setq mac-option-modifier 'alt)
+  (setq mac-command-modifier 'meta)
+  )
 
-;; Set Font
-(set-default-font "Source Code Pro 13")
-
-;; Rebind Modifier key b/c OSX
-(setq mac-command-modifier 'meta)
-
-;;where to store backup files
-(setq backup-directory-alist '(("" . "~/.emacs.d/emacs-backup")))
-
-(setq make-backup-files nil) ; stop creating backup~ files
-(setq auto-save-default nil) ; stop creating #autosave# files
-
-;; Autocomplete parantheses
-(electric-pair-mode 1)
-
-;; Line numbers
-(require 'relative-linum)
-(global-linum-mode t)
-
-;; Easier way to move between windows
-;; (global-set-key (kbd "C-x <up>") 'windmove-up) 
-;; (global-set-key (kbd "C-x <down>") 'windmove-down)
-;; (global-set-key (kbd "C-x <right>") 'windmove-right)
-;; (global-set-key (kbd "C-x <left>") 'windmove-left)
-
-;; Show Matching parens
-(setq show-paren-delay 0) ; Quickly
-(show-paren-mode t)
-
-;; Enable Rainbow Delimiters mode
-(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-
-;; Miscellaneous settings
-(setq-default inhibit-startup-message t
-	      frame-title-format  "%@%b%* - emacs")
-
-;; Default tab width
-(setq-default indent-tabs-mode nil)
-(setq-default tab-width 2)
-(setq indent-line-function 'insert-tab)
-(setq c-default-style "linux") 
-(setq c-basic-offset 2) 
-(c-set-offset 'comment-intro 0)
-
-;; Disable system audio bells
-(setq ring-bell-function 'ignore)
-
-;; TODO: config helm, neotree, web dev stuff
-(setq-default neo-show-hidden-files t)
-
-;; EditorConfig
-(require 'editorconfig)
-(editorconfig-mode 1)
-
-;; Company Mode
-(add-hook 'after-init-hook 'global-company-mode)
-
-;; Tide setup
-(defun setup-tide-mode ()
-  (interactive)
-  (tide-setup)
-  (flycheck-mode +1)
-  (setq flycheck-check-syntax-automatically '(save mode-enabled))
-  (eldoc-mode +1)
-  (tide-hl-identifier-mode +1)
-  ;; company is an optional dependency. You have to
-  ;; install it separately via package-install
-  ;; `M-x package-install [ret] company`
-  (company-mode +1))
-
-;; aligns annotation to the right hand side
-(setq company-tooltip-align-annotations t)
-
-;; formats the buffer before saving
-;;(add-hook 'before-save-hook 'tide-format-before-save)
-
-(add-hook 'typescript-mode-hook #'setup-tide-mode)
-
-;; helm settings
-(global-set-key (kbd "M-x") 'helm-M-x)
-(global-set-key (kbd "M-y") 'helm-show-kill-ring)
-(global-set-key (kbd "C-x b") 'helm-mini)
-(global-set-key (kbd "C-x C-f") 'helm-find-files)
-
-;; Disable top bars
-(menu-bar-mode -1)
-(scroll-bar-mode -1)
+;; Hide Emacs's menu bar
 (tool-bar-mode -1)
 
-;; All the Icons
-(require 'all-the-icons)
+;; One dark theme
+(use-package one-themes
+  :ensure t
+  :init
+  (load-theme 'one-dark t))
 
-;; Spaceline (bottom bar)
-(require 'spaceline-config)
-(use-package spaceline-all-the-icons 
-  :after spaceline
-  :config (spaceline-all-the-icons-theme))
+;; Show matching parens
+(setq show-paren-delay 0)
+(show-paren-mode t)
 
-;; Neotree
-(require 'neotree)
-(global-set-key [f8] 'neotree-toggle)
+;; default settings
+(setq-default tab-width 2
+	      inhibit-startup-message t
+	      make-backup-file nil)
 
-;; Doom
-(require 'doom-themes)
-(load-theme 'doom-one t)
-(doom-themes-neotree-config)            ; NeoTree custom doom theme
+;; auto indent
+(define-key global-map (kbd "RET") 'newline-and-indent)
 
+;; Relative line numbers
+(use-package linum-relative
+	:ensure t
+	:config
+	(linum-relative-on))
 
-;; Projectile
-(setq projectile-require-project-root nil)
-(global-set-key (kbd "C-t") 'projectile-find-file)
+;; Helm settings
+(use-package helm-config
+	:config
+	(global-set-key (kbd "M-x") 'helm-M-x))
 
-;; Dockerfile
-(use-package dockerfile-mode
-  :delight dockerfile-mode "Dockerfile"
-  :mode "Dockerfile\\'")
+;; Lanugage specific libraries
+(use-package markdown-mode
+  :ensure t
+  :mode (("\\.md\\' " . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
 
-;; YAML
-(use-package yaml-mode
-  :delight yaml-mode "YAML"
-  :mode "\\.yml\\'")
+;; evil mode
+(use-package evil
+	:ensure t
+	:config
+	(evil-mode 1)
+	(define-key evil-motion-state-map (kbd ":") 'helm-M-x))
 
-;; Web-Mode
-(require 'web-mode)
-(add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.css\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.scss\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.hbs\\'" . web-mode))
+;; projectile
+(use-package projectile
+	:ensure t
+	:config
+	(projectile-mode +1)
+	(define-key projectile-mode-map (kbd "C-x C-f") 'projectile-find-file))
 
-;; Ruby Mode
-(add-to-list 'auto-mode-alist '("\\Gemfile\\'" . ruby-mode))
-(add-to-list 'auto-mode-alist '("\\Rakefile\\'" . ruby-mode))
-(add-to-list 'auto-mode-alist '("\\.ru\\'" . ruby-mode))
+;; keyboard mappings
+(use-package key-chord
+	:ensure t
+	:config
+	(key-chord-mode 1)	
+	(key-chord-define-global "fd" 'evil-normal-state))
 
-;; Pug-Mode
-(require 'pug-mode)
-(add-to-list 'auto-mode-alist '("\\.pug\\'" . pug-mode))
-
-(require 'markdown-mode)
-(require 'yarn-mode)
-
-;; Log files
-(require 'logview)
-
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-    (quote
-     ("a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a" "c90fd1c669f260120d32ddd20168343f5c717ca69e95d2f805e42e88430c340e" "d8f76414f8f2dcb045a37eb155bfaa2e1d17b6573ed43fb1d18b936febc7bbc2" "78496062ff095da640c6bb59711973c7c66f392e3ac0127e611221d541850de2" "b34636117b62837b3c0c149260dfebe12c5dad3d1177a758bb41c4b15259ed7e" default)))
- '(doom-neotree-file-icons (quote t))
- '(editorconfig-mode t)
- '(indent-tabs-mode nil)
- '(js-indent-level 2)
- '(neo-window-fixed-size nil)
- '(package-selected-packages
-    (quote
-     (doom-themes neotree helm-ag-r rainbow-delimiters material-theme pug-mode web-mode editorconfig flatland-theme spacegray-theme atom-one-dark-theme magit sql-indent logview yarn-mode markdown-mode yaml-mode dockerfile-mode helm-ag projectile helm flycheck company tide use-package spaceline-all-the-icons all-the-icons spaceline subatomic-theme)))
- '(projectile-mode t nil (projectile))
- '(standard-indent 2)
- '(typescript-indent-level 2)
- '(web-mode-code-indent-offset 2)
- '(web-mode-css-indent-offset 2)
- '(web-mode-markup-indent-offset 2))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
-(put 'upcase-region 'disabled nil)
-(put 'downcase-region 'disabled nil)
+ '(font-lock-string-face ((t (:family "Source Code Pro")))))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+	 (quote
+		(helm-ag projectile use-package one-themes markdown-mode linum-relative key-chord helm evil atom-dark-theme))))
