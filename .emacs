@@ -29,7 +29,8 @@
 ;; default settings
 (setq-default tab-width 2
 	      inhibit-startup-message t
-	      make-backup-file nil)
+	      make-backup-file nil
+				vc-follow-symlinks t)
 
 ;; auto indent
 (define-key global-map (kbd "RET") 'newline-and-indent)
@@ -39,11 +40,18 @@
 	:ensure t
 	:config
 	(linum-relative-on))
+(global-linum-mode)
 
 ;; Helm settings
 (use-package helm-config
 	:config
 	(global-set-key (kbd "M-x") 'helm-M-x))
+
+;; auto completion
+(use-package company
+	:ensure t
+	:config
+	(global-company-mode))
 
 ;; Lanugage specific libraries
 (use-package markdown-mode
@@ -51,12 +59,21 @@
   :mode (("\\.md\\' " . markdown-mode))
   :init (setq markdown-command "multimarkdown"))
 
+(use-package tide
+	:ensure t
+	:after (typescript-mode company flycheck)
+	:hook ((typescript-mode . tide-setup)
+				 (typescript-mode . tide-hl-identifier-mode)))
+	
 ;; evil mode
 (use-package evil
 	:ensure t
 	:config
-	(evil-mode 1)
-	(define-key evil-motion-state-map (kbd ":") 'helm-M-x))
+	(evil-mode 1))
+;;	(define-key evil-motion-state-map (kbd ":") 'helm-M-x))
+
+;; (use-package ag
+;; 	:ensure t)
 
 ;; projectile
 (use-package projectile
@@ -65,12 +82,20 @@
 	(projectile-mode +1)
 	(define-key projectile-mode-map (kbd "C-x C-f") 'projectile-find-file))
 
+(setq projectile-completion-system 'helm)
+
+(use-package helm-projectile
+	:ensure t
+	:config
+	(helm-projectile-on))
+
 ;; keyboard mappings
 (use-package key-chord
 	:ensure t
 	:config
 	(key-chord-mode 1)	
 	(key-chord-define-global "fd" 'evil-normal-state))
+
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -85,4 +110,4 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
 	 (quote
-		(helm-ag projectile use-package one-themes markdown-mode linum-relative key-chord helm evil atom-dark-theme))))
+		(helm-projectile tide company helm-ag use-package one-themes markdown-mode linum-relative key-chord helm evil atom-dark-theme))))

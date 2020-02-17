@@ -1,1 +1,1 @@
-("~/Documents/andrew gu/andrewgu12.github.io/")
+("~/Documents/andrew gu/andrewgu12.github.io/" "~/config/")
