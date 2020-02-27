@@ -84,10 +84,10 @@
 
 (setq projectile-completion-system 'helm)
 
-(use-package helm-projectile
-	:ensure t
-	:config
-	(helm-projectile-on))
+;; (use-package helm-projectile
+;; 	:ensure t
+;; 	:config
+;; 	(helm-projectile-on))
 
 ;; keyboard mappings
 (use-package key-chord
