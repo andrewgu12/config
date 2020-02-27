@@ -1,0 +1,3 @@
+[submodule ".spacemacs.d"]
+	path = .spacemacs.d
+	url = git@github.com:andrewgu12/spacemacs.git
