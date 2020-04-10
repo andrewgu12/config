@@ -6,8 +6,8 @@
 
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets.
-(setq user-full-name "John Doe"
-      user-mail-address "john@doe.com")
+(setq user-full-name "Andrew Gu"
+      user-mail-address "andrew@mingbogu.com")
 
 ;; Doom exposes five (optional) variables for controlling fonts in Doom. Here
 ;; are the three important ones:
@@ -19,7 +19,7 @@
 ;;
 ;; They all accept either a font-spec, font string ("Input Mono-12"), or xlfd
 ;; font string. You generally only need these two:
-(setq doom-font (font-spec :family "monospace" :size 14))
+(setq doom-font (font-spec :family "Source Code Pro for Powerline" :size 12))
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
@@ -34,7 +34,19 @@
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
 (setq display-line-numbers-type t)
 
+(setq doom-themes-neotree-enable-file-icons t)
+(setq doom-themes-neotree-file-icons 'arrow)
 
+(setq projectile-project-search-path '("~/Documents/upside" "~/Documents/heartbeat"))
+(setq projectile-indexing-method 'native)
+
+(setq-default evil-escape-key-sequence "fd")
+
+(setq tool-bar-mode nil)
+;; Tide Settings
+(setq tide-completion-ignore-case t)
+(setq tide-completion-detailed t)
+(setq tide-server-max-response-length 51200)
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;
 ;; - `load!' for loading external *.el files relative to this one
@@ -51,3 +63,8 @@
 ;;
 ;; You can also try 'gd' (or 'C-c g d') to jump to their definition and see how
 ;; they are implemented.
+(setq typescript-indent-level 2)
+(setq web-mode-indent-style 2)
+(setq c-basic-offset 2)
+(setq js2-basic-offset 2)
+(setq js-indent-level 2)

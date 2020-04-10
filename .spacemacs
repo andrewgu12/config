@@ -30,7 +30,8 @@ values."
    dotspacemacs-configuration-layer-path '()
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(erlang
+   '(yaml
+     erlang
      (typescript :variables
                  typescript-backend 'tide
                  typescript-fmt-on-save 't

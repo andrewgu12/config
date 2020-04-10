@@ -7,7 +7,7 @@
 ;;
 ;; WARNING: Disabling core packages listed in ~/.emacs.d/core/packages.el may
 ;; have nasty side-effects and is not recommended.
-(package! format-all-buffer)
+;; (package! format-all-buffer)
 
 ;; All of Doom's packages are pinned to a specific commit, and updated from
 ;; release to release. To un-pin all packages and live on the edge, do:
