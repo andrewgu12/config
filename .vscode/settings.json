@@ -1,6 +1,6 @@
 {
     "workbench.startupEditor": "newUntitledFile",
-    "editor.fontFamily": "Source Code Pro",
+    "editor.fontFamily": "Source Code Pro for Powerline",
     "gitlens.advanced.messages": {
         "suppressShowKeyBindingsNotice": true
     },
@@ -9,7 +9,6 @@
     "editor.tabSize": 2,
     "workbench.colorTheme": "Atom One Dark",
     "editor.minimap.enabled": false,
-    "editor.fontSize": 13,
     "tslint.run": "onSave",
     "explorer.confirmDragAndDrop": false,
     "problems.decorations.enabled": false,

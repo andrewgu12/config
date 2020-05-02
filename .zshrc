@@ -30,3 +30,6 @@ prompt spaceship
 
 # Emacs DOOM
 export PATH="$HOME/.emacs.d/bin:$PATH"
+
+# opam configuration
+test -r /Users/andrewgu/.opam/opam-init/init.zsh && . /Users/andrewgu/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true

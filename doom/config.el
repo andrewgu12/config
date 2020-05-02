@@ -37,7 +37,7 @@
 (setq doom-themes-neotree-enable-file-icons t)
 (setq doom-themes-neotree-file-icons 'arrow)
 
-(setq projectile-project-search-path '("~/Documents/upside" "~/Documents/heartbeat"))
+(setq projectile-project-search-path '("~/Documents/projects"))
 (setq projectile-indexing-method 'native)
 
 (setq-default evil-escape-key-sequence "fd")
