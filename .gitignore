@@ -4,3 +4,8 @@
 doom
 emacs-doom
 spacemacs/
+.atom
+.bashrc
+atom.sh
+pushup.sh
+setup.sh

@@ -1,2 +1,0 @@
-("~/Documents/sabre-hotel-vendor-service/")
-
