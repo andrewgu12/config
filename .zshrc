@@ -9,7 +9,7 @@ DEFAULT_USER=`whoami`
 source $ZSH/oh-my-zsh.sh
 
 # rbenv
-if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
+#if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
 
 # nvm
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
@@ -29,7 +29,8 @@ SPACESHIP_DIR_TRUNC_REPO=false
 prompt spaceship
 
 # Emacs DOOM
-export PATH="$HOME/.emacs.d/bin:$PATH"
+#export PATH="$HOME/.emacs.d/bin:$PATH"
 
 # opam configuration
-test -r /Users/andrewgu/.opam/opam-init/init.zsh && . /Users/andrewgu/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
+#test -r /Users/andrewgu/.opam/opam-init/init.zsh && . /Users/andrewgu/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true
+#[ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

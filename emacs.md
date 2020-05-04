@@ -1,13 +1,19 @@
 ## TODO
 
-* evil mode
-* use-package
-* themes/UI, rainbow brackets, autoformatter, centaur tabs
+
 * languages
 * autocomplete
 * LSP
 * dap
 * directory viewer
 * commands
+* magit - diff
+* projectile
+* sidebar
+
 * ivy - swiper(?), ivy-rich, ivy-posframe
-* magit
+* vim powerline
+* evil mode
+* use-package
+* themes/UI, rainbow brackets, line-number, autoformatter, centaur tabs
+
