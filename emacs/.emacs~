@@ -219,7 +219,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
 	 (quote
-		(counsel-etags evil-collection rjsx-mode tide company counsel-projectile projectile magit spaceline-all-the-icons spaceline spaceline-config telephone-line powerline-evil powerline ivy-posframe ivy-rich all-the-icons one-themes use-package rainbow-delimiters key-chord evil))))
+		(evil-collection rjsx-mode tide company counsel-projectile projectile magit spaceline-all-the-icons spaceline spaceline-config telephone-line powerline-evil powerline ivy-posframe ivy-rich all-the-icons one-themes use-package rainbow-delimiters key-chord evil))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
