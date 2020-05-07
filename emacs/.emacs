@@ -140,7 +140,7 @@
 	:ensure t
 	:config
 	(projectile-mode +1)
-	(setq projectile-search-path '("~/Documents/"))
+	(setq projectile-search-path '("~/Documents/upside", "~/Documents/heartbeat"))
 	(add-to-map "<SPC> s p" 'projectile-find-file)
 	(add-to-map "<SPC> p p" 'projectile-switch-project)
 	(setq projectile-indexing-method 'alien))
@@ -234,4 +234,4 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "#282C34" :foreground "#ABB2BF" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "nil" :family "Source Code Pro")))))
+ '(default ((t (:inherit nil :stipple nil :background "#282C34" :foreground "#ABB2BF" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "nil" :family "Source Code Pro for Powerline")))))
