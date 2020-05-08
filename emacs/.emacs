@@ -66,9 +66,9 @@
 (add-to-map "<SPC>" nil)
 
 ;; Autoformatter
-(use-package format-all
-	:ensure t
-	:hook (before-save . format-all-buffer))
+;; (use-package format-all
+;;	:ensure t
+;;	:hook (before-save . format-all-buffer))
 
 ;; Auto closes brackets
 (use-package autopair
@@ -202,7 +202,6 @@
 	(setq flycheck-check-syntax-automatically '(save mode-enabled))
 	(eldoc-mode +1)
 	(setq company-tooltip-align-annotations t))
-
 
 
 (use-package kotlin-mode
