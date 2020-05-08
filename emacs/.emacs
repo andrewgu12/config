@@ -84,16 +84,16 @@
 	(global-set-key (kbd "C-x C-f") 'counsel-find-file)
 	(global-set-key (kbd "M-x") 'counsel-M-x))
 
-(use-package counsel-etags
-	:ensure t
-  :init
-  (add-hook 'prog-mode-hook
-						(lambda ()
-							(add-hook 'after-save-hook
-												'counsel-etags-virtual-update-tags 'append 'local)))
-  :config
-  (setq counsel-etags-update-interval 60)
-  (push "build" counsel-etags-ignore-directories))
+;; (use-package counsel-etags
+;; 	:ensure t
+;;   :init
+;;   (add-hook 'prog-mode-hook
+;; 						(lambda ()
+;; 							(add-hook 'after-save-hook
+;; 												'counsel-etags-virtual-update-tags 'append 'local)))
+;;   :config
+;;   (setq counsel-etags-update-interval 60)
+;;   (push "build" counsel-etags-ignore-directories))
 
 (use-package ivy
 	:ensure t
@@ -156,17 +156,26 @@
 	:config
 	(global-company-mode t))
 
+(use-package dumb-jump
+	:ensure t
+	:config
+	(setq dumb-jump-selector 'ivy)
+	(setq dumb-jump-force-searcher 'ag)
+	(add-to-map "g n" 'dumb-jump-go)
+	(add-to-map "g f" 'dumb-jump-back)
+	(add-to-map "g q" 'dumb-jump-quick-look))
+
 ;; Languages Setup
 
 ;;JS/TS
 (use-package rjsx-mode
 	:ensure t
-	:mode "\\.js\\"
+	:mode "\\.js\\'"
 	)
 
 (use-package typescript-mode
 	:ensure t
-	:mode "\\.ts\\")
+	:mode "\\.ts\\'")
 
 ;; HTML/CSS/generic web stuffs
 (use-package web-mode
@@ -175,7 +184,7 @@
 	(setq web-mode-markup-indent-offset 2)
 	(setq web-mode-css-indent-offset 2)
 	(setq web-mode-code-indent-offset 2)
-	(add-to-list 'auto-mode-alist '("\\.tsx\\"))
+	(add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
 	(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
 	(add-to-list 'auto-mode-alist '("\\.?css\\'" . web-mode))
 	(add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode)))
@@ -219,7 +228,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
 	 (quote
-		(counsel-etags evil-collection rjsx-mode tide company counsel-projectile projectile magit spaceline-all-the-icons spaceline spaceline-config telephone-line powerline-evil powerline ivy-posframe ivy-rich all-the-icons one-themes use-package rainbow-delimiters key-chord evil))))
+		(dumb-jump counsel-etags evil-collection rjsx-mode tide company counsel-projectile projectile magit spaceline-all-the-icons spaceline spaceline-config telephone-line powerline-evil powerline ivy-posframe ivy-rich all-the-icons one-themes use-package rainbow-delimiters key-chord evil))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
