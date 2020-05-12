@@ -3,6 +3,10 @@
       '(("gnu" . "http://elpa.gnu.org/packages/")
 				("melpa" . "http://melpa.org/packages/")))
 
+;; install use-package if not installed
+(unless (package-installed-p 'use-package)
+	(package-install 'use-package))
+
 (eval-when-compile
   (require 'use-package))
 
@@ -21,6 +25,7 @@
 ;; Emacs default settings
 (setq-default
  tab-width 2
+ indent-tabs-mode nil
  inhibit-startup-message t
  make-backup-file nil
  vc-follow-symlinks t
@@ -36,6 +41,11 @@
 
 ;; Auto indent
 (define-key global-map (kbd "RET") 'newline-and-indent)
+
+;; Automatically guess tabs/spaces & how big the tab width is
+(use-package dtrt-indent
+	:ensure t
+	:hook (prog-mode . dtrt-indent-mode))
 
 ;; Show Matching Paren
 (use-package rainbow-delimiters
@@ -203,23 +213,27 @@
 	(eldoc-mode +1)
 	(setq company-tooltip-align-annotations t))
 
-
-
 (use-package kotlin-mode
 	:ensure t)
 
-;; (use-package ruby-mode
-;; 	:ensure t)
+;; Edit .zshrc files in sh-mode
+(add-to-list 'auto-mode-alist '("\\.zshrc\\'" . sh-mode))
 
-;; (use-package ruby-end
-;; 	:ensure t)
+(use-package ruby-mode
+	:ensure t)
 
-;; ;; code completion for ruby
-;; (use-package robe
-;; 	:ensure t
-;; 	:hook (ruby-mode . robe-mode)
-;; 	:config
-;; 	(push 'company-robe company-backends))
+(use-package ruby-end
+	:ensure t)
+
+;; code completion for ruby
+(use-package robe
+	:ensure t
+	:hook (ruby-mode . robe-mode)
+	:config
+	(push 'company-robe company-backends))
+
+(use-package elixir-mode
+	:ensure t)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -228,7 +242,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
 	 (quote
-		(dumb-jump counsel-etags evil-collection rjsx-mode tide company counsel-projectile projectile magit spaceline-all-the-icons spaceline spaceline-config telephone-line powerline-evil powerline ivy-posframe ivy-rich all-the-icons one-themes use-package rainbow-delimiters key-chord evil))))
+		(dtrt-indent elixir-mode dumb-jump counsel-etags evil-collection rjsx-mode tide company counsel-projectile projectile magit spaceline-all-the-icons spaceline spaceline-config telephone-line powerline-evil powerline ivy-posframe ivy-rich all-the-icons one-themes use-package rainbow-delimiters key-chord evil))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
