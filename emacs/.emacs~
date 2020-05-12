@@ -3,6 +3,10 @@
       '(("gnu" . "http://elpa.gnu.org/packages/")
 				("melpa" . "http://melpa.org/packages/")))
 
+;; install use-package if not installed
+(unless (package-installed-p 'use-package)
+	(package-install 'use-package))
+
 (eval-when-compile
   (require 'use-package))
 
@@ -21,6 +25,7 @@
 ;; Emacs default settings
 (setq-default
  tab-width 2
+ indent-tabs-mode nil
  inhibit-startup-message t
  make-backup-file nil
  vc-follow-symlinks t
@@ -37,6 +42,11 @@
 ;; Auto indent
 (define-key global-map (kbd "RET") 'newline-and-indent)
 
+;; Automatically guess tabs/spaces & how big the tab width is
+(use-package dtrt-indent
+	:ensure t
+	:hook (prog-mode . dtrt-indent-mode))
+
 ;; Show Matching Paren
 (use-package rainbow-delimiters
 	:ensure t
@@ -44,6 +54,9 @@
 
 (use-package all-the-icons
 	:ensure t)
+
+(use-package doom-themes
+  :ensure t)
 
 ;; Evil Mode
 (use-package evil
@@ -109,11 +122,11 @@
 	(ivy-rich-mode 1))
 
 ;; Commenting this out b/c it's freezing - not sure if due to indexing or other issues
-;; (use-package ivy-posframe
-;; 	:ensure t
-;; 	:config
-;; 	(setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
-;; 	(ivy-posframe-mode 1))
+(use-package ivy-posframe
+	:ensure t
+	:config
+	(setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
+	(ivy-posframe-mode 1))
 
 ;; Key combination
 (use-package key-chord
@@ -158,14 +171,36 @@
 
 (use-package dumb-jump
 	:ensure t
-	:bind (
-				 ("g n" . dumb-jump-go)
-				 ("g f" . dumb-jump-back)
-				 ("g q l" . dumb-jump-quick-look)
-				 )
 	:config
 	(setq dumb-jump-selector 'ivy)
-	(setq dumb-jump-force-searcher 'ag))
+	(setq dumb-jump-force-searcher 'ag)
+	(add-to-map "g n" 'dumb-jump-go)
+	(add-to-map "g f" 'dumb-jump-back)
+	(add-to-map "g q" 'dumb-jump-quick-look))
+
+(use-package treemacs
+  :ensure t
+  :config
+  (setq treemacs-silent-filewatch t)
+  (setq treemacs-silent-refresh t)
+  (treemacs-load-theme "vsc"))
+
+(use-package treemacs-evil
+  :after treemacs evil
+  :ensure t)
+
+(use-package treemacs-projectile
+  :after treemacs projectile
+  :ensure t)
+
+(use-package treemacs-icons-dired
+  :after treemacs dired
+  :ensure t
+  :config (treemacs-icons-dired-mode))
+
+(use-package treemacs-magit
+  :after treemacs magit
+  :ensure t)
 
 ;; Languages Setup
 
@@ -205,23 +240,27 @@
 	(eldoc-mode +1)
 	(setq company-tooltip-align-annotations t))
 
-
-
 (use-package kotlin-mode
 	:ensure t)
 
-;; (use-package ruby-mode
-;; 	:ensure t)
+;; Edit .zshrc files in sh-mode
+(add-to-list 'auto-mode-alist '("\\.zshrc\\'" . sh-mode))
 
-;; (use-package ruby-end
-;; 	:ensure t)
+(use-package ruby-mode
+	:ensure t)
 
-;; ;; code completion for ruby
-;; (use-package robe
-;; 	:ensure t
-;; 	:hook (ruby-mode . robe-mode)
-;; 	:config
-;; 	(push 'company-robe company-backends))
+(use-package ruby-end
+	:ensure t)
+
+;; code completion for ruby
+(use-package robe
+	:ensure t
+	:hook (ruby-mode . robe-mode)
+	:config
+	(push 'company-robe company-backends))
+
+(use-package elixir-mode
+	:ensure t)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -229,8 +268,8 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-	 (quote
-		(dumb-jump counsel-etags evil-collection rjsx-mode tide company counsel-projectile projectile magit spaceline-all-the-icons spaceline spaceline-config telephone-line powerline-evil powerline ivy-posframe ivy-rich all-the-icons one-themes use-package rainbow-delimiters key-chord evil))))
+   (quote
+    (doom-themes treemacs-magit treemacs-icons-dired treemacs-projectile treemacs-evil treemacs dtrt-indent elixir-mode dumb-jump counsel-etags evil-collection rjsx-mode tide company counsel-projectile projectile magit spaceline-all-the-icons spaceline spaceline-config telephone-line powerline-evil powerline ivy-posframe ivy-rich all-the-icons one-themes use-package rainbow-delimiters key-chord evil))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

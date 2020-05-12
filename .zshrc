@@ -9,7 +9,7 @@ DEFAULT_USER=`whoami`
 source $ZSH/oh-my-zsh.sh
 
 # rbenv
-#if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
+eval "$(rbenv init -)"
 
 # nvm
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
