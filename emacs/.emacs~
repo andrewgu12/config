@@ -55,6 +55,8 @@
 (use-package all-the-icons
 	:ensure t)
 
+(use-package doom-themes
+  :ensure t)
 
 ;; Evil Mode
 (use-package evil
@@ -180,9 +182,8 @@
   :ensure t
   :config
   (setq treemacs-silent-filewatch t)
-  (setq treemacs-git-mode 'extended)
   (setq treemacs-silent-refresh t)
-  (treemacs))
+  (treemacs-load-theme "vsc"))
 
 (use-package treemacs-evil
   :after treemacs evil
@@ -200,13 +201,6 @@
 (use-package treemacs-magit
   :after treemacs magit
   :ensure t)
-
-(use-package doom-themes
-  :after treemacs
-  :ensure t
-  :config
-  (setq doom-themes-treemacs-theme "doom-colors")
-  (doom-themes-treemacs-config))
 
 ;; Languages Setup
 
