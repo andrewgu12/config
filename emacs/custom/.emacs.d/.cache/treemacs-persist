@@ -1,0 +1,9 @@
+* Default
+** config
+ - path :: ~/config
+** kv
+ - path :: ~/Documents/projects/elixir/kv
+** hello
+ - path :: ~/Documents/projects/elixir/hello
+** act-to-change
+ - path :: ~/Documents/projects/act-to-change
