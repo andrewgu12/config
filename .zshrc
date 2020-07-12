@@ -23,13 +23,17 @@ alias ys="yarn start | pino-pretty"
 # nice little cow thing
 fortune | cowsay
 
+# rust
+export PATH="$HOME/.cargo/bin:$PATH"
+
 # Set Spaceship ZSH as a prompt
 autoload -U promptinit; promptinit
 SPACESHIP_DIR_TRUNC_REPO=false
 prompt spaceship
 
+
 # Emacs DOOM
-#export PATH="$HOME/.emacs.d/bin:$PATH"
+export PATH="$HOME/.emacs.d/bin:$PATH"
 
 # opam configuration
 #test -r /Users/andrewgu/.opam/opam-init/init.zsh && . /Users/andrewgu/.opam/opam-init/init.zsh > /dev/null 2> /dev/null || true

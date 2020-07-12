@@ -1,0 +1,1 @@
+("~/Documents/projects/Notes/" "~/Documents/projects/act-to-change/" "~/config/" "~/Documents/projects/elixir/hello/" "~/Documents/projects/elixir/hello/deps/connection/" "~/Documents/projects/elixir/kv/" "~/Documents/andrew gu/andrewgu12.github.io/" "~/Documents/projects/NAICA/")
