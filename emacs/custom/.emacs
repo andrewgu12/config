@@ -6,12 +6,14 @@ Text-Width: 70
       '<x-color><param>#D19A66</param>(</x-color><x-color><param>#61AFEF</param>(</x-color><x-color><param>#98C379</param>"gnu"</x-color> . <x-color><param>#98C379</param>"http://elpa.gnu.org/packages/"</x-color><x-color><param>#61AFEF</param>)</x-color>
 				<x-color><param>#61AFEF</param>(</x-color><x-color><param>#98C379</param>"melpa"</x-color> . <x-color><param>#98C379</param>"http://melpa.org/packages/"</x-color><x-color><param>#61AFEF</param>)</x-color><x-color><param>#D19A66</param>)</x-color><x-color><param>#56B6C2</param>)</x-color>
 
+
 <x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>install use-package if not installed
 </x-color><x-color><param>#56B6C2</param>(</x-color><x-color><param>#E06C75</param>unless</x-color> <x-color><param>#D19A66</param>(</x-color>package-installed-p 'use-package<x-color><param>#D19A66</param>)</x-color>
 	<x-color><param>#D19A66</param>(</x-color>package-install 'use-package<x-color><param>#D19A66</param>)</x-color><x-color><param>#56B6C2</param>)</x-color>
 
 <x-color><param>#56B6C2</param>(</x-color><x-color><param>#E06C75</param>eval-when-compile</x-color>
   <x-color><param>#D19A66</param>(</x-color><x-color><param>#E06C75</param>require</x-color> '<x-color><param>#98C379</param>use-package</x-color><x-color><param>#D19A66</param>)</x-color><x-color><param>#56B6C2</param>)</x-color>
+
 
 <x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>Mac specific keybindings
 </x-color><x-color><param>#56B6C2</param>(</x-color><x-color><param>#E06C75</param>when</x-color> <x-color><param>#D19A66</param>(</x-color>eq system-type 'darwin<x-color><param>#D19A66</param>)</x-color>
@@ -22,11 +24,15 @@ Text-Width: 70
 <x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>Hide Emacs menu bar
 </x-color><x-color><param>#56B6C2</param>(</x-color>tool-bar-mode -1<x-color><param>#56B6C2</param>)</x-color>
 
+
 <x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>Display line numbers everywhere
 </x-color><x-color><param>#56B6C2</param>(</x-color>global-display-line-numbers-mode<x-color><param>#56B6C2</param>)</x-color>
 
+
 <x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>Emacs default settings
 </x-color><x-color><param>#56B6C2</param>(</x-color><x-color><param>#E06C75</param>setq-default</x-color>
+
+ gc-cons-threshold 100000000
  tab-width 2
  indent-tabs-mode nil
  inhibit-startup-message t
@@ -60,6 +66,21 @@ Text-Width: 70
 	<x-color><param>#828997</param>:ensure</x-color> t<x-color><param>#56B6C2</param>)</x-color>
 
 
+<x-color><param>#56B6C2</param>(</x-color><x-color><param>#E06C75</param>use-package</x-color> <x-color><param>#98C379</param>git-gutter</x-color>
+
+  <x-color><param>#828997</param>:ensure</x-color> t
+
+  <x-color><param>#828997</param>:config</x-color>
+
+  <x-color><param>#D19A66</param>(</x-color>global-git-gutter-mode t<x-color><param>#D19A66</param>)</x-color>
+
+  <x-color><param>#D19A66</param>(</x-color>git-gutter:linum-setup<x-color><param>#D19A66</param>)</x-color>
+
+  <x-color><param>#D19A66</param>(</x-color>set-face-background 'git-gutter:modified <x-color><param>#98C379</param>"purple"</x-color><x-color><param>#D19A66</param>)</x-color> <x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>background color
+</x-color>  <x-color><param>#D19A66</param>(</x-color>set-face-foreground 'git-gutter:added <x-color><param>#98C379</param>"green"</x-color><x-color><param>#D19A66</param>)</x-color>
+  <x-color><param>#D19A66</param>(</x-color>set-face-foreground 'git-gutter:deleted <x-color><param>#98C379</param>"red"</x-color><x-color><param>#D19A66</param>)</x-color><x-color><param>#56B6C2</param>)</x-color>
+
+
 <x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>Evil Mode
 </x-color><x-color><param>#56B6C2</param>(</x-color><x-color><param>#E06C75</param>use-package</x-color> <x-color><param>#98C379</param>evil</x-color>
   <x-color><param>#828997</param>:ensure</x-color> t
@@ -67,6 +88,7 @@ Text-Width: 70
 	<x-color><param>#D19A66</param>(</x-color><x-color><param>#E06C75</param>setq</x-color> evil-want-keybinding nil<x-color><param>#D19A66</param>)</x-color>
 	<x-color><param>#828997</param>:config</x-color>
 	<x-color><param>#D19A66</param>(</x-color>evil-mode 1<x-color><param>#D19A66</param>)</x-color><x-color><param>#56B6C2</param>)</x-color>
+
 
 <x-color><param>#56B6C2</param>(</x-color><x-color><param>#E06C75</param>use-package</x-color> <x-color><param>#98C379</param>evil-collection</x-color>
 	<x-color><param>#828997</param>:after</x-color> evil
@@ -80,22 +102,28 @@ Text-Width: 70
 	<x-color><param>#D19A66</param>(</x-color>define-key evil-motion-state-map <x-color><param>#61AFEF</param>(</x-color>kbd keys<x-color><param>#61AFEF</param>)</x-color> func<x-color><param>#D19A66</param>)</x-color><x-color><param>#56B6C2</param>)</x-color>
 <x-color><param>#56B6C2</param>(</x-color>add-to-map <x-color><param>#98C379</param>"<<SPC>"</x-color> nil<x-color><param>#56B6C2</param>)</x-color>
 
+<x-color><param>#56B6C2</param>(</x-color>add-to-map <x-color><param>#98C379</param>"<<SPC> w h"</x-color> 'windmove-left<x-color><param>#56B6C2</param>)</x-color>
+
+<x-color><param>#56B6C2</param>(</x-color>add-to-map <x-color><param>#98C379</param>"<<SPC> w j"</x-color> 'windmove-down<x-color><param>#56B6C2</param>)</x-color>
+
+<x-color><param>#56B6C2</param>(</x-color>add-to-map <x-color><param>#98C379</param>"<<SPC> w k"</x-color> 'windmove-up<x-color><param>#56B6C2</param>)</x-color>
+<x-color><param>#56B6C2</param>(</x-color>add-to-map <x-color><param>#98C379</param>"<<SPC> w l"</x-color> 'windmove-right<x-color><param>#56B6C2</param>)</x-color>
 
 
-<x-color><param>#5C6370</param>;; Autoformatter
+<x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>Autoformatter
 </x-color><x-color><param>#56B6C2</param>(</x-color><x-color><param>#E06C75</param>use-package</x-color> <x-color><param>#98C379</param>format-all</x-color>
 	<x-color><param>#828997</param>:ensure</x-color> t
 	<x-color><param>#828997</param>:hook</x-color> <x-color><param>#D19A66</param>(</x-color>before-save . format-all-buffer<x-color><param>#D19A66</param>)</x-color><x-color><param>#56B6C2</param>)</x-color>
 
 
-<x-color><param>#5C6370</param>;; Auto closes brackets
+<x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>Auto closes brackets
 </x-color><x-color><param>#56B6C2</param>(</x-color><x-color><param>#E06C75</param>use-package</x-color> <x-color><param>#98C379</param>autopair</x-color>
 	<x-color><param>#828997</param>:ensure</x-color> t
 	<x-color><param>#828997</param>:config</x-color>
 
 	<x-color><param>#D19A66</param>(</x-color>autopair-global-mode<x-color><param>#D19A66</param>)</x-color><x-color><param>#56B6C2</param>)</x-color>
 
-<x-color><param>#5C6370</param>;; ivy, counsel
+<x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>ivy, counsel
 </x-color><x-color><param>#56B6C2</param>(</x-color><x-color><param>#E06C75</param>use-package</x-color> <x-color><param>#98C379</param>counsel</x-color>
 	<x-color><param>#828997</param>:ensure</x-color> t
 	<x-color><param>#828997</param>:config</x-color>
@@ -103,16 +131,16 @@ Text-Width: 70
 	<x-color><param>#D19A66</param>(</x-color>global-set-key <x-color><param>#61AFEF</param>(</x-color>kbd <x-color><param>#98C379</param>"C-x C-f"</x-color><x-color><param>#61AFEF</param>)</x-color> 'counsel-find-file<x-color><param>#D19A66</param>)</x-color>
 	<x-color><param>#D19A66</param>(</x-color>global-set-key <x-color><param>#61AFEF</param>(</x-color>kbd <x-color><param>#98C379</param>"M-x"</x-color><x-color><param>#61AFEF</param>)</x-color> 'counsel-M-x<x-color><param>#D19A66</param>)</x-color><x-color><param>#56B6C2</param>)</x-color>
 
-<x-color><param>#5C6370</param>;; (use-package counsel-etags
-;; 	:ensure t
-;;   :init
-;;   (add-hook 'prog-mode-hook
-;; 						(lambda ()
-;; 							(add-hook 'after-save-hook
-;; 												'counsel-etags-virtual-update-tags 'append 'local)))
-;;   :config
-;;   (setq counsel-etags-update-interval 60)
-;;   (push "build" counsel-etags-ignore-directories))
+<x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>(use-package counsel-etags
+</x-color><x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>	:ensure t
+</x-color><x-color><param>#5C6370</param>;;   </x-color><x-color><param>#5C6370</param>:init
+</x-color><x-color><param>#5C6370</param>;;   </x-color><x-color><param>#5C6370</param>(add-hook 'prog-mode-hook
+</x-color><x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>						(lambda ()
+</x-color><x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>							(add-hook 'after-save-hook
+</x-color><x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>												'counsel-etags-virtual-update-tags 'append 'local)))
+</x-color><x-color><param>#5C6370</param>;;   </x-color><x-color><param>#5C6370</param>:config
+</x-color><x-color><param>#5C6370</param>;;   </x-color><x-color><param>#5C6370</param>(setq counsel-etags-update-interval 60)
+</x-color><x-color><param>#5C6370</param>;;   </x-color><x-color><param>#5C6370</param>(push "build" counsel-etags-ignore-directories))
 
 </x-color><x-color><param>#56B6C2</param>(</x-color><x-color><param>#E06C75</param>use-package</x-color> <x-color><param>#98C379</param>ivy</x-color>
 	<x-color><param>#828997</param>:ensure</x-color> t
@@ -122,19 +150,20 @@ Text-Width: 70
 	<x-color><param>#D19A66</param>(</x-color><x-color><param>#E06C75</param>setq</x-color> enable-recursive-minibuffers t<x-color><param>#D19A66</param>)</x-color>
 	<x-color><param>#D19A66</param>(</x-color>add-to-map <x-color><param>#98C379</param>"/"</x-color> 'swiper<x-color><param>#D19A66</param>)</x-color><x-color><param>#56B6C2</param>)</x-color>
 
+
 <x-color><param>#56B6C2</param>(</x-color><x-color><param>#E06C75</param>use-package</x-color> <x-color><param>#98C379</param>ivy-rich</x-color>
 	<x-color><param>#828997</param>:ensure</x-color> t
 	<x-color><param>#828997</param>:config</x-color>
 	<x-color><param>#D19A66</param>(</x-color>ivy-rich-mode 1<x-color><param>#D19A66</param>)</x-color><x-color><param>#56B6C2</param>)</x-color>
 
-<x-color><param>#5C6370</param>;; Commenting this out b/c it's freezing - not sure if due to indexing or other issues
-;; (use-package ivy-posframe
-;; 	:ensure t
-;; 	:config
-;; 	(setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
-;; 	(ivy-posframe-mode 1))
+<x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>Commenting this out b/c it's freezing - not sure if due to indexing or other issues
+</x-color><x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>(use-package ivy-posframe
+</x-color><x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>	:ensure t
+</x-color><x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>	:config
+</x-color><x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>	(setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
+</x-color><x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>	(ivy-posframe-mode 1))
 
-;; Key combination
+</x-color><x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>Key combination
 </x-color><x-color><param>#56B6C2</param>(</x-color><x-color><param>#E06C75</param>use-package</x-color> <x-color><param>#98C379</param>key-chord</x-color>
   <x-color><param>#828997</param>:ensure</x-color> t
   <x-color><param>#828997</param>:config</x-color>
@@ -169,11 +198,19 @@ Text-Width: 70
 	<x-color><param>#828997</param>:config</x-color>
 	<x-color><param>#D19A66</param>(</x-color>counsel-projectile-mode 1<x-color><param>#D19A66</param>)</x-color><x-color><param>#56B6C2</param>)</x-color>
 
-<x-color><param>#5C6370</param>;; Auto complete
+<x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>Auto complete
 </x-color><x-color><param>#56B6C2</param>(</x-color><x-color><param>#E06C75</param>use-package</x-color> <x-color><param>#98C379</param>company</x-color>
 	<x-color><param>#828997</param>:ensure</x-color> t
 	<x-color><param>#828997</param>:config</x-color>
 	<x-color><param>#D19A66</param>(</x-color>global-company-mode t<x-color><param>#D19A66</param>)</x-color><x-color><param>#56B6C2</param>)</x-color>
+
+
+<x-color><param>#56B6C2</param>(</x-color><x-color><param>#E06C75</param>use-package</x-color> <x-color><param>#98C379</param>flycheck</x-color>
+
+  <x-color><param>#828997</param>:ensure</x-color> t
+
+  <x-color><param>#828997</param>:init</x-color> <x-color><param>#D19A66</param>(</x-color>global-flycheck-mode<x-color><param>#D19A66</param>)</x-color><x-color><param>#56B6C2</param>)</x-color>
+
 
 <x-color><param>#56B6C2</param>(</x-color><x-color><param>#E06C75</param>use-package</x-color> <x-color><param>#98C379</param>dumb-jump</x-color>
 	<x-color><param>#828997</param>:ensure</x-color> t
@@ -216,16 +253,16 @@ Text-Width: 70
   <x-color><param>#D19A66</param>(</x-color>doom-themes-treemacs-config<x-color><param>#D19A66</param>)</x-color><x-color><param>#56B6C2</param>)</x-color>
 
 
-<x-color><param>#5C6370</param>;; Languages Setup
+<x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>Languages Setup
 
 </x-color>
 
-<x-color><param>#5C6370</param>;; LSP mode
+<x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>LSP mode
 
 </x-color>
 
 
-<x-color><param>#5C6370</param>;;JS/TS
+<x-color><param>#5C6370</param>;;</x-color><x-color><param>#5C6370</param>JS/TS
 </x-color><x-color><param>#56B6C2</param>(</x-color><x-color><param>#E06C75</param>use-package</x-color> <x-color><param>#98C379</param>rjsx-mode</x-color>
 	<x-color><param>#828997</param>:ensure</x-color> t
 	<x-color><param>#828997</param>:mode</x-color> <x-color><param>#98C379</param>"\\.js\\'"</x-color>
@@ -235,7 +272,7 @@ Text-Width: 70
 	<x-color><param>#828997</param>:ensure</x-color> t
 	<x-color><param>#828997</param>:mode</x-color> <x-color><param>#98C379</param>"\\.ts\\'"</x-color><x-color><param>#56B6C2</param>)</x-color>
 
-<x-color><param>#5C6370</param>;; HTML/CSS/generic web stuffs
+<x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>HTML/CSS/generic web stuffs
 </x-color><x-color><param>#56B6C2</param>(</x-color><x-color><param>#E06C75</param>use-package</x-color> <x-color><param>#98C379</param>web-mode</x-color>
 	<x-color><param>#828997</param>:ensure</x-color> t
 	<x-color><param>#828997</param>:config</x-color>
@@ -264,7 +301,7 @@ Text-Width: 70
 <x-color><param>#56B6C2</param>(</x-color><x-color><param>#E06C75</param>use-package</x-color> <x-color><param>#98C379</param>kotlin-mode</x-color>
 	<x-color><param>#828997</param>:ensure</x-color> t<x-color><param>#56B6C2</param>)</x-color>
 
-<x-color><param>#5C6370</param>;; Edit .zshrc files in sh-mode
+<x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>Edit .zshrc files in sh-mode
 </x-color><x-color><param>#56B6C2</param>(</x-color>add-to-list 'auto-mode-alist '<x-color><param>#D19A66</param>(</x-color><x-color><param>#98C379</param>"\\.zshrc\\'"</x-color> . sh-mode<x-color><param>#D19A66</param>)</x-color><x-color><param>#56B6C2</param>)</x-color>
 
 <x-color><param>#56B6C2</param>(</x-color><x-color><param>#E06C75</param>use-package</x-color> <x-color><param>#98C379</param>ruby-mode</x-color>
@@ -273,7 +310,7 @@ Text-Width: 70
 <x-color><param>#56B6C2</param>(</x-color><x-color><param>#E06C75</param>use-package</x-color> <x-color><param>#98C379</param>ruby-end</x-color>
 	<x-color><param>#828997</param>:ensure</x-color> t<x-color><param>#56B6C2</param>)</x-color>
 
-<x-color><param>#5C6370</param>;; code completion for ruby
+<x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>code completion for ruby
 </x-color><x-color><param>#56B6C2</param>(</x-color><x-color><param>#E06C75</param>use-package</x-color> <x-color><param>#98C379</param>robe</x-color>
 	<x-color><param>#828997</param>:ensure</x-color> t
 	<x-color><param>#828997</param>:hook</x-color> <x-color><param>#D19A66</param>(</x-color>ruby-mode . robe-mode<x-color><param>#D19A66</param>)</x-color>
@@ -331,8 +368,8 @@ Text-Width: 70
 </x-color> <x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>Your init file should contain only one such instance.
 </x-color> <x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>If there is more than one, they won't work right.
 </x-color> '<x-color><param>#D19A66</param>(</x-color>package-selected-packages
-   <x-color><param>#61AFEF</param>(</x-color><x-color><param>#E06C75</param>quote</x-color>
-    <x-color><param>#C678DD</param>(</x-color>markdown-mode yaml-mode dockerfile-mode docker-mode doom-themes treemacs-magit treemacs-icons-dired treemacs-projectile treemacs-evil treemacs dtrt-indent elixir-mode dumb-jump counsel-etags evil-collection rjsx-mode tide company counsel-projectile projectile magit spaceline-all-the-icons spaceline spaceline-config telephone-line powerline-evil powerline ivy-posframe ivy-rich all-the-icons one-themes use-package rainbow-delimiters key-chord evil<x-color><param>#C678DD</param>)</x-color><x-color><param>#61AFEF</param>)</x-color><x-color><param>#D19A66</param>)</x-color><x-color><param>#56B6C2</param>)</x-color>
+
+   '<x-color><param>#61AFEF</param>(</x-color>git-gutter markdown-mode yaml-mode dockerfile-mode docker-mode doom-themes treemacs-magit treemacs-icons-dired treemacs-projectile treemacs-evil treemacs dtrt-indent elixir-mode dumb-jump counsel-etags evil-collection rjsx-mode tide company counsel-projectile projectile magit spaceline-all-the-icons spaceline spaceline-config telephone-line powerline-evil powerline ivy-posframe ivy-rich all-the-icons one-themes use-package rainbow-delimiters key-chord evil<x-color><param>#61AFEF</param>)</x-color><x-color><param>#D19A66</param>)</x-color><x-color><param>#56B6C2</param>)</x-color>
 <x-color><param>#56B6C2</param>(</x-color>custom-set-faces
  <x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>custom-set-faces was added by Custom.
 </x-color> <x-color><param>#5C6370</param>;; </x-color><x-color><param>#5C6370</param>If you edit it by hand, you could mess it up, so be careful.
